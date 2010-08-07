@@ -48,6 +48,7 @@
 	    <webModule>
 	      <groupId>com.pocketcookies</groupId>
 	      <artifactId>clue-soap-service</artifactId>
+	      <contextRoot>clue-soap-service</contextRoot>
 	    </webModule>
 	  </modules>
 	</configuration>
