@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.pocketcookies.clue.players">
+	<class name="Player" table="players">
+		<id name="id" type="integer" column="id">
+			<generator class="native" />
+		</id>
+		<property name="gameId" type="integer" column="game_id" />
+		<property name="suspect" column="my_suspect">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.players.Suspect</param>
+			</type>
+		</property>
+		<many-to-one name="user" column="user_id" cascade="all" />
+		<property name="lost" type="boolean" column="lost" />
+		<bag name="allMessages" order-by="published" cascade="all">
+			<key column="player_id" />
+			<one-to-many class="com.pocketcookies.clue.hibernate.HibernateMessage" />
+		</bag>
+		<bag name="hand" table="hands" cascade="all">
+			<key column="player_id" />
+			<element column="card">
+				<type name="org.hibernate.type.EnumType">
+					<param name="enumClass">com.pocketcookies.clue.Card</param>
+				</type>
+			</element>
+		</bag>
+		<property name="x" type="integer" column="x" />
+		<property name="y" type="integer" column="y" />
+	</class>
+</hibernate-mapping> 

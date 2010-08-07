@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.pocketcookies.clue.hibernate">
+	<class name="HibernateMessage" table="messages">
+		<id name="id" column="id" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="published" type="timestamp" column="published" />
+		<property name="playerId" type="integer" column="player_id" />
+		<property name="serializedMessage" type="blob" column="serialized_message" />
+	</class>
+</hibernate-mapping>
