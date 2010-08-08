@@ -19,5 +19,6 @@
     <module>clue-service</module>
     <module>clue-soap-service</module>
     <module>clue-ear</module>
+    <module>clue-mud</module>
   </modules>
 </project>
