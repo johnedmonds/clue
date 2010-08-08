@@ -77,7 +77,7 @@ public class ClueMudServer implements Runnable {
 			while (true) {
 				try {
 					Socket client = serverSocket.accept();
-					new Thread(new MudPlayer(client)).start();
+					new Thread(new MudPlayer(client, service)).start();
 				} catch (IOException e) {
 					logger.error(
 							"There was an error accepting a connection from a client.  Note: if this is a SocketException about a closed connection, check for messages about the server exiting.  If the server is exiting, then this exception is expected and can be safely ignored.",
