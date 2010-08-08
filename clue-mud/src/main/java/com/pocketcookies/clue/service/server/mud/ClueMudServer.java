@@ -17,13 +17,14 @@ import com.pocketcookies.clue.service.server.ClueServiceBean;
 
 public class ClueMudServer implements Runnable {
 
-	private static final Topic topic;
-	private static final TopicConnection topicConnection;
-	private static Logger logger;
-	private static final ClueServiceBean service;
-	private static final ServerSocket serverSocket;
-	static {
-		logger = Logger.getLogger(ClueMudServlet.class);
+	private Topic topic;
+	private TopicConnection topicConnection;
+	private static final Logger logger = Logger.getLogger(ClueMudServer.class);
+	private ClueServiceBean service;
+	private ServerSocket serverSocket;
+	private Thread myThread;
+
+	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
 		try {
 			logger.info("Creating InitialContext.");
@@ -67,18 +68,40 @@ public class ClueMudServer implements Runnable {
 
 	@Override
 	public void run() {
+		myThread = Thread.currentThread();
 		logger.info("Thread to accept connections has started.");
-		while (true) {
-			try {
-				Socket client = serverSocket.accept();
-				new Thread(new MudPlayer(client)).start();
-			} catch (IOException e) {
-				logger.error(
-						"There was an error accepting a connection from a client.",
-						e);
+		// This thread will exit when the servlet is shut down because in the
+		// servlet's "destroy" method, the socket is closed. Accept() will throw
+		// an exception, we will catch it, and finally return from the thread.
+		try {
+			while (true) {
+				try {
+					Socket client = serverSocket.accept();
+					new Thread(new MudPlayer(client)).start();
+				} catch (IOException e) {
+					logger.error(
+							"There was an error accepting a connection from a client.  Note: if this is a SocketException about a closed connection, check for messages about the server exiting.  If the server is exiting, then this exception is expected and can be safely ignored.",
+							e);
+				}
+				if (Thread.interrupted())
+					throw new InterruptedException();
 			}
-
+		} catch (InterruptedException e) {
+			logger.info("MUD server is exiting.");
 		}
 	}
 
+	public ServerSocket getServerSocket() {
+		return serverSocket;
+	}
+
+	public void destroy() {
+		myThread.interrupt();
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			logger.error("There was an error closing the server socket.");
+		}
+		logger.info("Successfully closed the server's socket.");
+	}
 }

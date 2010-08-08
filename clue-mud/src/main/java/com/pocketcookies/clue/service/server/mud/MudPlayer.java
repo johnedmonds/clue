@@ -20,6 +20,8 @@ public class MudPlayer implements Runnable {
 		try {
 			PrintWriter writer = new PrintWriter(client.getOutputStream());
 			writer.println("Hello client.  This is just a test to see if everything worked so we're going to close the connection now.");
+			writer.flush();
+			writer.close();
 			client.close();
 		} catch (IOException e) {
 			logger.error(
