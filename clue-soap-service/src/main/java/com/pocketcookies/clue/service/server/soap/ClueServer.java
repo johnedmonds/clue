@@ -1,11 +1,8 @@
 package com.pocketcookies.clue.service.server.soap;
 
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -15,12 +12,12 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.Card;
@@ -40,8 +37,9 @@ import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceBean;
 
-@WebService
+@WebService(serviceName = "ClueServer")
 public class ClueServer {
+
 	private ClueServiceBean service;
 	private static final Topic topic;
 	private static final TopicConnection topicConnection;
@@ -90,7 +88,6 @@ public class ClueServer {
 			throw new ExceptionInInitializerError(
 					"There was a problem starting a connection to the message server.");
 		}
-
 	}
 
 	public ClueServer() throws NamingException {
@@ -98,6 +95,7 @@ public class ClueServer {
 				.lookup("com/pocketcookies/clue/service/server/ejb/ClueService");
 	}
 
+	@WebMethod
 	public String login(@WebParam(name = "username") String username,
 			@WebParam(name = "password") String password) {
 		return service.login(username, password);
@@ -268,4 +266,5 @@ public class ClueServer {
 	public GameData[] getGames() {
 		return service.getGames();
 	}
+
 }

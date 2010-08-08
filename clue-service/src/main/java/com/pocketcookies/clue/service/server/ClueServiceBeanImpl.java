@@ -334,4 +334,5 @@ public class ClueServiceBeanImpl implements ClueServiceBean {
 		session.getTransaction().commit();
 		return outKey;
 	}
+
 }

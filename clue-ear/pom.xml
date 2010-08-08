@@ -51,6 +51,8 @@
 	      <contextRoot>clue-soap-service</contextRoot>
 	    </webModule>
 	  </modules>
+	  <version>6</version>
+	  <generateApplicationXml>true</generateApplicationXml>
 	</configuration>
       </plugin>
     </plugins>
