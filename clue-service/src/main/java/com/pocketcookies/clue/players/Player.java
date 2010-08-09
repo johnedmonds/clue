@@ -53,8 +53,7 @@ public class Player implements Serializable {
 		} catch (JMSException e) {
 			throw new ExceptionInInitializerError(e);
 		} catch (NamingException e) {
-			throw new ExceptionInInitializerError(
-					"There was a problem using JNDI to lookup the connection factory or the topic.");
+			throw new ExceptionInInitializerError(e);
 		}
 	}
 

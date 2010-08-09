@@ -1,0 +1,248 @@
+package com.pocketcookies.clue.test;
+
+import java.util.Date;
+import java.util.Random;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
+import com.pocketcookies.clue.Card;
+import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
+import com.pocketcookies.clue.exceptions.CheatException;
+import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
+import com.pocketcookies.clue.exceptions.GameStartedException;
+import com.pocketcookies.clue.exceptions.IllegalMoveException;
+import com.pocketcookies.clue.exceptions.NoSuchGameException;
+import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInRoomException;
+import com.pocketcookies.clue.exceptions.NotLoggedInException;
+import com.pocketcookies.clue.exceptions.NotYourTurnException;
+import com.pocketcookies.clue.exceptions.SuspectTakenException;
+import com.pocketcookies.clue.messages.Message;
+import com.pocketcookies.clue.messages.targeted.Cards;
+import com.pocketcookies.clue.messages.targeted.DisprovingCard;
+import com.pocketcookies.clue.messages.broadcast.Chat;
+import com.pocketcookies.clue.messages.broadcast.Disprove;
+import com.pocketcookies.clue.messages.broadcast.GameOver;
+import com.pocketcookies.clue.messages.broadcast.NextTurn;
+import com.pocketcookies.clue.messages.broadcast.Move;
+import com.pocketcookies.clue.messages.broadcast.Suggestion;
+import com.pocketcookies.clue.players.Suspect;
+import com.pocketcookies.clue.service.server.ClueServiceBean;
+import com.pocketcookies.clue.service.server.ClueServiceBeanImpl;
+
+public class ClueServiceTest extends TestCase {
+	private static Logger logger = Logger.getLogger(ClueServiceTest.class);
+
+	public void testCreate() throws GameAlreadyExistsException,
+			NotLoggedInException, NoSuchGameException, AlreadyJoinedException,
+			SuspectTakenException, GameStartedException,
+			NotEnoughPlayersException, NotYourTurnException,
+			IllegalMoveException, NotInRoomException, CheatException {
+		ClueServiceBean service = new ClueServiceBeanImpl(new Random(3));
+		String key1 = service.login("clue", "pass");
+		String key2 = service.login("clue2", "pass2");
+		String key3 = service.login("clue3", "pass3");
+		String key4 = service.login("clue4", "pass4");
+		// Create the game.
+		int gameId = service.create(key1, "test");
+		GameData gameData = service.getStatus(gameId);
+		assertEquals(gameId, gameData.getGameId());
+		assertEquals("test", gameData.getGameName());
+		assertEquals(GameStartedState.NOT_STARTED,
+				gameData.getGameStartedState());
+
+		// join.
+		service.join(key1, gameId, Suspect.SCARLETT);
+		try {
+			service.join(key1, gameId, Suspect.GREEN);
+			fail("User successfully joined twice.");
+		} catch (AlreadyJoinedException e) {
+			// We want this to happen
+		}
+
+		try {
+			service.join(key2, gameId, Suspect.SCARLETT);
+			fail("User successfully took SCARLETT even though that suspect was already taken.");
+		} catch (SuspectTakenException e) {
+			// We want this to happen.
+		}
+		service.join(key2, gameId, Suspect.GREEN);
+		try {
+			service.startGame(key1, gameId);
+			fail("Started game with not enough players.");
+		} catch (NotEnoughPlayersException e) {
+			// We want this to happen.
+		}
+
+		service.join(key3, gameId, Suspect.PEACOCK);
+		gameData = service.getStatus(gameId);
+		PlayerData[] players = gameData.getPlayers();
+		assertEquals(3, players.length);
+		service.startGame(key1, gameId);
+		try {
+			service.join(key4, gameId, Suspect.PLUM);
+			fail("Player joined after game had started.");
+		} catch (GameStartedException e) {
+			// We want this to happen.
+		}
+		Date p1Since;
+		Message[] p1Messages = service.getUpdates(key1, gameId, null);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(2, p1Messages.length);
+		assertTrue(p1Messages[0] instanceof Cards);
+		assertFalse(p1Messages[0] instanceof NextTurn);
+		assertTrue(p1Messages[1] instanceof NextTurn);
+		assertFalse(p1Messages[1] instanceof Cards);
+		// Let's just make sure this doesn't cause an exception.
+		// This was mainly a hold-over from when we were using XMLBeans and
+		// changing types was somewhat dangerous.
+		Cards p1CardsMessage = (Cards) p1Messages[0];
+		NextTurn p1NextTurn = (NextTurn) p1Messages[1];
+		assertEquals("clue", p1NextTurn.getPlayer());
+		assertEquals(9, p1NextTurn.getMovementPointsAvailable());
+		// Make sure we actually do return from this function as it is
+		// implemented as a blocking queue.
+		assertEquals(0, service.getUpdates(key1, gameId, p1Since).length);
+		// Have everyone else attempt to move to make sure we prevent players
+		// from moving when it is not their turn.
+		try {
+			service.move(key2, gameId, 0, 0);
+			fail("Player 2 should not be allowed to move.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
+			service.move(key3, gameId, 1, 1);
+			fail("Player 3 should not be allowed to move.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
+			service.move(key1, gameId, 7, 24);
+			fail("Can't move into yourself.");
+		} catch (IllegalMoveException e) {
+		}
+		// Try to move somewhere. Note that for the purposes of this test, we
+		// will always pick something one square away because we don't know how
+		// many movement points were assigned but we do know that a minimum of
+		// one movement point was given.
+		assertEquals(1, service.move(key1, gameId, 7, 23));
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(1, p1Messages.length);
+		assertEquals(1, ((Move) p1Messages[0]).getCost());
+		// Attempt to make a suggestion while not in a room.
+		try {
+			service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+			fail("We were able to suggest while not in a room.");
+		} catch (NotInRoomException e) {
+		}
+		assertEquals(3, service.move(key1, gameId, 11, 22));
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(3, ((Move) p1Messages[0]).getCost());
+		// Attempt to suggest something players 1, 2, and 3 can disprove.
+		// However, only player 2 should disprove it.
+		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+		// Make sure all the things are correct.
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		Suggestion p1Suggestion = (Suggestion) p1Messages[0];
+		assertEquals("clue", p1Suggestion.getPlayer());
+		assertEquals(Card.HALL, p1Suggestion.getRoom());
+		assertEquals(Card.SCARLETT, p1Suggestion.getSuspect());
+		assertEquals(Card.ROPE, p1Suggestion.getWeapon());
+		Disprove p1SuggestionDisprove = (Disprove) p1Messages[1];
+		assertEquals("clue2", p1SuggestionDisprove.getPlayer());
+		assertEquals(2, p1Messages.length);
+		try {
+			service.endTurn(key2, gameId);
+			fail("Wrong player ending turn.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
+			service.endTurn(key1, gameId);
+			fail("Suggestion has not yet been disproved.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
+			service.disprove(key2, gameId, Card.BALLROOM);
+			fail("Player was allowed to disprove with the wrong card.");
+		} catch (CheatException e) {
+		}
+		service.disprove(key2, gameId, Card.HALL);
+
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(1, p1Messages.length);
+		assertEquals(Card.HALL, ((DisprovingCard) p1Messages[0]).getCard());
+
+		// Cause player 1 to lose.
+		service.accuse(key1, gameId, Card.SCARLETT, Card.STUDY,
+				Card.CANDLESTICK);
+		service.disprove(key3, gameId, Card.SCARLETT);
+		service.endTurn(key1, gameId);
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(4, p1Messages.length);
+
+		Date p2Since = null;
+		Message[] p2Messages = service.getUpdates(key2, gameId, p2Since);
+		p2Since = p2Messages[p2Messages.length - 1].getPublished();
+		assertEquals(9, p2Messages.length);
+		assertEquals(5, service.move(key2, gameId, 12, 5));
+
+		service.endTurn(key2, gameId);
+		Date p3Since = null;
+		Message[] p3Messages = service.getUpdates(key3, gameId, p3Since);
+		p3Since = p3Messages[p3Messages.length - 1].getPublished();
+		assertEquals(11, p3Messages.length);
+
+		assertEquals(9,
+				((NextTurn) p3Messages[10]).getMovementPointsAvailable());
+		// Make sure player 1 is skipped because that player lost.
+		service.endTurn(key3, gameId);
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		assertEquals(3, p1Messages.length);
+		assertEquals("clue2", ((NextTurn) p1Messages[2]).getPlayer());
+		p2Messages = service.getUpdates(key2, gameId, p2Since);
+		p2Since = p2Messages[p2Messages.length - 1].getPublished();
+		assertEquals(3, p2Messages.length);
+		// Send a chat message.
+
+		service.chat(key1, gameId, "Hello world from player 1.");
+		service.chat(key2, gameId, "Hello world from player 2.");
+		p1Messages = service.getUpdates(key1, gameId, p1Since);
+		p1Since = p1Messages[p1Messages.length - 1].getPublished();
+		p2Messages = service.getUpdates(key2, gameId, p2Since);
+		p2Since = p2Messages[p2Messages.length - 1].getPublished();
+		assertEquals(2, p1Messages.length);
+		assertEquals(2, p2Messages.length);
+		// Player 1's message queue.
+		assertEquals("Hello world from player 1.",
+				((Chat) p1Messages[0]).getMessage());
+		assertEquals("clue", ((Chat) p1Messages[0]).getPlayer());
+		assertEquals("Hello world from player 2.",
+				((Chat) p1Messages[1]).getMessage());
+		assertEquals("clue2", ((Chat) p1Messages[1]).getPlayer());
+		// Player 2's message queue.
+		assertEquals("Hello world from player 1.",
+				((Chat) p2Messages[0]).getMessage());
+		assertEquals("clue", ((Chat) p2Messages[0]).getPlayer());
+		assertEquals("Hello world from player 2.",
+				((Chat) p2Messages[1]).getMessage());
+		assertEquals("clue2", ((Chat) p2Messages[1]).getPlayer());
+
+		service.accuse(key2, gameId, Card.MUSTARD, Card.DINING_ROOM,
+				Card.SPANNER);
+		p2Messages = service.getUpdates(key2, gameId, p2Since);
+		p2Since = p2Messages[p2Messages.length - 1].getPublished();
+		assertEquals(2, p2Messages.length);
+		assertTrue(p2Messages[1] instanceof GameOver);
+		assertEquals("clue2", ((GameOver) p2Messages[1]).getPlayer());
+	}
+}
