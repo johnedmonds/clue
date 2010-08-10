@@ -2,8 +2,6 @@ package com.pocketcookies.clue.service.server;
 
 import java.util.Date;
 
-import javax.ejb.Remote;
-
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
@@ -20,8 +18,7 @@ import com.pocketcookies.clue.exceptions.SuspectTakenException;
 import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.players.Suspect;
 
-@Remote
-public interface ClueServiceBean {
+public interface ClueServiceAPI {
 
 	/**
 	 * Adds the user to the list of logged in user and gives the user a key.
@@ -192,8 +189,8 @@ public interface ClueServiceBean {
 	 * @throws NoSuchGameException
 	 *             Thrown if gameId is invalid.
 	 */
-	public void accuse(String key, int gameId, Card room, Card weapon,
-			Card suspect) throws NotLoggedInException, NotYourTurnException,
+	public void accuse(String key, int gameId, Card room, Card suspect,
+			Card weapon) throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException;
 
 	/**

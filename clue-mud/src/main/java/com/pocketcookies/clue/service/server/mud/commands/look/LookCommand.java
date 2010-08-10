@@ -18,8 +18,9 @@ public class LookCommand implements Command {
 
 	@Override
 	public boolean process(String command, MudPlayer player) {
-		// TODO Auto-generated method stub
+		String[] arguments = command.split(" ");
 		return false;
+		// TODO:Implement;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.pocketcookies.clue.service.server.soap;
 
+import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,11 +16,12 @@ import javax.jms.TopicSubscriber;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
+import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
@@ -35,13 +37,12 @@ import com.pocketcookies.clue.exceptions.NotYourTurnException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
 import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.players.Suspect;
-import com.pocketcookies.clue.service.server.ClueServiceBean;
+import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 @WebService(serviceName = "ClueServer")
 public class ClueServer {
 
-	private ClueServiceBean service;
-	private static final Topic topic;
+	private static final ClueServiceAPI service;
 	private static final TopicConnection topicConnection;
 	private static Logger logger;
 
@@ -69,30 +70,31 @@ public class ClueServer {
 	static {
 		logger = Logger.getLogger(ClueServer.class);
 		try {
-			InitialContext context = new InitialContext();
-			topic = (Topic) context.lookup("ClueTopic");
-			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) context
-					.lookup("ClueTopicConnectionFactory");
-			topicConnection = topicConnectionFactory.createTopicConnection();
+			logger.info("Loading connection factory.");
+			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+					"vm://localhost");
+			logger.info("Creating connection.");
+			topicConnection = connectionFactory.createTopicConnection();
+			logger.info("Starting connection.");
 			topicConnection.start();
-		} catch (NamingException e) {
-			logger.error(
-					"There was a problem looking up the topic and/or connection factory.",
-					e);
-			throw new ExceptionInInitializerError(
-					"There was a problem looking up the topic and/or connection factory.");
+			logger.info("Loading service.");
+			// TODO: Make this configurable;
+			service = (ClueServiceAPI) new HessianProxyFactory().create(
+					ClueServiceAPI.class,
+					"http://localhost:8080/clue-service/ClueService");
 		} catch (JMSException e) {
-			logger.error(
+			logger.fatal(
 					"There was a problem starting a connection to the message server.",
 					e);
 			throw new ExceptionInInitializerError(
 					"There was a problem starting a connection to the message server.");
+		} catch (MalformedURLException e) {
+			logger.fatal("There was an error retrieving the service.", e);
+			throw new ExceptionInInitializerError(e);
 		}
 	}
 
 	public ClueServer() throws NamingException {
-		this.service = (ClueServiceBean) new InitialContext()
-				.lookup("com/pocketcookies/clue/service/server/ejb/ClueService");
 	}
 
 	@WebMethod
@@ -167,8 +169,9 @@ public class ClueServer {
 					Session.AUTO_ACKNOWLEDGE);
 			// We only want to be notified of messages that fit this
 			// description.
-			subscriber = session.createSubscriber(topic, "userKey = '" + key
-					+ "' and gameId = " + gameId, true);
+			subscriber = session.createSubscriber(
+					session.createTopic("ClueTopic"), "userKey = '" + key
+							+ "' and gameId = " + gameId, true);
 		} catch (JMSException e) {
 			logger.error(
 					"Error creating a session from the connection to the message broker.  Maybe the message broker went down.",

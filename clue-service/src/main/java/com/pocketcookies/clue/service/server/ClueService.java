@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
-
+import com.caucho.hessian.io.HessianServiceException;
+import com.caucho.hessian.server.HessianServlet;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
@@ -36,6 +36,7 @@ import com.pocketcookies.clue.hibernate.util.HibernateUtil;
 import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.players.Player;
 import com.pocketcookies.clue.players.Suspect;
+import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -43,15 +44,14 @@ import org.hibernate.Session;
 /**
  * ClueServiceSkeleton java skeleton for the axisService
  */
-@Stateless(name = "ClueService", mappedName = "com/pocketcookies/clue/service/server/ejb/ClueService")
-public class ClueServiceBeanImpl implements ClueServiceBean {
-	private static Logger logger = Logger.getLogger(ClueServiceBeanImpl.class);
+public class ClueService extends HessianServlet implements ClueServiceAPI {
+	private static Logger logger = Logger.getLogger(ClueService.class);
 	private Random random = new Random();
 
-	public ClueServiceBeanImpl() {
+	public ClueService() {
 	}
 
-	public ClueServiceBeanImpl(Random random) {
+	public ClueService(Random random) {
 		this.random = random;
 	}
 

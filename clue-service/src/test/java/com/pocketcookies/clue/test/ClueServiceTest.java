@@ -32,8 +32,7 @@ import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.Suggestion;
 import com.pocketcookies.clue.players.Suspect;
-import com.pocketcookies.clue.service.server.ClueServiceBean;
-import com.pocketcookies.clue.service.server.ClueServiceBeanImpl;
+import com.pocketcookies.clue.service.server.ClueService;
 
 public class ClueServiceTest extends TestCase {
 	private static Logger logger = Logger.getLogger(ClueServiceTest.class);
@@ -43,7 +42,7 @@ public class ClueServiceTest extends TestCase {
 			SuspectTakenException, GameStartedException,
 			NotEnoughPlayersException, NotYourTurnException,
 			IllegalMoveException, NotInRoomException, CheatException {
-		ClueServiceBean service = new ClueServiceBeanImpl(new Random(3));
+		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("clue", "pass");
 		String key2 = service.login("clue2", "pass2");
 		String key3 = service.login("clue3", "pass3");
@@ -237,7 +236,7 @@ public class ClueServiceTest extends TestCase {
 				((Chat) p2Messages[1]).getMessage());
 		assertEquals("clue2", ((Chat) p2Messages[1]).getPlayer());
 
-		service.accuse(key2, gameId, Card.MUSTARD, Card.DINING_ROOM,
+		service.accuse(key2, gameId, Card.DINING_ROOM, Card.MUSTARD,
 				Card.SPANNER);
 		p2Messages = service.getUpdates(key2, gameId, p2Since);
 		p2Since = p2Messages[p2Messages.length - 1].getPublished();

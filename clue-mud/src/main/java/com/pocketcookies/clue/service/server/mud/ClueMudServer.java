@@ -1,6 +1,7 @@
 package com.pocketcookies.clue.service.server.mud;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -8,47 +9,46 @@ import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
-import com.pocketcookies.clue.service.server.ClueServiceBean;
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 public class ClueMudServer implements Runnable {
 
-	private Topic topic;
 	private TopicConnection topicConnection;
 	private static final Logger logger = Logger.getLogger(ClueMudServer.class);
-	private ClueServiceBean service;
+	private ClueServiceAPI service;
 	private ServerSocket serverSocket;
 	private Thread myThread;
 
 	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
 		try {
-			logger.info("Creating InitialContext.");
-			InitialContext context = new InitialContext();
 			logger.info("Loading clue service.");
-			service = (ClueServiceBean) context
-					.lookup("com/pocketcookies/clue/service/server/ejb/ClueService");
-			logger.info("Loading topic.");
-			topic = (Topic) context.lookup("ClueTopic");
+			service = (ClueServiceAPI) new HessianProxyFactory().create(
+					ClueServiceAPI.class,
+					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
-			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) context
-					.lookup("ClueTopicConnectionFactory");
+			// TODO: Make this configurable.
+			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+					"vm://localhost");
 			logger.info("Creating JMS connection.");
-			topicConnection = topicConnectionFactory.createTopicConnection();
+			topicConnection = connectionFactory.createTopicConnection();
+			logger.info("Loading topic.");
 			logger.info("Starting JMS.");
 			topicConnection.start();
-		} catch (NamingException e) {
-			logger.error(
-					"There was a problem looking up the topic, connection factory, and/or EJB service.",
-					e);
-			throw new ExceptionInInitializerError(e);
 		} catch (JMSException e) {
 			logger.error(
 					"There was a problem starting a connection to the message server.",
+					e);
+			throw new ExceptionInInitializerError(e);
+		} catch (MalformedURLException e) {
+			logger.error(
+					"There was a problem contacting the server (malformed URL).",
 					e);
 			throw new ExceptionInInitializerError(e);
 		}

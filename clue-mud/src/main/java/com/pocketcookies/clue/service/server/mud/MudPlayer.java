@@ -9,7 +9,7 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-import com.pocketcookies.clue.service.server.ClueServiceBean;
+import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 public class MudPlayer implements Runnable {
 
@@ -18,10 +18,10 @@ public class MudPlayer implements Runnable {
 	private PrintWriter writer;
 	private BufferedReader reader;
 	private String key = null;
-	private ClueServiceBean service;
+	private ClueServiceAPI service;
 	private Point location = new Point();
 
-	public MudPlayer(Socket client, ClueServiceBean service) {
+	public MudPlayer(Socket client, ClueServiceAPI service) {
 		this.client = client;
 		this.service = service;
 	}
@@ -59,7 +59,7 @@ public class MudPlayer implements Runnable {
 		}
 	}
 
-	public ClueServiceBean getService() {
+	public ClueServiceAPI getService() {
 		return this.service;
 	}
 

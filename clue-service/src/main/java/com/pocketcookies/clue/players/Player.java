@@ -14,9 +14,8 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.Card;
@@ -41,18 +40,22 @@ public class Player implements Serializable {
 	private static Logger logger = Logger.getLogger(Player.class);
 	static {
 		try {
-			InitialContext context = new InitialContext();
-			TopicConnectionFactory connectionFactory = (TopicConnectionFactory) context
-					.lookup("ClueTopicConnectionFactory");
-			Topic topic = (Topic) context.lookup("ClueTopic");
+			logger.info("Starting connection to ActiveMQ.");
+			// TODO: Make this configurable.
+			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+					"vm://localhost");
+			logger.info("Creating connection.");
 			TopicConnection topicConnection = connectionFactory
 					.createTopicConnection();
+			logger.info("Creating session.");
 			topicSession = topicConnection.createTopicSession(false,
 					Session.AUTO_ACKNOWLEDGE);
-			publisher = topicSession.createPublisher(topic);
+
+			logger.info("Loading topic.");
+			// TODO: Make this configurable.
+			publisher = topicSession.createPublisher(topicSession
+					.createTopic("ClueTopic"));
 		} catch (JMSException e) {
-			throw new ExceptionInInitializerError(e);
-		} catch (NamingException e) {
 			throw new ExceptionInInitializerError(e);
 		}
 	}

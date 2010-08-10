@@ -16,9 +16,9 @@
     </dependency>
   </dependencies>
   <modules>
-    <module>clue-service</module>
     <module>clue-soap-service</module>
-    <module>clue-ear</module>
     <module>clue-mud</module>
+    <module>clue-service-client</module>
+    <module>clue-service</module>
   </modules>
 </project>
