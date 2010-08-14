@@ -87,4 +87,8 @@ public class MudPlayer implements Runnable {
 	public boolean isInGame() {
 		return this.inGame;
 	}
+
+	public String getKey() {
+		return this.key;
+	}
 }
