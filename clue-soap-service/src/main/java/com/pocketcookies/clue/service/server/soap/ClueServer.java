@@ -19,6 +19,7 @@ import javax.jws.WebService;
 import javax.naming.NamingException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
@@ -72,7 +73,7 @@ public class ClueServer {
 		try {
 			logger.info("Loading connection factory.");
 			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"vm://localhost");
+					"tcp://localhost:61616");
 			logger.info("Creating connection.");
 			topicConnection = connectionFactory.createTopicConnection();
 			logger.info("Starting connection.");
@@ -86,10 +87,12 @@ public class ClueServer {
 			logger.fatal(
 					"There was a problem starting a connection to the message server.",
 					e);
-			throw new ExceptionInInitializerError(
-					"There was a problem starting a connection to the message server.");
+			throw new ExceptionInInitializerError(e);
 		} catch (MalformedURLException e) {
 			logger.fatal("There was an error retrieving the service.", e);
+			throw new ExceptionInInitializerError(e);
+		} catch (Exception e) {
+			logger.fatal("Something really bad happened.", e);
 			throw new ExceptionInInitializerError(e);
 		}
 	}

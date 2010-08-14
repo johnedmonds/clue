@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: activemq-all-5.3.2.jar clue-service-client-1.0-SNAPSHOT.ja
+ r hessian-3.1.5.jar log4j-1.2.14.jar servlet-api-2.5.jar
+

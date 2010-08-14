@@ -27,12 +27,14 @@
 				</configuration>
 			</plugin>
 			<plugin>
-			  <groupId>org.apache.maven.plugins</groupId>
-			  <artifactId>maven-eclipse-plugin</artifactId>
-			  <version>2.8</version>
-			  <configuration>
-			    <wtpversion>1.5</wtpversion>
-			  </configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<useProjectReferences>false</useProjectReferences>
+					<wtpversion>1.5</wtpversion>
+					<wtpmanifest>true</wtpmanifest>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

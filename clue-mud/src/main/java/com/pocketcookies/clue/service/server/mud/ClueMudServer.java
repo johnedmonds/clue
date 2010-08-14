@@ -35,7 +35,7 @@ public class ClueMudServer implements Runnable {
 			logger.info("Loading connection factory.");
 			// TODO: Make this configurable.
 			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"vm://localhost");
+					"tcp://localhost:61616");
 			logger.info("Creating JMS connection.");
 			topicConnection = connectionFactory.createTopicConnection();
 			logger.info("Loading topic.");

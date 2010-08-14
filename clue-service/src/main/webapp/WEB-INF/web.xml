@@ -7,6 +7,7 @@
 	<servlet>
 		<servlet-name>ClueService</servlet-name>
 		<servlet-class>com.pocketcookies.clue.service.server.ClueService</servlet-class>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ClueService</servlet-name>

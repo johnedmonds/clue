@@ -20,5 +20,6 @@
     <module>clue-mud</module>
     <module>clue-service-client</module>
     <module>clue-service</module>
+    <module>clue-ear</module>
   </modules>
 </project>

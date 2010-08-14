@@ -16,6 +16,7 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.Card;
@@ -43,7 +44,7 @@ public class Player implements Serializable {
 			logger.info("Starting connection to ActiveMQ.");
 			// TODO: Make this configurable.
 			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"vm://localhost");
+					"vm://clue-broker");
 			logger.info("Creating connection.");
 			TopicConnection topicConnection = connectionFactory
 					.createTopicConnection();
@@ -56,6 +57,12 @@ public class Player implements Serializable {
 			publisher = topicSession.createPublisher(topicSession
 					.createTopic("ClueTopic"));
 		} catch (JMSException e) {
+			logger.fatal("There was an error initializing the JMS system.", e);
+			throw new ExceptionInInitializerError(e);
+		} catch (Exception e) {
+			logger.fatal(
+					"There was some unknown error (probably with BrokerService).",
+					e);
 			throw new ExceptionInInitializerError(e);
 		}
 	}
