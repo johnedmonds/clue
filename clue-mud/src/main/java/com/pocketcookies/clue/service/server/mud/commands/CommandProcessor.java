@@ -4,9 +4,18 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
+import com.pocketcookies.clue.service.server.mud.commands.look.LookCommand;
 
 public class CommandProcessor {
-	private Collection<Command> commands = new LinkedList<Command>();
+	private static Collection<Command> commands = new LinkedList<Command>();
+
+	public static void addCommand(Command c) {
+		commands.add(c);
+	}
+
+	static {
+		addCommand(new LookCommand());
+	}
 
 	/**
 	 * Processes the given command. All state changes that need to occur will be
@@ -19,9 +28,9 @@ public class CommandProcessor {
 	 *            to change some state.
 	 * @return Whether the command succeeded.
 	 */
-	public boolean process(String sCommand, MudPlayer player) {
+	public static boolean process(String sCommand, MudPlayer player) {
 		String commandWord = sCommand.split(" ")[0];
-		for (Command command : this.commands) {
+		for (Command command : commands) {
 			for (String commandAlias : command.getCommandAliases()) {
 				if (commandAlias.equals(commandWord)) {
 					return command.process(sCommand, player);

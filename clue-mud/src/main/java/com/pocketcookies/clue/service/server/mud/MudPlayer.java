@@ -10,6 +10,7 @@ import java.net.Socket;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
+import com.pocketcookies.clue.service.server.mud.commands.CommandProcessor;
 
 public class MudPlayer implements Runnable {
 
@@ -21,9 +22,14 @@ public class MudPlayer implements Runnable {
 	private ClueServiceAPI service;
 	private Point location = new Point();
 
+	// State kept for look command.
+	private boolean inGame;
+
 	public MudPlayer(Socket client, ClueServiceAPI service) {
 		this.client = client;
 		this.service = service;
+		this.inGame = false;
+		this.location = new Point();
 	}
 
 	@Override
@@ -44,18 +50,29 @@ public class MudPlayer implements Runnable {
 				writer.flush();
 				String password = reader.readLine();
 				this.key = service.login(username, password);
-				if (this.key == null) {
+				if (this.key == null)
 					writer.println("That username is already taken (or you entered the wrong password).");
-				} else
+				else
 					writer.println(this.key);
+				writer.flush();
+				while (true) {
+					writer.print(">");
+					writer.flush();
+					CommandProcessor.process(reader.readLine(), this);
+				}
 			}
-			writer.flush();
-			writer.close();
-			client.close();
 		} catch (IOException e) {
 			logger.error(
 					"There was an error relating to the output stream of the client socket.",
 					e);
+		} finally {
+			writer.flush();
+			writer.close();
+			try {
+				client.close();
+			} catch (IOException e) {
+				logger.error("There was an error closing the client socket", e);
+			}
 		}
 	}
 
@@ -65,5 +82,9 @@ public class MudPlayer implements Runnable {
 
 	public PrintWriter getWriter() {
 		return this.writer;
+	}
+
+	public boolean isInGame() {
+		return this.inGame;
 	}
 }
