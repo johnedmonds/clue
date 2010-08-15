@@ -16,6 +16,7 @@ public class CommandProcessor {
 	static {
 		addCommand(new LookCommand());
 		addCommand(new CreateCommand());
+		addCommand(new JoinCommand());
 	}
 
 	/**

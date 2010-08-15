@@ -55,11 +55,15 @@ public class MudPlayer implements Runnable {
 				else
 					writer.println(this.key);
 				writer.flush();
-				while (true) {
-					writer.print(">");
-					writer.flush();
-					CommandProcessor.process(reader.readLine(), this);
-				}
+			}
+			writer.print(">");
+			writer.flush();
+			String command = reader.readLine();
+			while (command != null) {
+				CommandProcessor.process(command, this);
+				writer.print(">");
+				writer.flush();
+				command = reader.readLine();
 			}
 		} catch (IOException e) {
 			logger.error(

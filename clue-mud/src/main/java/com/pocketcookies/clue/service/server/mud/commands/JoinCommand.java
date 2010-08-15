@@ -48,6 +48,7 @@ public class JoinCommand implements Command {
 			try {
 				service.join(player.getKey(), Integer.parseInt(args[1]),
 						Suspect.valueOf(args[2].toUpperCase()));
+				writer.println("You have successfully joined that game.");
 			} catch (NumberFormatException e) {
 				logger.error(
 						"There was a problem parsing the number. That probably means there is an error detecting that this is a number.",
