@@ -29,15 +29,16 @@ public class CommandProcessor {
 	 *            to change some state.
 	 * @return Whether the command succeeded.
 	 */
-	public static boolean process(String sCommand, MudPlayer player) {
+	public static void process(String sCommand, MudPlayer player) {
 		String commandWord = sCommand.split(" ")[0];
 		for (Command command : commands) {
 			for (String commandAlias : command.getCommandAliases()) {
 				if (commandAlias.equals(commandWord)) {
-					return command.process(sCommand, player);
+					command.process(sCommand, player);
+					player.getWriter().flush();
 				}
 			}
 		}
-		return false;
+		player.getWriter().flush();
 	}
 }

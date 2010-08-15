@@ -20,7 +20,7 @@ public class LookCommand implements Command {
 	}
 
 	@Override
-	public boolean process(String command, MudPlayer player) {
+	public void process(String command, MudPlayer player) {
 		String[] arguments = command.split(" ");
 		PrintWriter writer = player.getWriter();
 		if (arguments.length == 1) {
@@ -39,7 +39,5 @@ public class LookCommand implements Command {
 			}
 		}
 		writer.flush();
-		return false;
-		// TODO:Implement;
 	}
 }

@@ -22,14 +22,13 @@ public class CreateCommand implements Command {
 	}
 
 	@Override
-	public boolean process(String command, MudPlayer player) {
+	public void process(String command, MudPlayer player) {
 		String args[] = command.split(" ");
 		PrintWriter writer = player.getWriter();
 		if (args.length == 2) {
 			try {
 				player.getService().create(player.getKey(), args[1]);
 				writer.println("Your game has been successfully created.");
-				return true;
 			} catch (NotLoggedInException e) {
 				writer.println("Something went wrong and you're not logged in.  Try logging out and logging in again.");
 				logger.error(
@@ -38,9 +37,7 @@ public class CreateCommand implements Command {
 			} catch (GameAlreadyExistsException e) {
 				writer.println("A game by that name already exists.  Try picking a different name.");
 			}
-			return false;
 		}
-		return false;
 	}
 
 }

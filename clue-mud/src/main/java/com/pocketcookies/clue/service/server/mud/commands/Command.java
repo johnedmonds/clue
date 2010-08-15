@@ -31,5 +31,5 @@ public interface Command {
 	 * @param command
 	 * @return True if the command succeeded and false otherwise.
 	 */
-	public abstract boolean process(String command, MudPlayer player);
+	public abstract void process(String command, MudPlayer player);
 }
