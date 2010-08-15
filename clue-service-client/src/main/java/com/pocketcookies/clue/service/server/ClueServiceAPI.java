@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.GameStartedState;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
@@ -263,11 +264,21 @@ public interface ClueServiceAPI {
 			NotYourTurnException, NoSuchGameException;
 
 	/**
-	 * Gets a list of games running on this server.
+	 * Gets a list of games running on this server. This can also be used for
+	 * searching for games by name with a certain state. The main idea is that
+	 * we allow users to reuse names and when they are joining a game, they will
+	 * want to find a game that has not yet started and goes by a certain name.
+	 * You can also use null for both parameters to get every game on the
+	 * server.
+	 * 
+	 * @param name
+	 *            The name of the game for which to search.
+	 * @param state
+	 *            The state of the game for which to search.
 	 * 
 	 * @return A list of games running on this server.
 	 */
-	public GameData[] getGames();
+	public GameData[] getGames(String name, GameStartedState state);
 
 	/**
 	 * Gets the status of a particular game.

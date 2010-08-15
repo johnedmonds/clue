@@ -25,7 +25,7 @@ public class LookCommand implements Command {
 		PrintWriter writer = player.getWriter();
 		if (arguments.length == 1) {
 			if (!player.isInGame()) {
-				GameData[] games = player.getService().getGames();
+				GameData[] games = player.getService().getGames(null, null);
 				writer.println("Games: ");
 				for (GameData g : games) {
 					writer.println("\t" + g.getGameId() + "\t"

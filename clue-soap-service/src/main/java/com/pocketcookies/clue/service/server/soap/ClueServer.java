@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.GameStartedState;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
@@ -269,8 +270,8 @@ public class ClueServer {
 		service.chat(key, gameId, message);
 	}
 
-	public GameData[] getGames() {
-		return service.getGames();
+	public GameData[] getGames(String name, GameStartedState state) {
+		return service.getGames(name, state);
 	}
 
 }

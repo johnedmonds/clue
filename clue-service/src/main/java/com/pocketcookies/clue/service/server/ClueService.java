@@ -22,6 +22,7 @@ import com.caucho.hessian.server.HessianServlet;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.GameStartedState;
 import com.pocketcookies.clue.User;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
@@ -42,7 +43,10 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.type.EnumType;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
@@ -93,20 +97,24 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private static final byte[] SALT = new String(
 			"cai9Eethiek8ziqueih5reij9cei\\lae5quei:f1").getBytes();
 
-	/**
-	 * Auto generated method signature
-	 * 
-	 */
-
-	public GameData[] getGames() {
+	public GameData[] getGames(String name, GameStartedState state) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		@SuppressWarnings("unchecked")
-		List<Game> games = session.createQuery("from Game").list();
+		List<Game> games;
+		Query query = session.createQuery("from Game where "
+				+ (name == null ? "1 = 1" : "name = :name") + " and "
+				+ (state == null ? "1 = 1" : "gameStartedState = :state"));
+		if (name != null)
+			query.setString("name", name);
+		if (state != null)
+			query.setParameter("state", state, Hibernate.custom(EnumType.class,
+					new String[] { "enumClass" },
+					new String[] { GameStartedState.class.getName() }));
+		games = query.list();
 		GameData[] data = new GameData[games.size()];
 		for (int i = 0; i < data.length; i++) {
 			data[i] = games.get(i).getData();
-			data[i].setGameId(i);
 		}
 		session.getTransaction().commit();
 		return data;

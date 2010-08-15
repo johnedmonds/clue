@@ -122,6 +122,7 @@ public class Game {
 				playerData.add(this.players.get(i).getData());
 			}
 		}
+		data.setGameId(this.id);
 		data.setGameName(this.name);
 		data.setPlayers(playerData.toArray(new PlayerData[playerData.size()]));
 		data.setGameStartedState(this.gameStartedState);
@@ -157,6 +158,7 @@ public class Game {
 			GameOver gameOver = new GameOver(this.currentPlayer.getUser()
 					.getName());
 			publish(gameOver);
+			this.gameStartedState = GameStartedState.ENDED;
 		} else {
 			this.currentPlayer.setLost(true);
 			for (Player p : this.players) {
