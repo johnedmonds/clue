@@ -8,7 +8,12 @@
 			<generator class="native" />
 		</id>
 		<property name="published" type="timestamp" column="published" />
-		<property name="playerId" type="integer" column="player_id" />
+		<property name="gameId" type="integer" column="game_id" />
+		<property name="suspect" column="suspect">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.players.Suspect</param>
+			</type>
+		</property>
 		<property name="serializedMessage" type="blob" column="serialized_message" />
 	</class>
 </hibernate-mapping>

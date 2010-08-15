@@ -5,21 +5,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import javax.jms.Topic;
 import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
+import org.hibernate.type.EnumType;
 
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.Grid;
@@ -30,17 +27,57 @@ import com.pocketcookies.clue.hibernate.util.HibernateUtil;
 import com.pocketcookies.clue.messages.Message;
 
 public class Player implements Serializable {
+	public static class PlayerKey implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private int gameId;
+		private Suspect suspect;
+
+		public PlayerKey() {
+		}
+
+		public PlayerKey(int gameId, Suspect suspect) {
+			this.gameId = gameId;
+			this.suspect = suspect;
+		}
+
+		public void setGameId(int gameId) {
+			this.gameId = gameId;
+		}
+
+		public int getGameId() {
+			return gameId;
+		}
+
+		public void setSuspect(Suspect suspect) {
+			this.suspect = suspect;
+		}
+
+		public Suspect getSuspect() {
+			return suspect;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return ((PlayerKey) o).gameId == this.gameId
+					&& ((PlayerKey) o).suspect == this.suspect;
+		}
+
+		@Override
+		public int hashCode() {
+			return this.gameId + this.suspect.ordinal();
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 	private User user;
 	private boolean lost = false;
 	List<HibernateMessage> allMessages = new ArrayList<HibernateMessage>();
 	private List<Card> hand = new ArrayList<Card>();
 	private Point position;
-	private Suspect suspect;
-	private int id;
 	private static final TopicPublisher publisher;
 	private static final TopicSession topicSession;
 	private static Logger logger = Logger.getLogger(Player.class);
+	private PlayerKey id;
 	static {
 		try {
 			logger.info("Starting connection to ActiveMQ.");
@@ -70,10 +107,9 @@ public class Player implements Serializable {
 	}
 
 	public Player(User user, Suspect suspect, int gameId) {
+		this.id = new PlayerKey(gameId, suspect);
 		this.user = user;
-		this.suspect = suspect;
-		this.gameId = gameId;
-		switch (this.suspect) {
+		switch (this.id.getSuspect()) {
 		case SCARLETT:
 			this.setPosition(Grid.SCARLETT_START);
 			break;
@@ -103,24 +139,18 @@ public class Player implements Serializable {
 		return lost;
 	}
 
-	public Suspect getSuspect() {
-		return this.suspect;
-	}
-
-	public void setSuspect(Suspect suspect) {
-		this.suspect = suspect;
-	}
-
 	public void publish(Message m) {
 		HibernateMessage m2 = new HibernateMessage();
-		m2.setPlayerId(this.id);
+		m2.setGameId(this.id.getGameId());
+		m2.setSuspect(this.id.getSuspect());
 		m2.setMessage(m);
 		this.allMessages.add(m2);
 		ObjectMessage objectMessage;
 		try {
 			objectMessage = topicSession.createObjectMessage();
-			objectMessage.setIntProperty("gameId", this.gameId);
-			objectMessage.setIntProperty("playerId", this.id);
+			objectMessage.setIntProperty("gameId", this.id.getGameId());
+			objectMessage.setIntProperty("suspect", this.id.getSuspect()
+					.ordinal());
 			objectMessage.setStringProperty("username", this.user.getName());
 			objectMessage.setStringProperty("userKey", this.user.getKey());
 			objectMessage.setObject(m);
@@ -147,16 +177,30 @@ public class Player implements Serializable {
 					.getSessionFactory()
 					.getCurrentSession()
 					.createQuery(
-							"from HibernateMessage where published > :published and playerId = :playerId order by published asc")
+							"from HibernateMessage where published > :published and gameId = :gameId and suspect = :suspect order by published asc")
 					.setTimestamp("published", since)
-					.setInteger("playerId", this.id).list();
+					.setInteger("gameId", this.id.getGameId())
+					.setParameter(
+							"suspect",
+							this.id.getSuspect(),
+							Hibernate.custom(EnumType.class,
+									new String[] { "enumClass" },
+									new String[] { Suspect.class.getName() }))
+					.list();
 		} else {
 			messages = HibernateUtil
 					.getSessionFactory()
 					.getCurrentSession()
 					.createQuery(
-							"from HibernateMessage where playerId = :playerId order by published asc")
-					.setInteger("playerId", this.id).list();
+							"from HibernateMessage where gameId = :gameId and suspect = :suspect order by published asc")
+					.setInteger("gameId", this.id.getGameId())
+					.setParameter(
+							"suspect",
+							this.id.getSuspect(),
+							Hibernate.custom(EnumType.class,
+									new String[] { "enumClass" },
+									new String[] { Suspect.class.getName() }))
+					.list();
 		}
 		Message[] output = new Message[messages.size()];
 		int i = 0;
@@ -176,8 +220,8 @@ public class Player implements Serializable {
 	}
 
 	public PlayerData getData() {
-		PlayerData data = new PlayerData(this.suspect.ordinal(),
-				this.user.getName(), this.suspect);
+		PlayerData data = new PlayerData(this.id.getSuspect().ordinal(),
+				this.user.getName(), this.id.getSuspect());
 		return data;
 	}
 
@@ -202,8 +246,6 @@ public class Player implements Serializable {
 	}
 
 	// Hibernate stuff.
-
-	private int gameId;
 
 	public void setUser(User user) {
 		this.user = user;
@@ -246,22 +288,11 @@ public class Player implements Serializable {
 	public Player() {
 	}
 
-	public void setId(int id) {
+	public PlayerKey getId() {
+		return this.id;
+	}
+
+	public void setId(PlayerKey id) {
 		this.id = id;
-		for (HibernateMessage m : this.allMessages) {
-			m.setPlayerId(this.id);
-		}
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setGameId(int gameId) {
-		this.gameId = gameId;
-	}
-
-	public int getGameId() {
-		return gameId;
 	}
 }

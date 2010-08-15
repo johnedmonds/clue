@@ -11,6 +11,7 @@ import java.util.Date;
 import org.hibernate.Hibernate;
 
 import com.pocketcookies.clue.messages.Message;
+import com.pocketcookies.clue.players.Suspect;
 
 /**
  * In the Clue server, we have many types of messages, such as StartGame,
@@ -40,9 +41,8 @@ import com.pocketcookies.clue.messages.Message;
  * 
  */
 public class HibernateMessage {
-	private int playerId; // For which player is this message.
-	// GameId is implied by playerId.
-	// private Long gameId;
+	private int gameId;
+	private Suspect suspect;
 	private int id;
 	private Message message;
 
@@ -58,14 +58,6 @@ public class HibernateMessage {
 		if (this.message != null)
 			return this.message.getPublished();
 		return new Date();
-	}
-
-	public void setPlayerId(Integer playerId) {
-		this.playerId = playerId;
-	}
-
-	public Integer getPlayerId() {
-		return playerId;
 	}
 
 	public void setId(Integer id) {
@@ -96,5 +88,21 @@ public class HibernateMessage {
 
 	public void setMessage(Message m) {
 		this.message = m;
+	}
+
+	public void setGameId(int gameId) {
+		this.gameId = gameId;
+	}
+
+	public int getGameId() {
+		return gameId;
+	}
+
+	public void setSuspect(Suspect suspect) {
+		this.suspect = suspect;
+	}
+
+	public Suspect getSuspect() {
+		return suspect;
 	}
 }

@@ -4,24 +4,29 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.pocketcookies.clue.players">
 	<class name="Player" table="players">
-		<id name="id" type="integer" column="id">
-			<generator class="native" />
-		</id>
-		<property name="gameId" type="integer" column="game_id" />
-		<property name="suspect" column="my_suspect">
-			<type name="org.hibernate.type.EnumType">
-				<param name="enumClass">com.pocketcookies.clue.players.Suspect</param>
-			</type>
-		</property>
+		<composite-id name="id">
+			<key-property name="gameId" column="game_id" />
+			<key-property name="suspect" column="suspect">
+				<type name="org.hibernate.type.EnumType">
+					<param name="enumClass">com.pocketcookies.clue.players.Suspect</param>
+				</type>
+			</key-property>
+		</composite-id>
 		<many-to-one name="user" column="user_id" cascade="all" />
 		<property name="lost" type="boolean" column="lost" />
 		<bag name="allMessages" order-by="published" cascade="all-delete-orphan"
 			inverse="true">
-			<key column="player_id" />
+			<key>
+				<column name="game_id" />
+				<column name="suspect" />
+			</key>
 			<one-to-many class="com.pocketcookies.clue.hibernate.HibernateMessage" />
 		</bag>
 		<bag name="hand" table="hands" cascade="all">
-			<key column="player_id" />
+			<key>
+				<column name="game_id" />
+				<column name="suspect" />
+			</key>
 			<element column="card">
 				<type name="org.hibernate.type.EnumType">
 					<param name="enumClass">com.pocketcookies.clue.Card</param>

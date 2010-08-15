@@ -30,8 +30,14 @@
 				<param name="enumClass">com.pocketcookies.clue.Card</param>
 			</type>
 		</property>
-		<many-to-one name="currentPlayer" cascade="all" />
-		<many-to-one name="disprovingPlayer" cascade="all" />
+		<many-to-one name="currentPlayer" cascade="all">
+			<column name="current_player_game_id" />
+			<column name="current_player_suspect" />
+		</many-to-one>
+		<many-to-one name="disprovingPlayer" cascade="all">
+			<column name="disproving_player_game_id" />
+			<column name="disproving_player_suspect" />
+		</many-to-one>
 		<property name="proposedSuspect" column="proposed_suspect">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">com.pocketcookies.clue.Card</param>

@@ -76,11 +76,11 @@ public class Game {
 		// just keep going in an infinite loop.
 		Player currentCurrentPlayer = this.currentPlayer;
 		int i;
-		for (i = this.currentPlayer.getSuspect().ordinal() + 1; (players.get(i
-				% this.players.size()) == null || players.get(
+		for (i = this.currentPlayer.getId().getSuspect().ordinal() + 1; (players
+				.get(i % this.players.size()) == null || players.get(
 				i % this.players.size()).isLost())
-				&& i % this.players.size() != currentCurrentPlayer.getSuspect()
-						.ordinal(); i++) {
+				&& i % this.players.size() != currentCurrentPlayer.getId()
+						.getSuspect().ordinal(); i++) {
 		}
 		this.currentPlayer = players.get(i % this.players.size());
 		if (this.currentPlayer == null
@@ -203,7 +203,7 @@ public class Game {
 			throw new GameStartedException();
 		for (Player p : this.players) {
 			if (p != null) {
-				if (p.getSuspect().equals(suspect))
+				if (p.getId().getSuspect().equals(suspect))
 					throw new SuspectTakenException();
 				else if (p.getUser().getKey().equals(user.getKey()))
 					throw new AlreadyJoinedException();
@@ -312,9 +312,9 @@ public class Game {
 		Suggestion suggestion = new Suggestion(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
 		this.publish(suggestion);
-		for (int i = this.currentPlayer.getSuspect().ordinal() + 1; i
-				% this.players.size() != this.currentPlayer.getSuspect()
-				.ordinal(); i++) {
+		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
+				% this.players.size() != this.currentPlayer.getId()
+				.getSuspect().ordinal(); i++) {
 			if (this.players.get(i) != null) {
 				for (Card c : this.players.get(i).getHand()) {
 					if (c.equals(suspect) || c.equals(room) || c.equals(weapon)) {
@@ -478,7 +478,7 @@ public class Game {
 		this.id = id;
 		for (Player p : this.players) {
 			if (p != null)
-				p.setGameId(this.id);
+				p.getId().setGameId(this.id);
 		}
 	}
 
