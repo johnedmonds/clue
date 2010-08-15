@@ -168,6 +168,16 @@ public class ClueServiceTest extends TestCase {
 		} catch (NotYourTurnException e) {
 		}
 		try {
+			service.disprove(key1, gameId, Card.HALL);
+			fail("Player 1 was able to disprove while not being the disproving player.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
+			service.disprove(key3, gameId, Card.HALL);
+			fail("Player 3 was able to disprove without being the disproving player.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
 			service.disprove(key2, gameId, Card.BALLROOM);
 			fail("Player was allowed to disprove with the wrong card.");
 		} catch (CheatException e) {
