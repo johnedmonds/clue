@@ -37,7 +37,7 @@ public class Game {
 	private String name;
 	// A list of players in order of the suspects (SCARLETT, MUSTARD, WHITE,
 	// GREEN, PEACOCK, PLUM).
-	private Player[] players = new Player[Suspect.values().length];
+	private List<Player> players = new ArrayList<Player>();
 	private Player currentPlayer;
 	private GameStartedState gameStartedState = GameStartedState.NOT_STARTED;
 	private boolean suggestionMade = false;
@@ -76,13 +76,13 @@ public class Game {
 		// just keep going in an infinite loop.
 		Player currentCurrentPlayer = this.currentPlayer;
 		int i;
-		for (i = this.currentPlayer.getSuspect().ordinal() + 1; (players[i
-				% this.players.length] == null || players[i
-				% this.players.length].isLost())
-				&& i % this.players.length != currentCurrentPlayer.getSuspect()
+		for (i = this.currentPlayer.getSuspect().ordinal() + 1; (players.get(i
+				% this.players.size()) == null || players.get(
+				i % this.players.size()).isLost())
+				&& i % this.players.size() != currentCurrentPlayer.getSuspect()
 						.ordinal(); i++) {
 		}
-		this.currentPlayer = players[i % this.players.length];
+		this.currentPlayer = players.get(i % this.players.size());
 		if (this.currentPlayer == null
 				|| this.currentPlayer == currentCurrentPlayer
 				|| this.currentPlayer.isLost()) {
@@ -102,22 +102,24 @@ public class Game {
 		this.publish(nextTurn);
 	}
 
-	public Player[] getPlayers() {
+	public List<Player> getPlayers() {
 		return this.players;
 	}
 
-	public void setPlayers(Player[] players) {
-		this.players = new Player[Suspect.values().length];
-		System.arraycopy(players, 0, this.players, 0, players.length);
+	public void setPlayers(List<Player> players) {
+		this.players = players;
+		while (this.players.size() < Suspect.values().length) {
+			this.players.add(null);
+		}
 	}
 
 	public synchronized GameData getData() {
 		GameData data = new GameData();
 		ArrayList<PlayerData> playerData = new ArrayList<PlayerData>(
-				this.players.length);
-		for (int i = 0; i < this.players.length; i++) {
-			if (this.players[i] != null) {
-				playerData.add(this.players[i].getData());
+				this.players.size());
+		for (int i = 0; i < this.players.size(); i++) {
+			if (this.players.get(i) != null) {
+				playerData.add(this.players.get(i).getData());
 			}
 		}
 		data.setGameName(this.name);
@@ -207,7 +209,7 @@ public class Game {
 					throw new AlreadyJoinedException();
 			}
 		}
-		this.players[suspect.ordinal()] = new Player(user, suspect, this.id);
+		this.players.set(suspect.ordinal(), new Player(user, suspect, this.id));
 	}
 
 	public synchronized void start(Random random)
@@ -311,12 +313,12 @@ public class Game {
 				.getName(), room, suspect, weapon);
 		this.publish(suggestion);
 		for (int i = this.currentPlayer.getSuspect().ordinal() + 1; i
-				% this.players.length != this.currentPlayer.getSuspect()
+				% this.players.size() != this.currentPlayer.getSuspect()
 				.ordinal(); i++) {
-			if (this.players[i] != null) {
-				for (Card c : this.players[i].getHand()) {
+			if (this.players.get(i) != null) {
+				for (Card c : this.players.get(i).getHand()) {
 					if (c.equals(suspect) || c.equals(room) || c.equals(weapon)) {
-						this.disprovingPlayer = this.players[i];
+						this.disprovingPlayer = this.players.get(i);
 						Disprove disprove = new Disprove(this.disprovingPlayer
 								.getUser().getName());
 						this.publish(disprove);
@@ -481,6 +483,9 @@ public class Game {
 	}
 
 	public Game() {
+		for (int i = 0; i < Suspect.values().length; i++) {
+			this.players.add(null);
+		}
 	}
 
 }

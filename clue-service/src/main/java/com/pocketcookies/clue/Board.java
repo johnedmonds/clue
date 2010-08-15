@@ -61,11 +61,11 @@ public class Board {
 
 	private GridSquare[][] grid;
 
-	private Board(Player[] players) {
+	private Board(Collection<Player> players) {
 		this.setup(players);
 	}
 
-	private void setup(Player[] players) {
+	private void setup(Collection<Player> players) {
 		this.grid = new GridSquare[Grid.grid.length][Grid.grid[0].length];
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
@@ -172,7 +172,8 @@ public class Board {
 		return neighbors;
 	}
 
-	public static int distance(Player[] players, Point start, Point end) {
+	public static int distance(Collection<Player> players, Point start,
+			Point end) {
 		return new Board(players).distance(start, end);
 	}
 
