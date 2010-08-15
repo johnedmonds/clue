@@ -21,9 +21,15 @@ public class HibernateTest extends TestCase {
 				.beginTransaction();
 		Game g = new Game("Test");
 		HibernateUtil.getSessionFactory().getCurrentSession().save(g);
-		g.join(new User("a", "b"), Suspect.SCARLETT);
-		g.join(new User("c", "d"), Suspect.GREEN);
-		g.join(new User("e", "f"), Suspect.WHITE);
+		User u1 = new User("a", "b");
+		User u2 = new User("c", "d");
+		User u3 = new User("e", "f");
+		HibernateUtil.getSessionFactory().getCurrentSession().save(u1);
+		HibernateUtil.getSessionFactory().getCurrentSession().save(u2);
+		HibernateUtil.getSessionFactory().getCurrentSession().save(u3);
+		g.join(u1, Suspect.SCARLETT);
+		g.join(u2, Suspect.GREEN);
+		g.join(u3, Suspect.WHITE);
 		HibernateUtil.getSessionFactory().getCurrentSession().flush();
 		g.start(new Random(1));
 		HibernateUtil.getSessionFactory().getCurrentSession().getTransaction()

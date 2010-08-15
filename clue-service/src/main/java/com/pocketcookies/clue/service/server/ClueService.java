@@ -31,6 +31,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
@@ -46,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.type.EnumType;
 
 /**
@@ -376,6 +378,22 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		u.setKey(outKey);
 		session.getTransaction().commit();
 		return outKey;
+	}
+
+	@Override
+	public void leave(String key, int gameId) throws NotLoggedInException,
+			NoSuchGameException, NotInGameException {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		validateUser(key);
+		Game g = (Game) session.load(Game.class, gameId);
+		if (g == null)
+			throw new NoSuchGameException();
+		Player p = g.getPlayerWithKey(key);
+		if (p == null)
+			throw new NotInGameException();
+		g.getPlayers().set(g.getPlayers().indexOf(p), null);
+		session.getTransaction().commit();
 	}
 
 }

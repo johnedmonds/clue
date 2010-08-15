@@ -53,7 +53,7 @@
 				<param name="enumClass">com.pocketcookies.clue.Card</param>
 			</type>
 		</property>
-		<list name="players" cascade="all">
+		<list name="players" cascade="all-delete-orphan" inverse="true">
 			<key column="game_id" />
 			<list-index column="suspect" />
 			<one-to-many class="com.pocketcookies.clue.players.Player" />

@@ -18,6 +18,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
@@ -322,5 +323,24 @@ public class ClueServiceTest extends TestCase {
 		assertTrue(gameDataIncludesGameWithId(data, gameId3));
 		assertTrue(gameDataIncludesGameWithId(data, gameId4));
 
+	}
+
+	public void testLeave() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			GameStartedException, NotEnoughPlayersException,
+			SuspectTakenException, AlreadyJoinedException, NotInGameException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass1");
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		assertEquals(1, service.getStatus(gameId).getPlayers().length);
+		service.leave(key1, gameId);
+		assertEquals(0, service.getStatus(gameId).getPlayers().length);
+		service.join(key1, gameId, Suspect.SCARLETT);
+		assertEquals(1, service.getStatus(gameId).getPlayers().length);
+		service.leave(key1, gameId);
+		assertEquals(0, service.getStatus(gameId).getPlayers().length);
+		service.join(key1, gameId, Suspect.GREEN);
+		assertEquals(1, service.getStatus(gameId).getPlayers().length);
 	}
 }

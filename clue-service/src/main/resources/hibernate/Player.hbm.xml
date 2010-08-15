@@ -12,7 +12,7 @@
 				</type>
 			</key-property>
 		</composite-id>
-		<many-to-one name="user" column="user_id" cascade="all" />
+		<many-to-one name="user" column="user_id" />
 		<property name="lost" type="boolean" column="lost" />
 		<bag name="allMessages" order-by="published" cascade="all-delete-orphan"
 			inverse="true">

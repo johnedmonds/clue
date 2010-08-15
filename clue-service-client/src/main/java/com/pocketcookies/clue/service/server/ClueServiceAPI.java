@@ -12,6 +12,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
@@ -330,4 +331,19 @@ public interface ClueServiceAPI {
 	public void chat(String key, int gameId, String message)
 			throws NotLoggedInException, NoSuchGameException,
 			NotYourTurnException;
+
+	/**
+	 * 
+	 * Allows the user to leave the game.
+	 * 
+	 * @param key
+	 *            The key returned from login.
+	 * @param gameId
+	 *            The id of the game to leave.
+	 * @throws NotLoggedInException
+	 * @throws NoSuchGameException
+	 * @throws NotInGameException
+	 */
+	public void leave(String key, int gameId) throws NotLoggedInException,
+			NoSuchGameException, NotInGameException;
 }
