@@ -110,5 +110,6 @@ public class JoinCommand implements Command {
 		}
 		if (gameId >= 0)
 			player.setGameId(gameId);
+		player.startConnection();
 	}
 }

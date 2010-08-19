@@ -18,6 +18,7 @@ public class CommandProcessor {
 		addCommand(new CreateCommand());
 		addCommand(new JoinCommand());
 		addCommand(new LeaveCommand());
+		addCommand(new StartCommand());
 	}
 
 	/**

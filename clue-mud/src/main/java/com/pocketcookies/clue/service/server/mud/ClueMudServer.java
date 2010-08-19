@@ -19,7 +19,6 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 public class ClueMudServer implements Runnable {
 
-	private TopicConnection topicConnection;
 	private static final Logger logger = Logger.getLogger(ClueMudServer.class);
 	private ClueServiceAPI service;
 	private ServerSocket serverSocket;
@@ -32,20 +31,6 @@ public class ClueMudServer implements Runnable {
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
 					"http://localhost:8080/clue-service/ClueService");
-			logger.info("Loading connection factory.");
-			// TODO: Make this configurable.
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"tcp://localhost:61616");
-			logger.info("Creating JMS connection.");
-			topicConnection = connectionFactory.createTopicConnection();
-			logger.info("Loading topic.");
-			logger.info("Starting JMS.");
-			topicConnection.start();
-		} catch (JMSException e) {
-			logger.error(
-					"There was a problem starting a connection to the message server.",
-					e);
-			throw new ExceptionInInitializerError(e);
 		} catch (MalformedURLException e) {
 			logger.error(
 					"There was a problem contacting the server (malformed URL).",
