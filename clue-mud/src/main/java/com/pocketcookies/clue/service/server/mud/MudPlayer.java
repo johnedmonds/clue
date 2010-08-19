@@ -21,14 +21,12 @@ public class MudPlayer implements Runnable {
 	private String key = null;
 	private ClueServiceAPI service;
 	private Point location = new Point();
-
-	// State kept for look command.
-	private boolean inGame;
+	// In which game the player is currently.
+	private int gameId = -1;
 
 	public MudPlayer(Socket client, ClueServiceAPI service) {
 		this.client = client;
 		this.service = service;
-		this.inGame = false;
 		this.location = new Point();
 	}
 
@@ -89,10 +87,23 @@ public class MudPlayer implements Runnable {
 	}
 
 	public boolean isInGame() {
-		return this.inGame;
+		return this.gameId >= 0;
 	}
 
 	public String getKey() {
 		return this.key;
+	}
+
+	public void setGameId(int gameId) {
+		this.gameId = gameId;
+	}
+
+	public int getGameId() {
+		return gameId;
+	}
+
+	public void leave() {
+		this.gameId = -1;
+		this.location = new Point();
 	}
 }

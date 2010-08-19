@@ -43,11 +43,18 @@ public class JoinCommand implements Command {
 		ClueServiceAPI service = player.getService();
 		if (args.length != 3)
 			return;
+		if (player.isInGame()) {
+			writer.println("You are already in a game and cannot join another one without leaving this one first.");
+			return;
+		}
+		int gameId = -1;
 		// It is a number.
 		if (isGameId(args[1])) {
 			try {
-				service.join(player.getKey(), Integer.parseInt(args[1]),
+				int tempGameId = Integer.parseInt(args[1]);
+				service.join(player.getKey(), tempGameId,
 						Suspect.valueOf(args[2].toUpperCase()));
+				gameId = tempGameId;
 				writer.println("You have successfully joined that game.");
 			} catch (NumberFormatException e) {
 				logger.error(
@@ -84,6 +91,7 @@ public class JoinCommand implements Command {
 				try {
 					service.join(player.getKey(), games[0].getGameId(),
 							Suspect.valueOf(args[2].toUpperCase()));
+					gameId = games[0].getGameId();
 					writer.println("You have successfully joined the game.");
 				} catch (NotLoggedInException e) {
 					logger.error("The user is not logged in.", e);
@@ -100,5 +108,7 @@ public class JoinCommand implements Command {
 				}
 			}
 		}
+		if (gameId >= 0)
+			player.setGameId(gameId);
 	}
 }
