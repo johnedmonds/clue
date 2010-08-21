@@ -33,6 +33,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
@@ -266,7 +267,7 @@ public class ClueServer {
 
 	public void chat(String key, int gameId, String message)
 			throws NotLoggedInException, NoSuchGameException,
-			NotYourTurnException {
+			NotYourTurnException, NotInGameException {
 		service.chat(key, gameId, message);
 	}
 

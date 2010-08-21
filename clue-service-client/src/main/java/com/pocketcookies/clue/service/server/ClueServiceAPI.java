@@ -330,7 +330,7 @@ public interface ClueServiceAPI {
 	 */
 	public void chat(String key, int gameId, String message)
 			throws NotLoggedInException, NoSuchGameException,
-			NotYourTurnException;
+			NotInGameException;
 
 	/**
 	 * 

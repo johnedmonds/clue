@@ -47,7 +47,8 @@ public class ClueServiceTest extends TestCase {
 			NotLoggedInException, NoSuchGameException, AlreadyJoinedException,
 			SuspectTakenException, GameStartedException,
 			NotEnoughPlayersException, NotYourTurnException,
-			IllegalMoveException, NotInRoomException, CheatException {
+			IllegalMoveException, NotInRoomException, CheatException,
+			NotInGameException {
 		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("clue", "pass");
 		String key2 = service.login("clue2", "pass2");
@@ -342,5 +343,26 @@ public class ClueServiceTest extends TestCase {
 		assertEquals(0, service.getStatus(gameId).getPlayers().length);
 		service.join(key1, gameId, Suspect.GREEN);
 		assertEquals(1, service.getStatus(gameId).getPlayers().length);
+	}
+
+	public void testCurrentPlayerLeave() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, NotInGameException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass1");
+		String key2 = service.login("user2", "pass2");
+		String key3 = service.login("user3", "pass3");
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.WHITE);
+		service.startGame(key1, gameId);
+		assertEquals("user1",
+				((NextTurn) service.getUpdates(key1, gameId, null)[1])
+						.getPlayer());
+		// Make sure this does not throw an exception.
+		service.leave(key1, gameId);
 	}
 }

@@ -14,6 +14,7 @@ import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
+import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
@@ -162,7 +163,8 @@ public class Game {
 		} else {
 			this.currentPlayer.setLost(true);
 			for (Player p : this.players) {
-				if (p != null) {
+				// Don't let the current player disprove the current player.
+				if (p != null && currentPlayer != p) {
 					for (Card c : p.getHand()) {
 						if (c.equals(suspect) || c.equals(room)
 								|| c.equals(weapon)) {
@@ -300,6 +302,7 @@ public class Game {
 		DisprovingCard dc = new DisprovingCard(card);
 		this.currentPlayer.publish(dc);
 		this.proposition = null;
+		this.disprovingPlayer = null;
 	}
 
 	public synchronized void suggest(Card suspect, Card weapon)
@@ -317,7 +320,8 @@ public class Game {
 		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
 				% this.players.size() != this.currentPlayer.getId()
 				.getSuspect().ordinal(); i++) {
-			if (this.players.get(i) != null) {
+			if (this.players.get(i) != null
+					&& this.players.get(i) != this.currentPlayer) {
 				for (Card c : this.players.get(i).getHand()) {
 					if (c.equals(suspect) || c.equals(room) || c.equals(weapon)) {
 						this.disprovingPlayer = this.players.get(i);
@@ -347,10 +351,10 @@ public class Game {
 	}
 
 	public synchronized void chat(String key, String message)
-			throws NotYourTurnException {
+			throws NotInGameException {
 		Player chattingPlayer = this.getPlayerWithKey(key);
 		if (chattingPlayer == null)
-			throw new NotYourTurnException();
+			throw new NotInGameException();
 		Chat chat = new Chat(chattingPlayer.getUser().getName(), message);
 		this.publish(chat);
 	}
@@ -362,6 +366,43 @@ public class Game {
 				count++;
 		}
 		return count;
+	}
+
+	public void leave(String key, Random random) throws NotInGameException {
+		Player leavingPlayer = getPlayerWithKey(key);
+		if (leavingPlayer == null)
+			throw new NotInGameException();
+		this.players.set(this.players.indexOf(leavingPlayer), null);
+		if (leavingPlayer == this.disprovingPlayer) {
+			for (Card c : this.disprovingPlayer.getHand()) {
+				if (c == this.room || c == this.suspect || c == this.weapon) {
+					try {
+						this.disprove(c);
+					} catch (CheatException e) {
+						logger.error(
+								"The card we found to disprove with was considered wrong.",
+								e);
+					} catch (NotYourTurnException e) {
+						logger.error(
+								"The disproving player was not allowed to disprove.",
+								e);
+					}
+				}
+			}
+		}
+		// Note that the current player can never be the disproving player (if
+		// they are, it is a bug).
+		else if (leavingPlayer == this.currentPlayer) {
+			try {
+				this.endTurn(random);
+			} catch (NotYourTurnException e) {
+				logger.error("It was not the current player's turn.", e);
+				// In this case, it's probably okay to continue since we don't
+				// need to worry about the current player. We should probably
+				// look into it though since this should not be happening.
+			}
+		}
+
 	}
 
 	// The following stuff is for Hibernate to use.

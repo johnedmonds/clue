@@ -354,7 +354,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	@Override
 	public void chat(String key, int gameId, String message)
 			throws NotLoggedInException, NoSuchGameException,
-			NotYourTurnException {
+			NotInGameException {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		validateUser(key);
@@ -389,10 +389,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		Game g = (Game) session.load(Game.class, gameId);
 		if (g == null)
 			throw new NoSuchGameException();
-		Player p = g.getPlayerWithKey(key);
-		if (p == null)
-			throw new NotInGameException();
-		g.getPlayers().set(g.getPlayers().indexOf(p), null);
+		g.leave(key, random);
 		session.getTransaction().commit();
 	}
 

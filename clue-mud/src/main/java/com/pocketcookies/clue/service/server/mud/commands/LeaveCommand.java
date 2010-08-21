@@ -34,8 +34,8 @@ public class LeaveCommand implements Command {
 		try {
 			service.leave(player.getKey(), player.getGameId());
 			player.leave();
-			writer.println("You have successfully left the game.");
 			player.stopConnection();
+			writer.println("You have successfully left the game.");
 		} catch (NotLoggedInException e) {
 			logger.error("Player with key " + player.getKey() + " in game "
 					+ player.getGameId() + " is not logged in.", e);
