@@ -319,7 +319,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.beginTransaction();
 		Game g = (Game) session.load(Game.class, gameId);
 		validateCurrentUser(key, g);
-		g.endTurn(this.random);
+		g.endTurn();
 		session.getTransaction().commit();
 	}
 
@@ -389,7 +389,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		Game g = (Game) session.load(Game.class, gameId);
 		if (g == null)
 			throw new NoSuchGameException();
-		g.leave(key, random);
+		g.leave(key);
 		session.getTransaction().commit();
 	}
 

@@ -68,7 +68,7 @@ public class Game {
 		return this.gameStartedState;
 	}
 
-	public void endTurn(Random random) throws NotYourTurnException {
+	public void endTurn() throws NotYourTurnException {
 		if (this.gameStartedState != GameStartedState.STARTED
 				|| this.proposition != null) {
 			throw new NotYourTurnException();
@@ -164,18 +164,30 @@ public class Game {
 			this.currentPlayer.setLost(true);
 			for (Player p : this.players) {
 				// Don't let the current player disprove the current player.
-				if (p != null && currentPlayer != p) {
-					for (Card c : p.getHand()) {
-						if (c.equals(suspect) || c.equals(room)
-								|| c.equals(weapon)) {
-							Disprove disprove = new Disprove(p.getUser()
-									.getName());
-							this.disprovingPlayer = p;
-							this.proposition = accusation;
-							publish(disprove);
-							break;
+				Card disprovingCard = null;
+				if (p != null
+						&& currentPlayer != p
+						&& (disprovingCard = findDisprovingCard(p, accusation)) != null) {
+					Disprove disprove = new Disprove(p.getUser().getName());
+					this.disprovingPlayer = p;
+					this.proposition = accusation;
+					publish(disprove);
+					if (p.isLost())
+						try {
+							this.disprove(disprovingCard);
+						} catch (CheatException e) {
+							logger.error(
+									"Player "
+											+ this.currentPlayer.getUser()
+													.getKey()
+											+ " accused and lost.  The computer took over but got the wrong card.",
+									e);
+						} catch (NotYourTurnException e) {
+							logger.error(
+									"It was not the disproving player's turn.",
+									e);
 						}
-					}
+					break;
 				}
 			}
 		}
@@ -320,18 +332,26 @@ public class Game {
 		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
 				% this.players.size() != this.currentPlayer.getId()
 				.getSuspect().ordinal(); i++) {
+			Card disprovingCard = null;
 			if (this.players.get(i) != null
-					&& this.players.get(i) != this.currentPlayer) {
-				for (Card c : this.players.get(i).getHand()) {
-					if (c.equals(suspect) || c.equals(room) || c.equals(weapon)) {
-						this.disprovingPlayer = this.players.get(i);
-						Disprove disprove = new Disprove(this.disprovingPlayer
-								.getUser().getName());
-						this.publish(disprove);
-						this.proposition = suggestion;
-						return;
+					&& this.players.get(i) != this.currentPlayer
+					&& (disprovingCard = findDisprovingCard(
+							this.players.get(i), suggestion)) != null) {
+				this.disprovingPlayer = this.players.get(i);
+				Disprove disprove = new Disprove(this.disprovingPlayer
+						.getUser().getName());
+				this.publish(disprove);
+				this.proposition = suggestion;
+				if (this.players.get(i).isLost())
+					try {
+						this.disprove(disprovingCard);
+					} catch (CheatException e) {
+						logger.error("The card we chose was wrong.", e);
+					} catch (NotYourTurnException e) {
+						logger.error(
+								"It was not the disproving player's turn.", e);
 					}
-				}
+				return;
 			}
 		}
 	}
@@ -368,43 +388,52 @@ public class Game {
 		return count;
 	}
 
-	public void leave(String key, Random random) throws NotInGameException {
+	public void leave(String key) throws NotInGameException {
 		Player leavingPlayer = getPlayerWithKey(key);
 		if (leavingPlayer == null)
 			throw new NotInGameException();
-		this.players.set(this.players.indexOf(leavingPlayer), null);
-		if (leavingPlayer == this.disprovingPlayer) {
-			for (Card c : this.disprovingPlayer.getHand()) {
-				if (c == this.proposition.getRoom()
-						|| c == this.proposition.getSuspect()
-						|| c == this.proposition.getWeapon()) {
-					try {
-						this.disprove(c);break;
-					} catch (CheatException e) {
-						logger.error(
-								"The card we found to disprove with was considered wrong.",
-								e);
-					} catch (NotYourTurnException e) {
-						logger.error(
-								"The disproving player was not allowed to disprove.",
-								e);
-					}
+		if (this.gameStartedState == GameStartedState.NOT_STARTED)
+			this.players.set(this.players.indexOf(leavingPlayer), null);
+		else {
+			leavingPlayer.setLost(true);
+			if (leavingPlayer == this.disprovingPlayer) {
+				try {
+					this.disprove(findDisprovingCard(leavingPlayer,
+							this.proposition));
+				} catch (CheatException e) {
+					logger.error(
+							"We found the disproving card for the player but it was wrong.",
+							e);
+				} catch (NotYourTurnException e) {
+					logger.error("It was not the disproving player's turn.", e);
+				}
+			} else if (leavingPlayer == this.currentPlayer) {
+				this.proposition = null;
+				this.disprovingPlayer = null;
+				try {
+					this.endTurn();
+				} catch (NotYourTurnException e) {
+					logger.error(
+							"The current player could not end its turn even though it was leaving.",
+							e);
 				}
 			}
 		}
-		// Note that the current player can never be the disproving player (if
-		// they are, it is a bug).
-		else if (leavingPlayer == this.currentPlayer) {
-			try {
-				this.endTurn(random);
-			} catch (NotYourTurnException e) {
-				logger.error("It was not the current player's turn.", e);
-				// In this case, it's probably okay to continue since we don't
-				// need to worry about the current player. We should probably
-				// look into it though since this should not be happening.
+	}
+
+	private static Card findDisprovingCard(Player p, Proposition proposition) {
+		if (proposition == null) {
+			return null;
+		}
+		if (p == null)
+			return null;
+		for (Card c : p.getHand()) {
+			if (c == proposition.getWeapon() || c == proposition.getSuspect()
+					|| c == proposition.getRoom()) {
+				return c;
 			}
 		}
-
+		return null;
 	}
 
 	// The following stuff is for Hibernate to use.
