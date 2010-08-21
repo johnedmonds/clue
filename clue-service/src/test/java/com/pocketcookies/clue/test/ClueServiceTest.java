@@ -379,7 +379,6 @@ public class ClueServiceTest extends TestCase {
 		String key1 = service.login("user1", "pass1");
 		String key2 = service.login("user2", "pass2");
 		String key3 = service.login("user3", "pass3");
-
 		int gameId = service.create(key1, "test");
 		service.join(key1, gameId, Suspect.SCARLETT);
 		service.join(key2, gameId, Suspect.GREEN);
@@ -399,6 +398,37 @@ public class ClueServiceTest extends TestCase {
 		service.endTurn(key2, gameId);
 		assertEquals("user3",
 				((NextTurn) service.getUpdates(key2, gameId, null)[6])
+						.getPlayer());
+	}
+
+	public void testLeavingPlayerAutoDisprovesSuggestion()
+			throws NotLoggedInException, GameAlreadyExistsException,
+			NoSuchGameException, SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, IllegalMoveException, NotInRoomException,
+			NotInGameException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass1");
+		String key2 = service.login("user2", "pass2");
+		String key3 = service.login("user3", "pass3");
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.PEACOCK);
+		service.startGame(key1, gameId);
+		service.leave(key2, gameId);
+		service.move(key1, gameId, 11, 22);
+		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
+				gameId, null)[5]).getCard());
+		service.endTurn(key1, gameId);
+		try {
+			service.endTurn(key2, gameId);
+			fail("user2 should not be able to end turn because it has already lost and this should be happening automatically.");
+		} catch (NotYourTurnException e) {
+		}
+		assertEquals("user3",
+				((NextTurn) service.getUpdates(key1, gameId, null)[6])
 						.getPlayer());
 	}
 
