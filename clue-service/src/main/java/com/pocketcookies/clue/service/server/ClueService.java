@@ -290,7 +290,8 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		if (g == null)
 			throw new NoSuchGameException();
 		// Make sure the user is the disproving user.
-		if (!g.getDisprovingPlayer().getUser().getKey().equals(key))
+		if (g.getDisprovingPlayer() == null
+				|| !g.getDisprovingPlayer().getUser().getKey().equals(key))
 			throw new NotYourTurnException();
 		// Attempt to disprove.
 		g.disprove(disprovingCard);

@@ -365,7 +365,41 @@ public class ClueServiceTest extends TestCase {
 		// Make sure this does not throw an exception.
 		service.leave(key1, gameId);
 		assertEquals("user3",
-				((NextTurn) service.getUpdates(key2, gameId, null)[2]).getPlayer());
+				((NextTurn) service.getUpdates(key2, gameId, null)[2])
+						.getPlayer());
+	}
+
+	public void testCurrentPlayerLeaveDuringDisprove()
+			throws NotLoggedInException, GameAlreadyExistsException,
+			NoSuchGameException, SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, IllegalMoveException, NotInRoomException,
+			NotInGameException, CheatException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass1");
+		String key2 = service.login("user2", "pass2");
+		String key3 = service.login("user3", "pass3");
+
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.PEACOCK);
+		service.startGame(key1, gameId);
+		service.move(key1, gameId, 11, 22);
+		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+		service.leave(key1, gameId);
+		assertEquals("user2",
+				((NextTurn) service.getUpdates(key2, gameId, null)[5])
+						.getPlayer());
+		try {
+			service.disprove(key2, gameId, Card.HALL);
+			fail("The user should not be able to disprove after the current player has left.");
+		} catch (NotYourTurnException e) {
+		}
+		service.endTurn(key2, gameId);
+		assertEquals("user3",
+				((NextTurn) service.getUpdates(key2, gameId, null)[6])
+						.getPlayer());
 	}
 
 	public void testDisprovingPlayerLeave() throws NotLoggedInException,
