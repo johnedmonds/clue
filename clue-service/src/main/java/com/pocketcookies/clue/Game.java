@@ -375,9 +375,11 @@ public class Game {
 		this.players.set(this.players.indexOf(leavingPlayer), null);
 		if (leavingPlayer == this.disprovingPlayer) {
 			for (Card c : this.disprovingPlayer.getHand()) {
-				if (c == this.room || c == this.suspect || c == this.weapon) {
+				if (c == this.proposition.getRoom()
+						|| c == this.proposition.getSuspect()
+						|| c == this.proposition.getWeapon()) {
 					try {
-						this.disprove(c);
+						this.disprove(c);break;
 					} catch (CheatException e) {
 						logger.error(
 								"The card we found to disprove with was considered wrong.",

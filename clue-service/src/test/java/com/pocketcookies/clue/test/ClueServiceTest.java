@@ -364,5 +364,35 @@ public class ClueServiceTest extends TestCase {
 						.getPlayer());
 		// Make sure this does not throw an exception.
 		service.leave(key1, gameId);
+		assertEquals("user3",
+				((NextTurn) service.getUpdates(key2, gameId, null)[2]).getPlayer());
+	}
+
+	public void testDisprovingPlayerLeave() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotYourTurnException,
+			NotEnoughPlayersException, IllegalMoveException,
+			NotInRoomException, NotInGameException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass1");
+		String key2 = service.login("user2", "pass2");
+		String key3 = service.login("user3", "pass3");
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.PEACOCK);
+		service.startGame(key1, gameId);
+		assertEquals("user1",
+				((NextTurn) service.getUpdates(key1, gameId, null)[1])
+						.getPlayer());
+		service.move(key1, gameId, 11, 22);
+		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+		service.leave(key2, gameId);
+		assertEquals("user2",
+				((Disprove) service.getUpdates(key1, gameId, null)[4])
+						.getPlayer());
+		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
+				gameId, null)[5]).getCard());
 	}
 }
