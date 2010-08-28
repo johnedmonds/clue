@@ -108,18 +108,24 @@ public class ClueServer {
 		return service.login(username, password);
 	}
 
+	@WebMethod
 	public String changePassword(@WebParam(name = "username") String username,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "newPassword") String newPassword) {
 		return service.changePassword(username, key, newPassword);
 	}
 
-	public int create(String key, String gameName) throws NotLoggedInException,
-			GameAlreadyExistsException {
+	@WebMethod
+	public int create(@WebParam(name = "key") String key,
+			@WebParam(name = "gameName") String gameName)
+			throws NotLoggedInException, GameAlreadyExistsException {
 		return service.create(key, gameName);
 	}
 
-	public void join(String key, int gameId, Suspect suspect)
+	@WebMethod
+	public void join(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "suspect") Suspect suspect)
 			throws NotLoggedInException, NoSuchGameException,
 			SuspectTakenException, GameStartedException, AlreadyJoinedException {
 		service.join(key, gameId, suspect);
@@ -152,9 +158,12 @@ public class ClueServer {
 	 * @throws NoSuchGameException
 	 * @throws NotYourTurnException
 	 */
-	public Message[] getUpdates(String key, int gameId, long timeout, Date since)
-			throws NotLoggedInException, NoSuchGameException,
-			NotYourTurnException {
+	@WebMethod
+	public Message[] getUpdates(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "timeout") long timeout,
+			@WebParam(name = "since") Date since) throws NotLoggedInException,
+			NoSuchGameException, NotYourTurnException {
 		PlayerId pid = new PlayerId(key, gameId);
 		TopicSession session = null;
 		TopicSubscriber subscriber = null;
@@ -220,58 +229,83 @@ public class ClueServer {
 		return updates;
 	}
 
-	public Message[] getAllUpdates(String key, int gameId)
-			throws NotLoggedInException, NoSuchGameException,
-			NotYourTurnException {
+	@WebMethod
+	public Message[] getAllUpdates(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId) throws NotLoggedInException,
+			NoSuchGameException, NotYourTurnException {
 		return service.getAllUpdates(key, gameId);
 	}
 
-	public void suggest(String key, int gameId, Card suspect, Card weapon)
+	@WebMethod
+	public void suggest(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "suspect") Card suspect,
+			@WebParam(name = "weapon") Card weapon)
 			throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException, NotInRoomException {
 		service.suggest(key, gameId, weapon, suspect);
 	}
 
-	public void accuse(String key, int gameId, Card room, Card suspect,
-			Card weapon) throws NotLoggedInException, NotYourTurnException,
+	@WebMethod
+	public void accuse(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "room") Card room,
+			@WebParam(name = "suspect") Card suspect, Card weapon)
+			throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException {
 		service.accuse(key, gameId, room, suspect, weapon);
 	}
 
-	public void disprove(String key, int gameId, Card disprovingCard)
+	@WebMethod
+	public void disprove(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "disprovingCard") Card disprovingCard)
 			throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException, CheatException {
 		service.disprove(key, gameId, disprovingCard);
 	}
 
-	public int move(String key, int gameId, int x, int y)
-			throws NotLoggedInException, NotYourTurnException,
-			NoSuchGameException, IllegalMoveException {
+	@WebMethod
+	public int move(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId, @WebParam(name = "x") int x,
+			@WebParam(name = "y") int y) throws NotLoggedInException,
+			NotYourTurnException, NoSuchGameException, IllegalMoveException {
 		return service.move(key, gameId, x, y);
 	}
 
-	public void endTurn(String key, int gameId) throws NotLoggedInException,
+	@WebMethod
+	public void endTurn(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId) throws NotLoggedInException,
 			NotYourTurnException, NoSuchGameException {
 		service.endTurn(key, gameId);
 	}
 
-	public GameData getStatus(int gameId) throws NoSuchGameException {
+	@WebMethod
+	public GameData getStatus(@WebParam(name = "gameId") int gameId)
+			throws NoSuchGameException {
 		return service.getStatus(gameId);
 	}
 
-	public void startGame(String key, int gameId) throws NotLoggedInException,
+	@WebMethod
+	public void startGame(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId) throws NotLoggedInException,
 			NoSuchGameException, GameStartedException,
 			NotEnoughPlayersException {
 		service.startGame(key, gameId);
 	}
 
-	public void chat(String key, int gameId, String message)
+	@WebMethod
+	public void chat(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "message") String message)
 			throws NotLoggedInException, NoSuchGameException,
 			NotYourTurnException, NotInGameException {
 		service.chat(key, gameId, message);
 	}
 
-	public GameData[] getGames(String name, GameStartedState state) {
+	@WebMethod
+	public GameData[] getGames(@WebParam(name = "name") String name,
+			@WebParam(name = "state") GameStartedState state) {
 		return service.getGames(name, state);
 	}
 
