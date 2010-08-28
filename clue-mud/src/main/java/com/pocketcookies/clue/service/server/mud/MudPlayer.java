@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -39,7 +41,7 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	private Socket client;
 	private static final Logger logger = Logger.getLogger(MudPlayer.class);
-	private Collection<Point> otherPlayers = new LinkedList<Point>();
+	private Map<String, Point> players = new TreeMap<String, Point>();
 
 	private static final TopicConnection topicConnection;
 	static {
@@ -65,7 +67,6 @@ public class MudPlayer implements Runnable, MessageListener {
 	private String key = null;
 	private String username = null;
 	private ClueServiceAPI service;
-	public Point location = new Point();
 	public Suspect suspect;
 	// In which game the player is currently.
 	private int gameId = -1;
@@ -75,7 +76,6 @@ public class MudPlayer implements Runnable, MessageListener {
 	public MudPlayer(Socket client, ClueServiceAPI service) {
 		this.client = client;
 		this.service = service;
-		this.location = new Point();
 		try {
 			writer = new PrintWriter(client.getOutputStream());
 			reader = new BufferedReader(new InputStreamReader(
@@ -181,7 +181,7 @@ public class MudPlayer implements Runnable, MessageListener {
 	public void leave() {
 		this.gameId = -1;
 		this.suspect = null;
-		this.location = new Point();
+		this.players.clear();
 	}
 
 	@Override
@@ -197,8 +197,8 @@ public class MudPlayer implements Runnable, MessageListener {
 			} else if (o instanceof Cards) {
 				// Add all the other players.
 				for (PlayerData pd : service.getStatus(gameId).getPlayers()) {
-					this.otherPlayers.add(Grid.getStartingPosition(pd
-							.getSuspect()));
+					this.players.put(pd.getPlayerName(),
+							Grid.getStartingPosition(pd.getSuspect()));
 				}
 				writer.println("Your cards are: ");
 				for (Card c : ((Cards) o).getCards()) {
@@ -211,13 +211,15 @@ public class MudPlayer implements Runnable, MessageListener {
 						((Move) o).getPlayer(), ((Move) o).getxFrom(),
 						((Move) o).getyFrom(), ((Move) o).getxTo(),
 						((Move) o).getyTo()).flush();
+				//Sanity check that we remember the original position of the player.
 				assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
-						.equals(this.location));
-				this.location.x = ((Move) o).getxTo();
-				this.location.y = ((Move) o).getyTo();
+						.equals(this.players.get(((Move) o).getPlayer())));
+				//Move where we think that player is.
+				this.players.put(((Move) o).getPlayer(),
+						new Point(((Move) o).getxTo(), ((Move) o).getyTo()));
 			} else if (o instanceof Chat) {
 				new Formatter(writer).format("Player %s says \"%s\"",
-						this.username, ((Chat) o).getMessage());
+						((Chat) o).getPlayer(), ((Chat) o).getMessage());
 			} else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
@@ -259,7 +261,8 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
-	public Collection<Point> getOtherPlayers() {
-		return Collections.unmodifiableCollection(otherPlayers);
+	public Map<String, Point> getPlayers() {
+		return players;
 	}
+	public String getUsername(){return this.username;}
 }

@@ -117,7 +117,8 @@ public class JoinCommand implements Command {
 			MudPlayer player) {
 		player.setGameId(gameId);
 		player.suspect = suspect;
-		player.location = Grid.getStartingPosition(suspect);
+		player.getPlayers().put(player.getUsername(),
+				Grid.getStartingPosition(suspect));
 		player.startConnection();
 	}
 }

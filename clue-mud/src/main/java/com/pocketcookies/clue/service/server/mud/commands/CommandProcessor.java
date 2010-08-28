@@ -20,6 +20,7 @@ public class CommandProcessor {
 		addCommand(new LeaveCommand());
 		addCommand(new StartCommand());
 		addCommand(new ChatCommand());
+		addCommand(new MoveCommand());
 	}
 
 	/**

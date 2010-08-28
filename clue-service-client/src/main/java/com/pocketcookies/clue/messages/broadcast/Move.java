@@ -20,7 +20,7 @@ public class Move extends PlayerMessage {
 	 */
 	private int cost;
 
-	public Move(String player, int xFrom, int xTo, int yFrom, int yTo, int cost) {
+	public Move(String player, int xFrom, int yFrom, int xTo, int yTo, int cost) {
 		super(player);
 		this.setxFrom(xFrom);
 		this.setxTo(xTo);

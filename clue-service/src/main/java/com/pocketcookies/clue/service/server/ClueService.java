@@ -144,7 +144,8 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 			NoSuchGameException {
 		if (g == null)
 			throw new NoSuchGameException();
-		if (!g.getCurrentPlayer().getUser().getKey().equals(key)) {
+		if (g.getCurrentPlayer() == null
+				|| !g.getCurrentPlayer().getUser().getKey().equals(key)) {
 			// Is the player even logged in?
 			validateUser(key);
 			throw new NotYourTurnException();

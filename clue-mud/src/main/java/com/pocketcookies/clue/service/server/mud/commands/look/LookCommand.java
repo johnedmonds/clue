@@ -28,8 +28,10 @@ public class LookCommand implements Command {
 		if (arguments.length == 1) {
 			if (player.isInGame()) {
 				writer.println("Exits:");
-				for (Exit e : Grid.findExits(player.location, player.getOtherPlayers())){
-					writer.println("\t"+e.toString());
+				for (Exit e : Grid.findExits(
+						player.getPlayers().get(player.getUsername()), player
+								.getPlayers().values())) {
+					writer.println("\t" + e.toString());
 				}
 			} else {
 				GameData[] games = player.getService().getGames(null, null);
