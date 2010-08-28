@@ -6,6 +6,8 @@ import java.util.LinkedList;
 
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.mud.Exit;
+import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
 import com.pocketcookies.clue.service.server.mud.commands.Command;
 
@@ -24,7 +26,12 @@ public class LookCommand implements Command {
 		String[] arguments = command.split(" ");
 		PrintWriter writer = player.getWriter();
 		if (arguments.length == 1) {
-			if (!player.isInGame()) {
+			if (player.isInGame()) {
+				writer.println("Exits:");
+				for (Exit e : Grid.findExits(player.location, player.getOtherPlayers())){
+					writer.println("\t"+e.toString());
+				}
+			} else {
 				GameData[] games = player.getService().getGames(null, null);
 				writer.println("Games: ");
 				for (GameData g : games) {

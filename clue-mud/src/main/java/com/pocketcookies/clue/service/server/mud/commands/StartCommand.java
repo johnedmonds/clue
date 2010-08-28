@@ -10,6 +10,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
+import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
 

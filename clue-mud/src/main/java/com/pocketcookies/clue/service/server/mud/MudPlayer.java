@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.LinkedList;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -20,8 +24,14 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.Card;
+import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.exceptions.NoSuchGameException;
+import com.pocketcookies.clue.messages.broadcast.Chat;
+import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.targeted.Cards;
+import com.pocketcookies.clue.mud.Grid;
+import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import com.pocketcookies.clue.service.server.mud.commands.CommandProcessor;
 
@@ -29,6 +39,7 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	private Socket client;
 	private static final Logger logger = Logger.getLogger(MudPlayer.class);
+	private Collection<Point> otherPlayers = new LinkedList<Point>();
 
 	private static final TopicConnection topicConnection;
 	static {
@@ -52,8 +63,10 @@ public class MudPlayer implements Runnable, MessageListener {
 	private PrintWriter writer;
 	private BufferedReader reader;
 	private String key = null;
+	private String username = null;
 	private ClueServiceAPI service;
-	private Point location = new Point();
+	public Point location = new Point();
+	public Suspect suspect;
 	// In which game the player is currently.
 	private int gameId = -1;
 	private TopicSession session;
@@ -102,7 +115,7 @@ public class MudPlayer implements Runnable, MessageListener {
 			while (this.key == null) {
 				writer.print("Username: ");
 				writer.flush();
-				String username = reader.readLine();
+				username = reader.readLine();
 				writer.print("Password: ");
 				writer.flush();
 				String password = reader.readLine();
@@ -167,6 +180,7 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	public void leave() {
 		this.gameId = -1;
+		this.suspect = null;
 		this.location = new Point();
 	}
 
@@ -181,10 +195,29 @@ public class MudPlayer implements Runnable, MessageListener {
 						+ ((NextTurn) o).getMovementPointsAvailable()
 						+ " movement points available.");
 			} else if (o instanceof Cards) {
+				// Add all the other players.
+				for (PlayerData pd : service.getStatus(gameId).getPlayers()) {
+					this.otherPlayers.add(Grid.getStartingPosition(pd
+							.getSuspect()));
+				}
 				writer.println("Your cards are: ");
 				for (Card c : ((Cards) o).getCards()) {
 					writer.println("\t" + c.toString());
 				}
+
+			} else if (o instanceof Move) {
+				new Formatter(writer).format(
+						"Player %s moved from (%d,%d) to (%d,%d)",
+						((Move) o).getPlayer(), ((Move) o).getxFrom(),
+						((Move) o).getyFrom(), ((Move) o).getxTo(),
+						((Move) o).getyTo()).flush();
+				assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
+						.equals(this.location));
+				this.location.x = ((Move) o).getxTo();
+				this.location.y = ((Move) o).getyTo();
+			} else if (o instanceof Chat) {
+				new Formatter(writer).format("Player %s says \"%s\"",
+						this.username, ((Chat) o).getMessage());
 			} else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
@@ -194,6 +227,10 @@ public class MudPlayer implements Runnable, MessageListener {
 			logger.error(
 					"There was a problem retrieving the object from the ObjectMessage.",
 					e);
+			writer.println("There was some problem with a message that was supposed to be delivered to you.");
+		} catch (NoSuchGameException e) {
+			logger.error("There was no game.", e);
+			writer.println("Something happened to the game.  Try logging out and logging in again.");
 		}
 	}
 
@@ -211,6 +248,8 @@ public class MudPlayer implements Runnable, MessageListener {
 	}
 
 	public void stopConnection() {
+		if (subscriber == null)
+			return;
 		try {
 			subscriber.setMessageListener(null);
 			subscriber.close();
@@ -218,5 +257,9 @@ public class MudPlayer implements Runnable, MessageListener {
 			logger.error(
 					"There was an error closing the subscriber or session.", e);
 		}
+	}
+
+	public Collection<Point> getOtherPlayers() {
+		return Collections.unmodifiableCollection(otherPlayers);
 	}
 }

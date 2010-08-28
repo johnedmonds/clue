@@ -19,6 +19,7 @@ public class CommandProcessor {
 		addCommand(new JoinCommand());
 		addCommand(new LeaveCommand());
 		addCommand(new StartCommand());
+		addCommand(new ChatCommand());
 	}
 
 	/**

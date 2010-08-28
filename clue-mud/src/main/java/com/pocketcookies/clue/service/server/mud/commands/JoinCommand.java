@@ -13,6 +13,7 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
+import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
@@ -47,14 +48,17 @@ public class JoinCommand implements Command {
 			writer.println("You are already in a game and cannot join another one without leaving this one first.");
 			return;
 		}
-		int gameId = -1;
+		Suspect suspect = Suspect.valueOf(args[2].toUpperCase());
+		if (suspect == null) {
+			writer.println("That is not a valid suspect.");
+			return;
+		}
 		// It is a number.
 		if (isGameId(args[1])) {
 			try {
 				int tempGameId = Integer.parseInt(args[1]);
-				service.join(player.getKey(), tempGameId,
-						Suspect.valueOf(args[2].toUpperCase()));
-				gameId = tempGameId;
+				service.join(player.getKey(), tempGameId, suspect);
+				setupPlayer(tempGameId, suspect, player);
 				writer.println("You have successfully joined that game.");
 			} catch (NumberFormatException e) {
 				logger.error(
@@ -89,9 +93,8 @@ public class JoinCommand implements Command {
 				}
 			} else {
 				try {
-					service.join(player.getKey(), games[0].getGameId(),
-							Suspect.valueOf(args[2].toUpperCase()));
-					gameId = games[0].getGameId();
+					service.join(player.getKey(), games[0].getGameId(), suspect);
+					setupPlayer(games[0].getGameId(), suspect, player);
 					writer.println("You have successfully joined the game.");
 				} catch (NotLoggedInException e) {
 					logger.error("The user is not logged in.", e);
@@ -108,8 +111,13 @@ public class JoinCommand implements Command {
 				}
 			}
 		}
-		if (gameId >= 0)
-			player.setGameId(gameId);
+	}
+
+	private static void setupPlayer(int gameId, Suspect suspect,
+			MudPlayer player) {
+		player.setGameId(gameId);
+		player.suspect = suspect;
+		player.location = Grid.getStartingPosition(suspect);
 		player.startConnection();
 	}
 }
