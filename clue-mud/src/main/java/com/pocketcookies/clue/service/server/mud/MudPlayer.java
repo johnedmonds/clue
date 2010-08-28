@@ -28,10 +28,14 @@ import org.apache.log4j.Logger;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
+import com.pocketcookies.clue.messages.broadcast.Accusation;
 import com.pocketcookies.clue.messages.broadcast.Chat;
+import com.pocketcookies.clue.messages.broadcast.Disprove;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
+import com.pocketcookies.clue.messages.broadcast.Suggestion;
 import com.pocketcookies.clue.messages.targeted.Cards;
+import com.pocketcookies.clue.messages.targeted.DisprovingCard;
 import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
@@ -211,19 +215,44 @@ public class MudPlayer implements Runnable, MessageListener {
 						((Move) o).getPlayer(), ((Move) o).getxFrom(),
 						((Move) o).getyFrom(), ((Move) o).getxTo(),
 						((Move) o).getyTo()).flush();
-				//Sanity check that we remember the original position of the player.
+				// Sanity check that we remember the original position of the
+				// player.
 				assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
 						.equals(this.players.get(((Move) o).getPlayer())));
-				//Move where we think that player is.
+				// Move where we think that player is.
 				this.players.put(((Move) o).getPlayer(),
 						new Point(((Move) o).getxTo(), ((Move) o).getyTo()));
 			} else if (o instanceof Chat) {
 				new Formatter(writer).format("Player %s says \"%s\"",
 						((Chat) o).getPlayer(), ((Chat) o).getMessage());
+			} else if (o instanceof Suggestion) {
+				Suggestion suggestion = (Suggestion) o;
+				new Formatter(writer).format(
+						"Player %s suggested %s in the %s with the %s.",
+						suggestion.getPlayer(), suggestion.getSuspect()
+								.toString(), suggestion.getRoom().toString(),
+						suggestion.getWeapon().toString());
+			} else if (o instanceof Accusation) {
+				Accusation accusation = (Accusation) o;
+				new Formatter(writer).format(
+						"Player %s accused %s in the %s with the %s.",
+						accusation.getPlayer(), accusation.getSuspect()
+								.toString(), accusation.getRoom().toString(),
+						accusation.getWeapon().toString());
+			} else if (o instanceof Disprove) {
+				Disprove d = (Disprove) o;
+				new Formatter(writer).format(
+						"Player %s can disprove the proposition.",
+						d.getPlayer());
+			} else if (o instanceof DisprovingCard) {
+				DisprovingCard d = (DisprovingCard) o;
+				new Formatter(writer).format("You are shown %s.", d.getCard()
+						.toString());
 			} else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
 			}
+			writer.println();
 			writer.flush();
 		} catch (JMSException e) {
 			logger.error(
@@ -264,5 +293,8 @@ public class MudPlayer implements Runnable, MessageListener {
 	public Map<String, Point> getPlayers() {
 		return players;
 	}
-	public String getUsername(){return this.username;}
+
+	public String getUsername() {
+		return this.username;
+	}
 }

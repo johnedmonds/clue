@@ -22,6 +22,9 @@ public class CommandProcessor {
 		addCommand(new ChatCommand());
 		addCommand(new MoveCommand());
 		addCommand(new EndTurnCommand());
+		addCommand(new SuggestCommand());
+		addCommand(new AccuseCommand());
+		addCommand(new DisproveCommand());
 	}
 
 	/**
