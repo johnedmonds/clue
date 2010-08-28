@@ -6,7 +6,7 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
-		<property name="connection.url">jdbc:hsqldb:hsql://localhost</property>
+		<property name="connection.url">jdbc:hsqldb:mem:clue</property>
 		<property name="connection.username">sa</property>
 		<property name="connection.password"></property>
 		<property name="connection.pool_size">1</property>
