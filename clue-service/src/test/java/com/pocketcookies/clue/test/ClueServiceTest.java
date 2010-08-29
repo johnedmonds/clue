@@ -24,12 +24,15 @@ import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
 import com.pocketcookies.clue.hibernate.util.HibernateUtil;
+import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.Message;
+import com.pocketcookies.clue.messages.PlayerMessage;
 import com.pocketcookies.clue.messages.targeted.Cards;
 import com.pocketcookies.clue.messages.targeted.DisprovingCard;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;
 import com.pocketcookies.clue.messages.broadcast.GameOver;
+import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.Suggestion;
@@ -99,16 +102,22 @@ public class ClueServiceTest extends TestCase {
 		Date p1Since;
 		Message[] p1Messages = service.getUpdates(key1, gameId, null);
 		p1Since = p1Messages[p1Messages.length - 1].getPublished();
-		assertEquals(2, p1Messages.length);
-		assertTrue(p1Messages[0] instanceof Cards);
-		assertFalse(p1Messages[0] instanceof NextTurn);
-		assertTrue(p1Messages[1] instanceof NextTurn);
-		assertFalse(p1Messages[1] instanceof Cards);
+		assertEquals(5, p1Messages.length);
+		assertTrue(p1Messages[0] instanceof Join);
+		assertEquals("clue", ((Join) p1Messages[0]).getPlayer());
+		assertTrue(p1Messages[1] instanceof Join);
+		assertEquals("clue2", ((Join) p1Messages[1]).getPlayer());
+		assertTrue(p1Messages[2] instanceof Join);
+		assertEquals("clue3", ((Join) p1Messages[2]).getPlayer());
+		assertTrue(p1Messages[3] instanceof Cards);
+		assertFalse(p1Messages[3] instanceof NextTurn);
+		assertTrue(p1Messages[4] instanceof NextTurn);
+		assertFalse(p1Messages[4] instanceof Cards);
 		// Let's just make sure this doesn't cause an exception.
 		// This was mainly a hold-over from when we were using XMLBeans and
 		// changing types was somewhat dangerous.
-		Cards p1CardsMessage = (Cards) p1Messages[0];
-		NextTurn p1NextTurn = (NextTurn) p1Messages[1];
+		Cards p1CardsMessage = (Cards) p1Messages[3];
+		NextTurn p1NextTurn = (NextTurn) p1Messages[4];
 		assertEquals("clue", p1NextTurn.getPlayer());
 		assertEquals(9, p1NextTurn.getMovementPointsAvailable());
 		// Make sure we actually do return from this function as it is
@@ -208,17 +217,21 @@ public class ClueServiceTest extends TestCase {
 		Date p2Since = null;
 		Message[] p2Messages = service.getUpdates(key2, gameId, p2Since);
 		p2Since = p2Messages[p2Messages.length - 1].getPublished();
-		assertEquals(9, p2Messages.length);
+		// One might think this should be 12 because of the 3 join messages but
+		// it is actually 11 because player 2 only receives messages from the
+		// time it joins and player 1 joined before player 2 received the
+		// message.
+		assertEquals(11, p2Messages.length);
 		assertEquals(5, service.move(key2, gameId, 12, 5));
 
 		service.endTurn(key2, gameId);
 		Date p3Since = null;
 		Message[] p3Messages = service.getUpdates(key3, gameId, p3Since);
 		p3Since = p3Messages[p3Messages.length - 1].getPublished();
-		assertEquals(11, p3Messages.length);
+		assertEquals(12, p3Messages.length);
 
 		assertEquals(9,
-				((NextTurn) p3Messages[10]).getMovementPointsAvailable());
+				((NextTurn) p3Messages[11]).getMovementPointsAvailable());
 		// Make sure player 1 is skipped because that player lost.
 		service.endTurn(key3, gameId);
 		p1Messages = service.getUpdates(key1, gameId, p1Since);
@@ -359,13 +372,17 @@ public class ClueServiceTest extends TestCase {
 		service.join(key2, gameId, Suspect.GREEN);
 		service.join(key3, gameId, Suspect.WHITE);
 		service.startGame(key1, gameId);
-		assertEquals("user1",
-				((NextTurn) service.getUpdates(key1, gameId, null)[1])
-						.getPlayer());
+		Message updates[] = service.getUpdates(key1, gameId, null);
+		assertEquals("user1", ((Join) updates[0]).getPlayer());
+		assertEquals("user2", ((Join) updates[1]).getPlayer());
+		assertEquals("user3", ((Join) updates[2]).getPlayer());
+		assertEquals("user1", ((NextTurn) updates[4]).getPlayer());
 		// Make sure this does not throw an exception.
 		service.leave(key1, gameId);
+		updates = service.getUpdates(key2, gameId, null);
+		assertEquals("user1", ((Leave) updates[5]).getPlayer());
 		assertEquals("user3",
-				((NextTurn) service.getUpdates(key2, gameId, null)[2])
+				((NextTurn) service.getUpdates(key2, gameId, null)[4])
 						.getPlayer());
 	}
 
@@ -388,7 +405,10 @@ public class ClueServiceTest extends TestCase {
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		service.leave(key1, gameId);
 		assertEquals("user2",
-				((NextTurn) service.getUpdates(key2, gameId, null)[5])
+				((NextTurn) service.getUpdates(key2, gameId, null)[7])
+						.getPlayer());
+		assertEquals("user1",
+				((Leave) service.getUpdates(key2, gameId, null)[8])
 						.getPlayer());
 		try {
 			service.disprove(key2, gameId, Card.HALL);
@@ -397,7 +417,7 @@ public class ClueServiceTest extends TestCase {
 		}
 		service.endTurn(key2, gameId);
 		assertEquals("user3",
-				((NextTurn) service.getUpdates(key2, gameId, null)[6])
+				((NextTurn) service.getUpdates(key2, gameId, null)[9])
 						.getPlayer());
 	}
 
@@ -420,7 +440,7 @@ public class ClueServiceTest extends TestCase {
 		service.move(key1, gameId, 11, 22);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
-				gameId, null)[5]).getCard());
+				gameId, null)[9]).getCard());
 		service.endTurn(key1, gameId);
 		try {
 			service.endTurn(key2, gameId);
@@ -428,7 +448,7 @@ public class ClueServiceTest extends TestCase {
 		} catch (NotYourTurnException e) {
 		}
 		assertEquals("user3",
-				((NextTurn) service.getUpdates(key1, gameId, null)[6])
+				((NextTurn) service.getUpdates(key1, gameId, null)[10])
 						.getPlayer());
 	}
 
@@ -448,15 +468,16 @@ public class ClueServiceTest extends TestCase {
 		service.join(key3, gameId, Suspect.PEACOCK);
 		service.startGame(key1, gameId);
 		assertEquals("user1",
-				((NextTurn) service.getUpdates(key1, gameId, null)[1])
+				((NextTurn) service.getUpdates(key1, gameId, null)[4])
 						.getPlayer());
 		service.move(key1, gameId, 11, 22);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		service.leave(key2, gameId);
 		assertEquals("user2",
-				((Disprove) service.getUpdates(key1, gameId, null)[4])
+				((Disprove) service.getUpdates(key1, gameId, null)[7])
 						.getPlayer());
 		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
-				gameId, null)[5]).getCard());
+				gameId, null)[8]).getCard());
+		assertEquals("user2", ((Leave)service.getUpdates(key1, gameId, null)[9]).getPlayer());
 	}
 }

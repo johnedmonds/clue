@@ -18,11 +18,13 @@ import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
+import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;
 import com.pocketcookies.clue.messages.broadcast.GameOver;
+import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Proposition;
@@ -226,6 +228,7 @@ public class Game {
 			}
 		}
 		this.players.set(suspect.ordinal(), new Player(user, suspect, this.id));
+		publish(new Join(user.getName()));
 	}
 
 	public synchronized void start(Random random)
@@ -392,6 +395,7 @@ public class Game {
 		Player leavingPlayer = getPlayerWithKey(key);
 		if (leavingPlayer == null)
 			throw new NotInGameException();
+		// We don't need to do anything special if the game has not yet started.
 		if (this.gameStartedState == GameStartedState.NOT_STARTED)
 			this.players.set(this.players.indexOf(leavingPlayer), null);
 		else {
@@ -419,6 +423,7 @@ public class Game {
 				}
 			}
 		}
+		publish(new Leave(leavingPlayer.getUser().getName()));
 	}
 
 	private static Card findDisprovingCard(Player p, Proposition proposition) {

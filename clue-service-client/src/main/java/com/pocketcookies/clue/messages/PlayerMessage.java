@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;
 import com.pocketcookies.clue.messages.broadcast.GameOver;
+import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Proposition;
@@ -16,7 +17,7 @@ import com.pocketcookies.clue.messages.broadcast.Proposition;
  * 
  */
 @XmlSeeAlso({ Chat.class, Disprove.class, GameOver.class, NextTurn.class,
-		Proposition.class, Move.class })
+		Proposition.class, Move.class, Leave.class, Join.class })
 public abstract class PlayerMessage extends Message {
 	private static final long serialVersionUID = 1L;
 	private String player;
