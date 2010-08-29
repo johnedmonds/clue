@@ -306,4 +306,8 @@ public class MudPlayer implements Runnable, MessageListener {
 	public String getUsername() {
 		return this.username;
 	}
+
+	public Socket getClient() {
+		return this.client;
+	}
 }

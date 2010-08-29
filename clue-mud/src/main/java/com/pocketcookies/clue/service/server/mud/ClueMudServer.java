@@ -3,15 +3,8 @@ package com.pocketcookies.clue.service.server.mud;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.LinkedList;
 
-import javax.jms.JMSException;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.naming.NamingException;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
@@ -23,7 +16,8 @@ public class ClueMudServer implements Runnable {
 	private ClueServiceAPI service;
 	private ServerSocket serverSocket;
 	private Thread myThread;
-	private ThreadGroup myThreadGroup = new ThreadGroup("clue-mud-threads");
+	// We need to keep track of players so we can gracefully stop them.
+	private LinkedList<MudPlayer> players = new LinkedList<MudPlayer>();
 
 	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
@@ -62,9 +56,10 @@ public class ClueMudServer implements Runnable {
 		try {
 			while (true) {
 				try {
-					Socket client = serverSocket.accept();
-					new Thread(myThreadGroup, new MudPlayer(client, service))
-							.start();
+					// Add the player.
+					this.players.add(new MudPlayer(serverSocket.accept(),
+							service));
+					new Thread(this.players.getLast()).start();
 				} catch (IOException e) {
 					logger.error(
 							"There was an error accepting a connection from a client.  Note: if this is a SocketException about a closed connection, check for messages about the server exiting.  If the server is exiting, then this exception is expected and can be safely ignored.",
@@ -83,8 +78,19 @@ public class ClueMudServer implements Runnable {
 	}
 
 	public void destroy() {
-		logger.info("Interrupting child threads.");
-		this.myThreadGroup.interrupt();
+		logger.info("Closing connections.");
+		for (MudPlayer player : this.players) {
+			try {
+				player.getWriter()
+						.println(
+								"The server is being shut down.  You may try re-connecting later.");
+				player.getWriter().flush();
+				player.getClient().close();
+			} catch (IOException e) {
+				logger.error("There was an error closing the socket for "
+						+ player.getUsername() + ".");
+			}
+		}
 		myThread.interrupt();
 		try {
 			serverSocket.close();
