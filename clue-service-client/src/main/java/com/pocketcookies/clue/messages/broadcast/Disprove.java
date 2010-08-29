@@ -8,6 +8,8 @@ import com.pocketcookies.clue.messages.PlayerMessage;
  * Message indicating that the specified player can disprove the last suggestion
  * or accusation.
  * 
+ * Note that if the player is null, that indicates that no one can disprove the suggestion.
+ * 
  * @author jack
  * 
  */

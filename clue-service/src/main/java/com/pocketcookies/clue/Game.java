@@ -326,35 +326,39 @@ public class Game {
 			throw new NotYourTurnException();
 		Card room = Grid.grid[this.currentPlayer.getPosition().x][this.currentPlayer
 				.getPosition().y].toCard();
+		// The player must be in a room to make a suggestion.
 		if (room == null)
 			throw new NotInRoomException();
+		// The suggestion has been made so the player cannot make another
+		// suggestion.
+		this.suggestionMade = true;
 
 		Suggestion suggestion = new Suggestion(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
+		// Publish that the player has made the suggestion.
 		this.publish(suggestion);
-		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
-				% this.players.size() != this.currentPlayer.getId()
-				.getSuspect().ordinal(); i++) {
-			Card disprovingCard = null;
-			if (this.players.get(i) != null
-					&& this.players.get(i) != this.currentPlayer
-					&& (disprovingCard = findDisprovingCard(
-							this.players.get(i), suggestion)) != null) {
-				this.disprovingPlayer = this.players.get(i);
-				Disprove disprove = new Disprove(this.disprovingPlayer
-						.getUser().getName());
-				this.publish(disprove);
-				this.proposition = suggestion;
-				if (this.players.get(i).isLost())
-					try {
-						this.disprove(disprovingCard);
-					} catch (CheatException e) {
-						logger.error("The card we chose was wrong.", e);
-					} catch (NotYourTurnException e) {
-						logger.error(
-								"It was not the disproving player's turn.", e);
-					}
-				return;
+		// Store the suggestion that was made so that we can validate when a
+		// player attempts to disprove it.
+		this.proposition = suggestion;
+		this.disprovingPlayer = findDisprovingPlayer(suggestion);
+		// No one can disprove the suggestion.
+		if (this.disprovingPlayer == null)
+			publish(new Disprove(null));
+		else {
+			// Say who can disprove the suggestion.
+			publish(new Disprove(this.disprovingPlayer.getUser().getName()));
+			Card disprovingCard = findDisprovingCard(disprovingPlayer,
+					suggestion);
+			// If the player who is supposed to be disproving this suggestion
+			// has lost, take that player's turn for it.
+			if (this.disprovingPlayer.isLost()) {
+				try {
+					this.disprove(disprovingCard);
+				} catch (NotYourTurnException e) {
+					logger.error("It was not the disproving player's turn.", e);
+				} catch (CheatException e) {
+					logger.error("The card we chose was wrong.", e);
+				}
 			}
 		}
 	}
@@ -427,16 +431,27 @@ public class Game {
 	}
 
 	private static Card findDisprovingCard(Player p, Proposition proposition) {
-		if (proposition == null) {
-			return null;
-		}
-		if (p == null)
+		if (proposition == null || p == null)
 			return null;
 		for (Card c : p.getHand()) {
 			if (c == proposition.getWeapon() || c == proposition.getSuspect()
 					|| c == proposition.getRoom()) {
 				return c;
 			}
+		}
+		return null;
+	}
+
+	private Player findDisprovingPlayer(Proposition proposition) {
+		// Starting with the next player in order, go through all players and if
+		// they can disprove the proposition, return that player.
+		// Note that we don't care if they have already lost.
+		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
+				% this.players.size() != this.currentPlayer.getId()
+				.getSuspect().ordinal(); i++) {
+			if (this.players.get(i) != null
+					&& findDisprovingCard(this.players.get(i), proposition) != null)
+				return this.players.get(i);
 		}
 		return null;
 	}
