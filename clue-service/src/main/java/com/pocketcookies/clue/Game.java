@@ -149,13 +149,10 @@ public class Game {
 	}
 
 	public synchronized void accuse(Card room, Card suspect, Card weapon) {
-		Accusation accusation = new Accusation(this.currentPlayer.getUser()
+		this.proposition = new Accusation(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
-		accusation.setPlayer(this.currentPlayer.getUser().getName());
-		accusation.setRoom(room);
-		accusation.setWeapon(weapon);
-		accusation.setSuspect(suspect);
-		publish(accusation);
+		publish(this.proposition);
+		// Check if the player has won the game.
 		if (this.suspect == suspect && this.room == room
 				&& this.weapon == weapon) {
 			GameOver gameOver = new GameOver(this.currentPlayer.getUser()
@@ -164,32 +161,23 @@ public class Game {
 			this.gameStartedState = GameStartedState.ENDED;
 		} else {
 			this.currentPlayer.setLost(true);
-			for (Player p : this.players) {
-				// Don't let the current player disprove the current player.
-				Card disprovingCard = null;
-				if (p != null
-						&& currentPlayer != p
-						&& (disprovingCard = findDisprovingCard(p, accusation)) != null) {
-					Disprove disprove = new Disprove(p.getUser().getName());
-					this.disprovingPlayer = p;
-					this.proposition = accusation;
-					publish(disprove);
-					if (p.isLost())
-						try {
-							this.disprove(disprovingCard);
-						} catch (CheatException e) {
-							logger.error(
-									"Player "
-											+ this.currentPlayer.getUser()
-													.getKey()
-											+ " accused and lost.  The computer took over but got the wrong card.",
-									e);
-						} catch (NotYourTurnException e) {
-							logger.error(
-									"It was not the disproving player's turn.",
-									e);
-						}
-					break;
+			this.disprovingPlayer = findDisprovingPlayer(this.proposition);
+			if (this.disprovingPlayer == null) {
+				// Then the accusing player was really stupid to accuse using
+				// one of its own cards.
+				publish(new Disprove(null));
+			} else {
+				publish(new Disprove(this.disprovingPlayer.getUser().getName()));
+				if (this.disprovingPlayer.isLost()) {
+					try {
+						this.disprove(findDisprovingCard(this.disprovingPlayer,
+								this.proposition));
+					} catch (NotYourTurnException e) {
+						logger.error(
+								"It was not the disproving player's turn.", e);
+					} catch (CheatException e) {
+						logger.error("We picked the wrong card.", e);
+					}
 				}
 			}
 		}
@@ -333,27 +321,25 @@ public class Game {
 		// suggestion.
 		this.suggestionMade = true;
 
-		Suggestion suggestion = new Suggestion(this.currentPlayer.getUser()
+		this.proposition = new Suggestion(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
 		// Publish that the player has made the suggestion.
-		this.publish(suggestion);
+		this.publish(this.proposition);
 		// Store the suggestion that was made so that we can validate when a
 		// player attempts to disprove it.
-		this.proposition = suggestion;
-		this.disprovingPlayer = findDisprovingPlayer(suggestion);
+		this.disprovingPlayer = findDisprovingPlayer(this.proposition);
 		// No one can disprove the suggestion.
 		if (this.disprovingPlayer == null)
 			publish(new Disprove(null));
 		else {
 			// Say who can disprove the suggestion.
 			publish(new Disprove(this.disprovingPlayer.getUser().getName()));
-			Card disprovingCard = findDisprovingCard(disprovingPlayer,
-					suggestion);
 			// If the player who is supposed to be disproving this suggestion
 			// has lost, take that player's turn for it.
 			if (this.disprovingPlayer.isLost()) {
 				try {
-					this.disprove(disprovingCard);
+					this.disprove(findDisprovingCard(disprovingPlayer,
+							this.proposition));
 				} catch (NotYourTurnException e) {
 					logger.error("It was not the disproving player's turn.", e);
 				} catch (CheatException e) {
