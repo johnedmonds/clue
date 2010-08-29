@@ -23,6 +23,7 @@ public class ClueMudServer implements Runnable {
 	private ClueServiceAPI service;
 	private ServerSocket serverSocket;
 	private Thread myThread;
+	private ThreadGroup myThreadGroup = new ThreadGroup("clue-mud-threads");
 
 	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
@@ -62,7 +63,8 @@ public class ClueMudServer implements Runnable {
 			while (true) {
 				try {
 					Socket client = serverSocket.accept();
-					new Thread(new MudPlayer(client, service)).start();
+					new Thread(myThreadGroup, new MudPlayer(client, service))
+							.start();
 				} catch (IOException e) {
 					logger.error(
 							"There was an error accepting a connection from a client.  Note: if this is a SocketException about a closed connection, check for messages about the server exiting.  If the server is exiting, then this exception is expected and can be safely ignored.",
@@ -81,6 +83,8 @@ public class ClueMudServer implements Runnable {
 	}
 
 	public void destroy() {
+		logger.info("Interrupting child threads.");
+		this.myThreadGroup.interrupt();
 		myThread.interrupt();
 		try {
 			serverSocket.close();

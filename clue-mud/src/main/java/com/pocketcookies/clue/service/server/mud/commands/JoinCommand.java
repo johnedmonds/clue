@@ -119,6 +119,6 @@ public class JoinCommand implements Command {
 		player.suspect = suspect;
 		player.getPlayers().put(player.getUsername(),
 				Grid.getStartingPosition(suspect));
-		player.startConnection();
+		player.startMessageConnection();
 	}
 }

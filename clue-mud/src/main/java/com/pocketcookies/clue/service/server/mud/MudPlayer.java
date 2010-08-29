@@ -28,9 +28,12 @@ import org.apache.log4j.Logger;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
+import com.pocketcookies.clue.messages.Join;
+import com.pocketcookies.clue.messages.PlayerMessage;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;
+import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Suggestion;
@@ -144,7 +147,7 @@ public class MudPlayer implements Runnable, MessageListener {
 					"There was an error relating to the output stream of the client socket.",
 					e);
 		} finally {
-			this.stopConnection();
+			this.stopMessageConnection();
 			writer.flush();
 			writer.close();
 			try {
@@ -244,6 +247,12 @@ public class MudPlayer implements Runnable, MessageListener {
 				new Formatter(writer).format(
 						"Player %s can disprove the proposition.",
 						d.getPlayer());
+			} else if (o instanceof Join) {
+				new Formatter(writer).format("%s joined.",
+						((Join) o).getPlayer());
+			} else if (o instanceof Leave) {
+				new Formatter(writer).format("%s left.",
+						((Leave) o).getPlayer());
 			} else if (o instanceof DisprovingCard) {
 				DisprovingCard d = (DisprovingCard) o;
 				new Formatter(writer).format("You are shown %s.", d.getCard()
@@ -265,7 +274,7 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
-	public void startConnection() {
+	public void startMessageConnection() {
 		try {
 			this.subscriber = this.session.createSubscriber(
 					session.createTopic("ClueTopic"), "userKey = '" + this.key
@@ -278,7 +287,7 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
-	public void stopConnection() {
+	public void stopMessageConnection() {
 		if (subscriber == null)
 			return;
 		try {
