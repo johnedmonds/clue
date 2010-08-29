@@ -228,7 +228,7 @@ public class Game {
 			}
 		}
 		this.players.set(suspect.ordinal(), new Player(user, suspect, this.id));
-		publish(new Join(user.getName()));
+		publish(new Join(user.getName(), suspect));
 	}
 
 	public synchronized void start(Random random)
@@ -261,7 +261,7 @@ public class Game {
 		// suspect in the deck. This shouldn't really be a problem since we
 		// shuffled the deck so the only thing we lose is time going through
 		// unnecessary cards. Since we know the deck will be 21 cards, I feel it
-		// is an acceptable waste computing time.
+		// is an acceptable waste of computing time.
 		for (Card c : deck) {
 			if (c.isRoom())
 				this.room = c;

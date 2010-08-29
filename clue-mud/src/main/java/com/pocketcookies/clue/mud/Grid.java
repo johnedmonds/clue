@@ -154,14 +154,14 @@ public class Grid {
 		WHITE_START = tempWhiteStart;
 	}
 
-	public static boolean isImpassable(int x, int y) {
-		return isImpassable(new Point(x, y), null);
+	public static boolean isImpassable(int x, int y, Collection<Point> players) {
+		return isImpassable(new Point(x, y), players);
 	}
 
 	public static boolean isImpassable(Point point, Collection<Point> players) {
 		for (Point p : players == null ? new LinkedList<Point>() : players) {
 			if (p.equals(point))
-				return false;
+				return true;
 		}
 		Terrain t = grid[point.x][point.y];
 		return t == Terrain.IMPASSABLE || t == Terrain.WALL;
@@ -171,24 +171,26 @@ public class Grid {
 			Collection<Point> players) {
 		Collection<Exit> exits = new LinkedList<Exit>();
 		if (start.x - 1 >= 0 && start.y - 1 >= 0
-				&& !isImpassable(start.x - 1, start.y - 1))
+				&& !isImpassable(start.x - 1, start.y - 1, players))
 			exits.add(Exit.NORTH_WEST);
-		if (start.y - 1 >= 0 && !isImpassable(start.x, start.y - 1))
+		if (start.y - 1 >= 0 && !isImpassable(start.x, start.y - 1, players))
 			exits.add(Exit.NORTH);
 		if (start.x + 1 < grid.length && start.y - 1 >= 0
-				&& !isImpassable(start.x + 1, start.y - 1))
+				&& !isImpassable(start.x + 1, start.y - 1, players))
 			exits.add(Exit.NORTH_EAST);
-		if (start.x - 1 >= 0 && !isImpassable(start.x - 1, start.y))
+		if (start.x - 1 >= 0 && !isImpassable(start.x - 1, start.y, players))
 			exits.add(Exit.WEST);
-		if (start.x + 1 < grid.length && !isImpassable(start.x + 1, start.y))
+		if (start.x + 1 < grid.length
+				&& !isImpassable(start.x + 1, start.y, players))
 			exits.add(Exit.EAST);
 		if (start.x - 1 >= 0 && start.y + 1 < grid[0].length
-				&& !isImpassable(start.x - 1, start.y + 1))
+				&& !isImpassable(start.x - 1, start.y + 1, players))
 			exits.add(Exit.SOUTH_WEST);
-		if (start.y + 1 < grid[0].length && !isImpassable(start.x, start.y + 1))
+		if (start.y + 1 < grid[0].length
+				&& !isImpassable(start.x, start.y + 1, players))
 			exits.add(Exit.SOUTH);
 		if (start.x + 1 < grid.length && start.y + 1 < grid[0].length
-				&& !isImpassable(start.x + 1, start.y + 1))
+				&& !isImpassable(start.x + 1, start.y + 1, players))
 			exits.add(Exit.SOUTH_EAST);
 		return exits;
 	}

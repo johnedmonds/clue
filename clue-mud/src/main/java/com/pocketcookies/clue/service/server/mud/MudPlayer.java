@@ -202,8 +202,10 @@ public class MudPlayer implements Runnable, MessageListener {
 						+ ((NextTurn) o).getMovementPointsAvailable()
 						+ " movement points available.");
 			} else if (o instanceof Cards) {
-				// Add all the other players.
-				for (PlayerData pd : service.getStatus(gameId).getPlayers()) {
+				// The game is starting.
+				// Position all the players.
+				for (PlayerData pd : service.getStatus(this.gameId)
+						.getPlayers()) {
 					this.players.put(pd.getPlayerName(),
 							Grid.getStartingPosition(pd.getSuspect()));
 				}
@@ -248,11 +250,13 @@ public class MudPlayer implements Runnable, MessageListener {
 						"Player %s can disprove the proposition.",
 						d.getPlayer());
 			} else if (o instanceof Join) {
-				new Formatter(writer).format("%s joined.",
-						((Join) o).getPlayer());
+				Join j = (Join) o;
+				new Formatter(writer).format("%s joined as %s.", j.getPlayer(),
+						j.getSuspect().toString());
 			} else if (o instanceof Leave) {
-				new Formatter(writer).format("%s left.",
-						((Leave) o).getPlayer());
+				Leave leave = (Leave) o;
+				this.players.remove(leave.getPlayer());
+				new Formatter(writer).format("%s left.", leave.getPlayer());
 			} else if (o instanceof DisprovingCard) {
 				DisprovingCard d = (DisprovingCard) o;
 				new Formatter(writer).format("You are shown %s.", d.getCard()
@@ -269,8 +273,9 @@ public class MudPlayer implements Runnable, MessageListener {
 					e);
 			writer.println("There was some problem with a message that was supposed to be delivered to you.");
 		} catch (NoSuchGameException e) {
-			logger.error("There was no game.", e);
-			writer.println("Something happened to the game.  Try logging out and logging in again.");
+			writer.println("The game seems to no longer exist.  Try leaving this one and joining another.");
+			logger.error("Player " + this.username + " could not find game "
+					+ this.gameId, e);
 		}
 	}
 

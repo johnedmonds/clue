@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
@@ -117,6 +118,7 @@ public class JoinCommand implements Command {
 			MudPlayer player) {
 		player.setGameId(gameId);
 		player.suspect = suspect;
+		//Position ourselves.
 		player.getPlayers().put(player.getUsername(),
 				Grid.getStartingPosition(suspect));
 		player.startMessageConnection();
