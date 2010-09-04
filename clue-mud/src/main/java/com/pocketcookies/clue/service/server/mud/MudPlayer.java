@@ -193,26 +193,26 @@ public class MudPlayer implements Runnable, MessageListener {
 			Object o = ((ObjectMessage) m).getObject();
 			assert (o instanceof com.pocketcookies.clue.messages.Message);
 			if (o instanceof NextTurn)
-				processNextTurn(o);
+				processNextTurn((NextTurn) o);
 			// We use this message to know that the game is starting.
 			else if (o instanceof Cards)
-				processCardsMessage(o);
+				processCardsMessage((Cards) o);
 			else if (o instanceof Move)
-				processMove(o);
+				processMove((Move) o);
 			else if (o instanceof Chat)
-				processChat(o);
+				processChat((Chat) o);
 			else if (o instanceof Suggestion)
-				processSuggestion(o);
+				processSuggestion((Suggestion) o);
 			else if (o instanceof Accusation)
-				processAccusation(o);
+				processAccusation((Accusation) o);
 			else if (o instanceof Disprove)
-				processDisprove(o);
+				processDisprove((Disprove) o);
 			else if (o instanceof Join)
-				processJoin(o);
+				processJoin((Join) o);
 			else if (o instanceof Leave)
-				processLeave(o);
+				processLeave((Leave) o);
 			else if (o instanceof DisprovingCard)
-				processDisprovingCard(o);
+				processDisprovingCard((DisprovingCard) o);
 			else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
@@ -231,39 +231,35 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
-	public void processNextTurn(Object o) {
-		writer.println("It is now " + ((NextTurn) o).getPlayer()
-				+ "'s turn.  That player has "
-				+ ((NextTurn) o).getMovementPointsAvailable()
-				+ " movement points available.");
+	public void processNextTurn(NextTurn nextTurn) {
+		new Formatter(writer)
+				.format("It is now %s's turn.  That player has %i movement points available.",
+						nextTurn.getPlayer(),
+						nextTurn.getMovementPointsAvailable());
+		System.out.println();
 	}
 
-	public void processDisprovingCard(Object o) {
-		DisprovingCard d = (DisprovingCard) o;
+	public void processDisprovingCard(DisprovingCard d) {
 		new Formatter(writer).format("You are shown %s.", d.getCard()
 				.toString());
 	}
 
-	public void processLeave(Object o) {
-		Leave leave = (Leave) o;
+	public void processLeave(Leave leave) {
 		this.players.remove(leave.getPlayer());
 		new Formatter(writer).format("%s left.", leave.getPlayer());
 	}
 
-	public void processJoin(Object o) {
-		Join j = (Join) o;
+	public void processJoin(Join j) {
 		new Formatter(writer).format("%s joined as %s.", j.getPlayer(), j
 				.getSuspect().toString());
 	}
 
-	public void processDisprove(Object o) {
-		Disprove d = (Disprove) o;
+	public void processDisprove(Disprove d) {
 		new Formatter(writer).format("Player %s can disprove the proposition.",
 				d.getPlayer());
 	}
 
-	public void processAccusation(Object o) {
-		Accusation accusation = (Accusation) o;
+	public void processAccusation(Accusation accusation) {
 		new Formatter(writer).format(
 				"Player %s accused %s in the %s with the %s.", accusation
 						.getPlayer(), accusation.getSuspect().toString(),
@@ -271,8 +267,7 @@ public class MudPlayer implements Runnable, MessageListener {
 						.toString());
 	}
 
-	public void processSuggestion(Object o) {
-		Suggestion suggestion = (Suggestion) o;
+	public void processSuggestion(Suggestion suggestion) {
 		new Formatter(writer).format(
 				"Player %s suggested %s in the %s with the %s.", suggestion
 						.getPlayer(), suggestion.getSuspect().toString(),
@@ -280,32 +275,29 @@ public class MudPlayer implements Runnable, MessageListener {
 						.toString());
 	}
 
-	public void processChat(Object o) {
-		new Formatter(writer).format("Player %s says \"%s\"",
-				((Chat) o).getPlayer(), ((Chat) o).getMessage());
+	public void processChat(Chat c) {
+		new Formatter(writer).format("Player %s says \"%s\"", c.getPlayer(),
+				c.getMessage());
 		System.out.println();
 	}
 
-	public void processMove(Object o) {
-		new Formatter(writer)
-				.format("Player %s moved from (%d,%d) to (%d,%d)",
-						((Move) o).getPlayer(), ((Move) o).getxFrom(),
-						((Move) o).getyFrom(), ((Move) o).getxTo(),
-						((Move) o).getyTo()).flush();
+	public void processMove(Move m) {
+		new Formatter(writer).format("Player %s moved from (%d,%d) to (%d,%d)",
+				m.getPlayer(), m.getxFrom(), m.getyFrom(), m.getxTo(),
+				m.getyTo()).flush();
 		// Sanity check that we remember the original position of the
 		// player.
-		assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
-				.equals(this.players.get(((Move) o).getPlayer())));
+		assert (new Point(m.getxFrom(), m.getxTo()).equals(this.players.get(m
+				.getPlayer())));
 		// Move where we think that player is.
-		this.players.put(((Move) o).getPlayer(), new Point(((Move) o).getxTo(),
-				((Move) o).getyTo()));
+		this.players.put(m.getPlayer(), new Point(m.getxTo(), m.getyTo()));
 	}
 
-	public void processCardsMessage(Object o) throws NoSuchGameException {
+	public void processCardsMessage(Cards cards) throws NoSuchGameException {
 		// Position all the players.
 		loadPlayerPositions();
 		writer.println("Your cards are: ");
-		for (Card c : ((Cards) o).getCards()) {
+		for (Card c : cards.getCards()) {
 			writer.println("\t" + c.toString());
 		}
 	}
