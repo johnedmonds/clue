@@ -58,15 +58,17 @@ public class RejoinCommand implements Command {
 		GameData data;
 		try {
 			data = service.getStatus(gameId);
+			player.setGameId(gameId);
+			player.suspect = findSuspect(data.getPlayers(),
+					player.getUsername());
+			player.loadPlayerPositions();
+			player.startMessageConnection();
+			writer.println("You have successfully rejoined the game.");
 		} catch (NoSuchGameException e) {
 			new Formatter(writer).format("Game %s does not exist", args[1]);
 			System.out.println();
 			return;
 		}
-		player.setGameId(gameId);
-		player.suspect = findSuspect(data.getPlayers(), player.getUsername());
-		player.startMessageConnection();
-		writer.println("You have successfully rejoined the game.");
 	}
 
 	private static void printGameOptions(PrintWriter writer, GameData[] tempData) {

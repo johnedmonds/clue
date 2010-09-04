@@ -200,11 +200,7 @@ public class MudPlayer implements Runnable, MessageListener {
 			} else if (o instanceof Cards) {
 				// The game is starting.
 				// Position all the players.
-				for (PlayerData pd : service.getStatus(this.gameId)
-						.getPlayers()) {
-					this.players.put(pd.getPlayerName(),
-							Grid.getStartingPosition(pd.getSuspect()));
-				}
+				loadPlayerPositions();
 				writer.println("Your cards are: ");
 				for (Card c : ((Cards) o).getCards()) {
 					writer.println("\t" + c.toString());
@@ -272,6 +268,14 @@ public class MudPlayer implements Runnable, MessageListener {
 			writer.println("The game seems to no longer exist.  Try leaving this one and joining another.");
 			logger.error("Player " + this.username + " could not find game "
 					+ this.gameId, e);
+		}
+	}
+
+	public void loadPlayerPositions() throws NoSuchGameException {
+		for (PlayerData pd : service.getStatus(this.gameId)
+				.getPlayers()) {
+			this.players.put(pd.getPlayerName(),
+					Grid.getStartingPosition(pd.getSuspect()));
 		}
 	}
 
