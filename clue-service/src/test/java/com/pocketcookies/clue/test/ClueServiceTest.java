@@ -473,13 +473,31 @@ public class ClueServiceTest extends TestCase {
 				((Leave) service.getUpdates(key1, gameId, null)[9]).getPlayer());
 	}
 
-	public void nullDisproveCanEndTurn() {
-		// TODO: Test that when there is no one to disprove something, the turn
-		// can still continue.
-	}
-
-	public void plumCanSuggest() {
-		// TODO: Test that wrapping around for who needs to suggest can work.
+	public void nullDisproveCanEndTurn() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, IllegalMoveException, NotInRoomException {
+		// Mustard starts since he will be closest to the dining room. We need
+		// him to be in the dining room because we know that is the solution and
+		// we are testing whether a suggestion that can be disproved by no one
+		// still allows the player to end his or her turn. We also need to make
+		// sure that other players do not take their turn before Mustard.
+		ClueService service = new ClueService(new Random(3));
+		String mustard = service.login("m", "");
+		String white = service.login("w", "");
+		String green = service.login("g", "");
+		int gameId = service.create(mustard, "test");
+		service.join(mustard, gameId, Suspect.MUSTARD);
+		service.join(white, gameId, Suspect.WHITE);
+		service.join(green, gameId, Suspect.GREEN);
+		service.startGame(mustard, gameId);
+		service.move(mustard, gameId, 5, 14);
+		service.suggest(mustard, gameId, Card.MUSTARD, Card.SPANNER);
+		assertEquals(null,
+				((Disprove) service.getUpdates(mustard, gameId, null)[7])
+						.getPlayer());
+		service.endTurn(mustard, gameId);
 	}
 
 	public void testTurnOrder() throws NotLoggedInException,
