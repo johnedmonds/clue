@@ -363,6 +363,6 @@ public interface ClueServiceAPI {
 	 * @throws NoSuchGameException
 	 * @throws NotInGameException
 	 */
-	public Collection<Card> getCards(String key, int gameId)
+	public Card[] getCards(String key, int gameId)
 			throws NoSuchGameException, NotInGameException;
 }

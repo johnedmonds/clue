@@ -396,12 +396,21 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	@Override
-	public Collection<Card> getCards(String arg0, int arg1)
-			throws NoSuchGameException, NotInGameException {
+	public Card[] getCards(String key, int gameId) throws NoSuchGameException,
+			NotInGameException {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		return null;
-		// TODO:Finish this.
-	}
+		Game g = (Game) session.load(Game.class, gameId);
+		if (g == null)
+			throw new NoSuchGameException();
+		if (g.getGameStartedState() == GameStartedState.NOT_STARTED)
+			return null;
+		Player p = g.getPlayerWithKey(key);
+		if (p == null)
+			throw new NotInGameException();
 
+		Card[] ret = p.getHand().toArray(new Card[p.getHand().size()]);
+		session.getTransaction().commit();
+		return ret;
+	}
 }

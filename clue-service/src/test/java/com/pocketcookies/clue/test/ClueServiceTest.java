@@ -3,6 +3,8 @@ package com.pocketcookies.clue.test;
 import java.util.Date;
 import java.util.Random;
 
+import org.hibernate.ObjectNotFoundException;
+
 import junit.framework.TestCase;
 
 import com.pocketcookies.clue.Card;
@@ -548,5 +550,35 @@ public class ClueServiceTest extends TestCase {
 		service.endTurn(keys[Suspect.PLUM.ordinal()], gameId);
 		// Test wrap-around.
 		service.endTurn(keys[Suspect.SCARLETT.ordinal()], gameId);
+	}
+
+	public void testGetCards() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotInGameException,
+			NotEnoughPlayersException {
+		ClueService service = new ClueService(new Random(3));
+		String key1 = service.login("user1", "pass");
+		String key2 = service.login("user2", "pass");
+		String key3 = service.login("user3", "pass");
+		String key4 = service.login("user4", "pass");
+		int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.WHITE);
+		assertNull(service.getCards(key1, gameId));
+		service.startGame(key1, gameId);
+		try {
+			service.getCards(key4, gameId);
+			fail("Player got cards for a game the player was not in.");
+		} catch (NotInGameException e) {
+		}
+		try {
+			service.getCards(key4, gameId + 1);
+			fail("Player got cards for a non-existent game.");
+		} catch (NoSuchGameException e) {
+		} catch (ObjectNotFoundException e) {
+		}
+		assertNotNull(service.getCards(key1, gameId));
 	}
 }
