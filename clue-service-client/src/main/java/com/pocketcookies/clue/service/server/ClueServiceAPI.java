@@ -1,5 +1,6 @@
 package com.pocketcookies.clue.service.server;
 
+import java.util.Collection;
 import java.util.Date;
 
 import com.pocketcookies.clue.Card;
@@ -346,4 +347,22 @@ public interface ClueServiceAPI {
 	 */
 	public void leave(String key, int gameId) throws NotLoggedInException,
 			NoSuchGameException, NotInGameException;
+
+	/**
+	 * Allows users to get their cards. This is mainly for the MUD game where
+	 * players can accidentally leave and then rejoin but they will not have
+	 * their cards.
+	 * 
+	 * @param key
+	 *            The player's key.
+	 * @param gameId
+	 *            The game for which the cards should be retrieved.
+	 * @return The player's cards. If the game has not yet started, this
+	 *         function will return null.
+	 * @throws NotLoggedInException
+	 * @throws NoSuchGameException
+	 * @throws NotInGameException
+	 */
+	public Collection<Card> getCards(String key, int gameId)
+			throws NoSuchGameException, NotInGameException;
 }

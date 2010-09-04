@@ -1,7 +1,6 @@
 package com.pocketcookies.clue.service.server.mud.commands;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
 

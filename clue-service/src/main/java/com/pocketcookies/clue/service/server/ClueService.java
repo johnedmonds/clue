@@ -10,6 +10,7 @@ package com.pocketcookies.clue.service.server;
 import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -392,6 +393,15 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 			throw new NoSuchGameException();
 		g.leave(key);
 		session.getTransaction().commit();
+	}
+
+	@Override
+	public Collection<Card> getCards(String arg0, int arg1)
+			throws NoSuchGameException, NotInGameException {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		return null;
+		// TODO:Finish this.
 	}
 
 }
