@@ -232,11 +232,11 @@ public class MudPlayer implements Runnable, MessageListener {
 	}
 
 	public void processNextTurn(NextTurn nextTurn) {
+		System.out.println("Here");
 		new Formatter(writer)
-				.format("It is now %s's turn.  That player has %i movement points available.",
+				.format("It is now %s's turn.  That player has %d movement points available.",
 						nextTurn.getPlayer(),
 						nextTurn.getMovementPointsAvailable());
-		System.out.println();
 	}
 
 	public void processDisprovingCard(DisprovingCard d) {
