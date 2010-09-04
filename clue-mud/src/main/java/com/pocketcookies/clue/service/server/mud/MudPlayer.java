@@ -75,7 +75,6 @@ public class MudPlayer implements Runnable, MessageListener {
 	private int gameId = -1;
 	private TopicSession session;
 	private TopicSubscriber subscriber;
-	private Card[] cards = null;
 
 	public MudPlayer(Socket client, ClueServiceAPI service) {
 		this.client = client;
@@ -183,7 +182,6 @@ public class MudPlayer implements Runnable, MessageListener {
 	}
 
 	public void leave() {
-		this.cards = null;
 		this.gameId = -1;
 		this.suspect = null;
 		this.players.clear();
@@ -298,9 +296,8 @@ public class MudPlayer implements Runnable, MessageListener {
 	public void processCardsMessage(Cards cards) throws NoSuchGameException {
 		// Position all the players.
 		loadPlayerPositions();
-		this.cards = cards.getCards();
 		writer.println("Your cards are: ");
-		for (Card c : this.cards) {
+		for (Card c : cards.getCards()) {
 			writer.println("\t" + c.toString());
 		}
 	}
@@ -349,7 +346,4 @@ public class MudPlayer implements Runnable, MessageListener {
 		return this.client;
 	}
 
-	public Card[] getCards() {
-		return this.cards;
-	}
 }
