@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Formatter;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,7 +26,6 @@ import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.messages.Join;
-import com.pocketcookies.clue.messages.PlayerMessage;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;

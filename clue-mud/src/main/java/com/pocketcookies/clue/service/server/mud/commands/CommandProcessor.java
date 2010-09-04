@@ -25,6 +25,7 @@ public class CommandProcessor {
 		addCommand(new SuggestCommand());
 		addCommand(new AccuseCommand());
 		addCommand(new DisproveCommand());
+		addCommand(new RejoinCommand());
 	}
 
 	/**

@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
-import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
