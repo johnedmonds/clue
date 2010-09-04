@@ -500,6 +500,29 @@ public class ClueServiceTest extends TestCase {
 		service.endTurn(mustard, gameId);
 	}
 
+	public void testSuggestWrap() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, IllegalMoveException, NotInRoomException {
+		ClueService service = new ClueService(new Random(3));
+		// Tests that wrapping around to check if a player can disprove does not
+		// throw an exception (e.g. Plum suggesting needs to wrap around to
+		// Scarlett).
+		String plum = service.login("p", "");
+		String scarlett = service.login("s", "");
+		String white = service.login("w", "");
+		int gameId = service.create(plum, "test");
+		service.join(plum, gameId, Suspect.PLUM);
+		service.join(scarlett, gameId, Suspect.SCARLETT);
+		service.join(white, gameId, Suspect.WHITE);
+		service.startGame(plum, gameId);
+		service.endTurn(scarlett, gameId);
+		service.endTurn(white, gameId);
+		service.move(plum, gameId, 21, 17);
+		service.suggest(plum, gameId, Card.MUSTARD, Card.SPANNER);
+	}
+
 	public void testTurnOrder() throws NotLoggedInException,
 			GameAlreadyExistsException, NoSuchGameException,
 			SuspectTakenException, GameStartedException,
