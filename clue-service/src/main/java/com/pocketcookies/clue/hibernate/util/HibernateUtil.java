@@ -1,7 +1,5 @@
 package com.pocketcookies.clue.hibernate.util;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;

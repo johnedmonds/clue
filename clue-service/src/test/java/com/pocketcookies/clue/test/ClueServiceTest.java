@@ -5,8 +5,6 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
-
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
@@ -26,7 +24,6 @@ import com.pocketcookies.clue.exceptions.SuspectTakenException;
 import com.pocketcookies.clue.hibernate.util.HibernateUtil;
 import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.Message;
-import com.pocketcookies.clue.messages.PlayerMessage;
 import com.pocketcookies.clue.messages.targeted.Cards;
 import com.pocketcookies.clue.messages.targeted.DisprovingCard;
 import com.pocketcookies.clue.messages.broadcast.Chat;
@@ -40,7 +37,6 @@ import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueService;
 
 public class ClueServiceTest extends TestCase {
-	private static Logger logger = Logger.getLogger(ClueServiceTest.class);
 
 	public void setUp() {
 		HibernateUtil.dangerouslyReloadSessionForUnitTesting();
@@ -113,10 +109,6 @@ public class ClueServiceTest extends TestCase {
 		assertFalse(p1Messages[3] instanceof NextTurn);
 		assertTrue(p1Messages[4] instanceof NextTurn);
 		assertFalse(p1Messages[4] instanceof Cards);
-		// Let's just make sure this doesn't cause an exception.
-		// This was mainly a hold-over from when we were using XMLBeans and
-		// changing types was somewhat dangerous.
-		Cards p1CardsMessage = (Cards) p1Messages[3];
 		NextTurn p1NextTurn = (NextTurn) p1Messages[4];
 		assertEquals("clue", p1NextTurn.getPlayer());
 		assertEquals(9, p1NextTurn.getMovementPointsAvailable());
@@ -408,8 +400,7 @@ public class ClueServiceTest extends TestCase {
 				((NextTurn) service.getUpdates(key2, gameId, null)[7])
 						.getPlayer());
 		assertEquals("user1",
-				((Leave) service.getUpdates(key2, gameId, null)[8])
-						.getPlayer());
+				((Leave) service.getUpdates(key2, gameId, null)[8]).getPlayer());
 		try {
 			service.disprove(key2, gameId, Card.HALL);
 			fail("The user should not be able to disprove after the current player has left.");
@@ -478,6 +469,7 @@ public class ClueServiceTest extends TestCase {
 						.getPlayer());
 		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
 				gameId, null)[8]).getCard());
-		assertEquals("user2", ((Leave)service.getUpdates(key1, gameId, null)[9]).getPlayer());
+		assertEquals("user2",
+				((Leave) service.getUpdates(key1, gameId, null)[9]).getPlayer());
 	}
 }

@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import com.caucho.hessian.io.HessianServiceException;
 import com.caucho.hessian.server.HessianServlet;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.Game;
@@ -47,13 +46,13 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.type.EnumType;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
  */
 public class ClueService extends HessianServlet implements ClueServiceAPI {
+	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(ClueService.class);
 	private Random random = new Random();
 	private BrokerService broker;
@@ -99,10 +98,10 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private static final byte[] SALT = new String(
 			"cai9Eethiek8ziqueih5reij9cei\\lae5quei:f1").getBytes();
 
+	@SuppressWarnings("unchecked")
 	public GameData[] getGames(String name, GameStartedState state) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		@SuppressWarnings("unchecked")
 		List<Game> games;
 		Query query = session.createQuery("from Game where "
 				+ (name == null ? "1 = 1" : "name = :name") + " and "

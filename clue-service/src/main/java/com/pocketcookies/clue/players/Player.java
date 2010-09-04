@@ -170,6 +170,7 @@ public class Player implements Serializable {
 	 *            All messages published after this date will be returned.
 	 * @return All messages published after "since."
 	 */
+	@SuppressWarnings("unchecked")
 	public Message[] getUpdates(Date since) {
 		List<HibernateMessage> messages;
 		if (since != null) {
