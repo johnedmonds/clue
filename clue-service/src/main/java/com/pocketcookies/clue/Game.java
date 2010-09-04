@@ -329,9 +329,10 @@ public class Game {
 		// player attempts to disprove it.
 		this.disprovingPlayer = findDisprovingPlayer(this.proposition);
 		// No one can disprove the suggestion.
-		if (this.disprovingPlayer == null)
+		if (this.disprovingPlayer == null) {
 			publish(new Disprove(null));
-		else {
+			this.proposition = null;
+		} else {
 			// Say who can disprove the suggestion.
 			publish(new Disprove(this.disprovingPlayer.getUser().getName()));
 			// If the player who is supposed to be disproving this suggestion
