@@ -192,68 +192,28 @@ public class MudPlayer implements Runnable, MessageListener {
 		try {
 			Object o = ((ObjectMessage) m).getObject();
 			assert (o instanceof com.pocketcookies.clue.messages.Message);
-			if (o instanceof NextTurn) {
-				writer.println("It is now " + ((NextTurn) o).getPlayer()
-						+ "'s turn.  That player has "
-						+ ((NextTurn) o).getMovementPointsAvailable()
-						+ " movement points available.");
-			} else if (o instanceof Cards) {
-				// The game is starting.
-				// Position all the players.
-				loadPlayerPositions();
-				writer.println("Your cards are: ");
-				for (Card c : ((Cards) o).getCards()) {
-					writer.println("\t" + c.toString());
-				}
-
-			} else if (o instanceof Move) {
-				new Formatter(writer).format(
-						"Player %s moved from (%d,%d) to (%d,%d)",
-						((Move) o).getPlayer(), ((Move) o).getxFrom(),
-						((Move) o).getyFrom(), ((Move) o).getxTo(),
-						((Move) o).getyTo()).flush();
-				// Sanity check that we remember the original position of the
-				// player.
-				assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
-						.equals(this.players.get(((Move) o).getPlayer())));
-				// Move where we think that player is.
-				this.players.put(((Move) o).getPlayer(),
-						new Point(((Move) o).getxTo(), ((Move) o).getyTo()));
-			} else if (o instanceof Chat) {
-				new Formatter(writer).format("Player %s says \"%s\"",
-						((Chat) o).getPlayer(), ((Chat) o).getMessage());
-			} else if (o instanceof Suggestion) {
-				Suggestion suggestion = (Suggestion) o;
-				new Formatter(writer).format(
-						"Player %s suggested %s in the %s with the %s.",
-						suggestion.getPlayer(), suggestion.getSuspect()
-								.toString(), suggestion.getRoom().toString(),
-						suggestion.getWeapon().toString());
-			} else if (o instanceof Accusation) {
-				Accusation accusation = (Accusation) o;
-				new Formatter(writer).format(
-						"Player %s accused %s in the %s with the %s.",
-						accusation.getPlayer(), accusation.getSuspect()
-								.toString(), accusation.getRoom().toString(),
-						accusation.getWeapon().toString());
-			} else if (o instanceof Disprove) {
-				Disprove d = (Disprove) o;
-				new Formatter(writer).format(
-						"Player %s can disprove the proposition.",
-						d.getPlayer());
-			} else if (o instanceof Join) {
-				Join j = (Join) o;
-				new Formatter(writer).format("%s joined as %s.", j.getPlayer(),
-						j.getSuspect().toString());
-			} else if (o instanceof Leave) {
-				Leave leave = (Leave) o;
-				this.players.remove(leave.getPlayer());
-				new Formatter(writer).format("%s left.", leave.getPlayer());
-			} else if (o instanceof DisprovingCard) {
-				DisprovingCard d = (DisprovingCard) o;
-				new Formatter(writer).format("You are shown %s.", d.getCard()
-						.toString());
-			} else {
+			if (o instanceof NextTurn)
+				processNextTurn(o);
+			// We use this message to know that the game is starting.
+			else if (o instanceof Cards)
+				processCardsMessage(o);
+			else if (o instanceof Move)
+				processMove(o);
+			else if (o instanceof Chat)
+				processChat(o);
+			else if (o instanceof Suggestion)
+				processSuggestion(o);
+			else if (o instanceof Accusation)
+				processAccusation(o);
+			else if (o instanceof Disprove)
+				processDisprove(o);
+			else if (o instanceof Join)
+				processJoin(o);
+			else if (o instanceof Leave)
+				processLeave(o);
+			else if (o instanceof DisprovingCard)
+				processDisprovingCard(o);
+			else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
 			}
@@ -271,9 +231,87 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
+	public void processNextTurn(Object o) {
+		writer.println("It is now " + ((NextTurn) o).getPlayer()
+				+ "'s turn.  That player has "
+				+ ((NextTurn) o).getMovementPointsAvailable()
+				+ " movement points available.");
+	}
+
+	public void processDisprovingCard(Object o) {
+		DisprovingCard d = (DisprovingCard) o;
+		new Formatter(writer).format("You are shown %s.", d.getCard()
+				.toString());
+	}
+
+	public void processLeave(Object o) {
+		Leave leave = (Leave) o;
+		this.players.remove(leave.getPlayer());
+		new Formatter(writer).format("%s left.", leave.getPlayer());
+	}
+
+	public void processJoin(Object o) {
+		Join j = (Join) o;
+		new Formatter(writer).format("%s joined as %s.", j.getPlayer(), j
+				.getSuspect().toString());
+	}
+
+	public void processDisprove(Object o) {
+		Disprove d = (Disprove) o;
+		new Formatter(writer).format("Player %s can disprove the proposition.",
+				d.getPlayer());
+	}
+
+	public void processAccusation(Object o) {
+		Accusation accusation = (Accusation) o;
+		new Formatter(writer).format(
+				"Player %s accused %s in the %s with the %s.", accusation
+						.getPlayer(), accusation.getSuspect().toString(),
+				accusation.getRoom().toString(), accusation.getWeapon()
+						.toString());
+	}
+
+	public void processSuggestion(Object o) {
+		Suggestion suggestion = (Suggestion) o;
+		new Formatter(writer).format(
+				"Player %s suggested %s in the %s with the %s.", suggestion
+						.getPlayer(), suggestion.getSuspect().toString(),
+				suggestion.getRoom().toString(), suggestion.getWeapon()
+						.toString());
+	}
+
+	public void processChat(Object o) {
+		new Formatter(writer).format("Player %s says \"%s\"",
+				((Chat) o).getPlayer(), ((Chat) o).getMessage());
+		System.out.println();
+	}
+
+	public void processMove(Object o) {
+		new Formatter(writer)
+				.format("Player %s moved from (%d,%d) to (%d,%d)",
+						((Move) o).getPlayer(), ((Move) o).getxFrom(),
+						((Move) o).getyFrom(), ((Move) o).getxTo(),
+						((Move) o).getyTo()).flush();
+		// Sanity check that we remember the original position of the
+		// player.
+		assert (new Point(((Move) o).getxFrom(), ((Move) o).getxTo())
+				.equals(this.players.get(((Move) o).getPlayer())));
+		// Move where we think that player is.
+		this.players.put(((Move) o).getPlayer(), new Point(((Move) o).getxTo(),
+				((Move) o).getyTo()));
+	}
+
+	public void processCardsMessage(Object o) throws NoSuchGameException {
+		// Position all the players.
+		loadPlayerPositions();
+		writer.println("Your cards are: ");
+		for (Card c : ((Cards) o).getCards()) {
+			writer.println("\t" + c.toString());
+		}
+	}
+
 	public void loadPlayerPositions() throws NoSuchGameException {
-		for (PlayerData pd : service.getStatus(this.gameId)
-				.getPlayers()) {
+		for (PlayerData pd : service.getStatus(this.gameId).getPlayers()) {
 			this.players.put(pd.getPlayerName(),
 					Grid.getStartingPosition(pd.getSuspect()));
 		}
