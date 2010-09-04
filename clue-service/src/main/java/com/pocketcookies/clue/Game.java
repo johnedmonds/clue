@@ -436,9 +436,11 @@ public class Game {
 		for (int i = this.currentPlayer.getId().getSuspect().ordinal() + 1; i
 				% this.players.size() != this.currentPlayer.getId()
 				.getSuspect().ordinal(); i++) {
-			if (this.players.get(i) != null
-					&& findDisprovingCard(this.players.get(i), proposition) != null)
-				return this.players.get(i);
+			if (this.players.get(i % this.players.size()) != null
+					&& findDisprovingCard(
+							this.players.get(i % this.players.size()),
+							proposition) != null)
+				return this.players.get(i % this.players.size());
 		}
 		return null;
 	}

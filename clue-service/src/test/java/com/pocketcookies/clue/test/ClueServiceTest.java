@@ -472,4 +472,40 @@ public class ClueServiceTest extends TestCase {
 		assertEquals("user2",
 				((Leave) service.getUpdates(key1, gameId, null)[9]).getPlayer());
 	}
+
+	public void nullDisproveCanEndTurn() {
+		// TODO: Test that when there is no one to disprove something, the turn
+		// can still continue.
+	}
+
+	public void plumCanSuggest() {
+		// TODO: Test that wrapping around for who needs to suggest can work.
+	}
+
+	public void testTurnOrder() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException {
+		ClueService service = new ClueService(new Random(3));
+		String[] keys = new String[Suspect.values().length];
+		for (Suspect s : Suspect.values()) {
+			keys[s.ordinal()] = service.login("key" + s.ordinal(), "pass");
+		}
+		int gameId = service.create(keys[0], "test");
+		for (Suspect s : Suspect.values()) {
+			service.join(keys[s.ordinal()], gameId, s);
+		}
+		service.startGame(keys[0], gameId);
+		// End turn by players in the order in which the players should take
+		// their turns.
+		service.endTurn(keys[Suspect.SCARLETT.ordinal()], gameId);
+		service.endTurn(keys[Suspect.MUSTARD.ordinal()], gameId);
+		service.endTurn(keys[Suspect.WHITE.ordinal()], gameId);
+		service.endTurn(keys[Suspect.GREEN.ordinal()], gameId);
+		service.endTurn(keys[Suspect.PEACOCK.ordinal()], gameId);
+		service.endTurn(keys[Suspect.PLUM.ordinal()], gameId);
+		// Test wrap-around.
+		service.endTurn(keys[Suspect.SCARLETT.ordinal()], gameId);
+	}
 }
