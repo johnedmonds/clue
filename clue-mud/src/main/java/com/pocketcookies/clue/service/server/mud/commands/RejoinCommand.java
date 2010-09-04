@@ -61,6 +61,14 @@ public class RejoinCommand implements Command {
 			player.setGameId(gameId);
 			player.suspect = findSuspect(data.getPlayers(),
 					player.getUsername());
+			// TODO: The order of loadPlayerPositions and startMessageConnection
+			// may cause the sanity check on player positions to fail thus
+			// disconnecting this player. The problem is that we check to make
+			// sure that, whenever we receive a message about a player's
+			// location, we know where the player was originally. If the player
+			// were to move in the short time between the call to
+			// loadPlayerPositions and startMessageConnection, we could fail the
+			// sanity check upon the next receipt of a move message.
 			player.loadPlayerPositions();
 			player.startMessageConnection();
 			writer.println("You have successfully rejoined the game.");
