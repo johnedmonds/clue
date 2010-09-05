@@ -269,14 +269,6 @@ public class ClueServiceTest extends TestCase {
 		assertEquals("clue2", ((GameOver) p2Messages[1]).getPlayer());
 	}
 
-	private static boolean gameDataIncludesGameWithId(GameData[] data, int id) {
-		for (GameData gd : data) {
-			if (gd.getGameId() == id)
-				return true;
-		}
-		return false;
-	}
-
 	public void testLeave() throws NotLoggedInException,
 			GameAlreadyExistsException, NoSuchGameException,
 			GameStartedException, NotEnoughPlayersException,
@@ -524,5 +516,18 @@ public class ClueServiceTest extends TestCase {
 		} catch (ObjectNotFoundException e) {
 		}
 		assertNotNull(service.getCards(key1, gameId));
+	}
+
+	public void testGetStatusByName() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final int gameId = service.create(key1, "test");
+		try {
+			service.getStatusByName("none");
+			fail("We were able to get data about a game that does not exist.");
+		} catch (NoSuchGameException e) {
+		}
+		assertEquals(gameId, service.getStatusByName("test").getGameId());
 	}
 }

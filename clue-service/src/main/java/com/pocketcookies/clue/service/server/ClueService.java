@@ -322,12 +322,12 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 			throws NoSuchGameException {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		try {
-			return ((Game) session.createQuery("from Game where name = :name")
-					.setString("name", gameName).uniqueResult()).getData();
-		} catch (HibernateException e) {
+		final Game g = (Game) session
+				.createQuery("from Game where name = :name")
+				.setString("name", gameName).uniqueResult();
+		if (g == null)
 			throw new NoSuchGameException();
-		}
+		return g.getData();
 	}
 
 	@Override
