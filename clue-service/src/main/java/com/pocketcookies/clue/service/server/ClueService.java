@@ -10,7 +10,6 @@ package com.pocketcookies.clue.service.server;
 import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -44,11 +43,7 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.type.EnumType;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
