@@ -45,6 +45,7 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.EnumType;
@@ -98,29 +99,6 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 
 	private static final byte[] SALT = new String(
 			"cai9Eethiek8ziqueih5reij9cei\\lae5quei:f1").getBytes();
-
-	@SuppressWarnings("unchecked")
-	public GameData[] getGames(String name, GameStartedState state) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		List<Game> games;
-		Query query = session.createQuery("from Game where "
-				+ (name == null ? "1 = 1" : "name = :name") + " and "
-				+ (state == null ? "1 = 1" : "gameStartedState = :state"));
-		if (name != null)
-			query.setString("name", name);
-		if (state != null)
-			query.setParameter("state", state, Hibernate.custom(EnumType.class,
-					new String[] { "enumClass" },
-					new String[] { GameStartedState.class.getName() }));
-		games = query.list();
-		GameData[] data = new GameData[games.size()];
-		for (int i = 0; i < data.length; i++) {
-			data[i] = games.get(i).getData();
-		}
-		session.getTransaction().commit();
-		return data;
-	}
 
 	private void validateUser(String key) throws NotLoggedInException {
 		if (HibernateUtil.getSessionFactory().getCurrentSession()
@@ -340,6 +318,19 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	@Override
+	public com.pocketcookies.clue.GameData getStatusByName(String gameName)
+			throws NoSuchGameException {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		try {
+			return ((Game) session.createQuery("from Game where name = :name")
+					.setString("name", gameName).uniqueResult()).getData();
+		} catch (HibernateException e) {
+			throw new NoSuchGameException();
+		}
+	}
+
+	@Override
 	public void startGame(String key, int gameId) throws NotLoggedInException,
 			NoSuchGameException, GameStartedException,
 			NotEnoughPlayersException {
@@ -412,5 +403,19 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		Card[] ret = p.getHand().toArray(new Card[p.getHand().size()]);
 		session.getTransaction().commit();
 		return ret;
+	}
+
+	@Override
+	public GameData[] getGames() {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		@SuppressWarnings("unchecked")
+		List<Game> games = session.createQuery("from Game").list();
+		GameData data[] = new GameData[games.size()];
+		for (int i = 0; i < data.length; i++) {
+			data[i] = games.get(i).getData();
+		}
+		session.getTransaction().commit();
+		return data;
 	}
 }

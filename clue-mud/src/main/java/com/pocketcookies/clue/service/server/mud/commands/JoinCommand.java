@@ -3,11 +3,13 @@ package com.pocketcookies.clue.service.server.mud.commands;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.GameData;
-import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
@@ -20,15 +22,12 @@ import com.pocketcookies.clue.service.server.mud.MudPlayer;
 
 public class JoinCommand implements Command {
 
-	private static final Logger logger = Logger.getLogger(JoinCommand.class);
+	private static final Pattern joinCommandParser = Pattern
+			.compile("[^\\s]+ (.*) ([^\\s]+)");
+	private static final Pattern rejoinCommandParser = Pattern
+			.compile("[^\\s]+ (.*)");
 
-	private static boolean isGameId(String s) {
-		for (int i = 0; i < s.length(); i++) {
-			if (!Character.isDigit(s.charAt(i)))
-				return false;
-		}
-		return true;
-	}
+	private static final Logger logger = Logger.getLogger(JoinCommand.class);
 
 	@Override
 	public Collection<String> getCommandAliases() {
@@ -39,77 +38,19 @@ public class JoinCommand implements Command {
 
 	@Override
 	public void process(String command, MudPlayer player) {
-		String[] args = command.split(" ");
-		PrintWriter writer = player.getWriter();
-		ClueServiceAPI service = player.getService();
-		if (args.length != 3)
-			return;
+		final PrintWriter writer = player.getWriter();
 		if (player.isInGame()) {
 			writer.println("You are already in a game and cannot join another one without leaving this one first.");
 			return;
 		}
-		Suspect suspect = Suspect.valueOf(args[2].toUpperCase());
-		if (suspect == null) {
-			writer.println("That is not a valid suspect.");
+		Matcher matcher = null;
+		if ((matcher = joinCommandParser.matcher(command)).matches())
+			join(player, matcher.group(1), matcher.group(2));
+		else if ((matcher = rejoinCommandParser.matcher(command)).matches())
+			rejoin(player, matcher.group(1));
+		else {
+			writer.println("To join a game, use the syntax: join <game name> <suspect>");
 			return;
-		}
-		// It is a number.
-		if (isGameId(args[1])) {
-			try {
-				int tempGameId = Integer.parseInt(args[1]);
-				service.join(player.getKey(), tempGameId, suspect);
-				setupPlayer(tempGameId, suspect, player);
-				writer.println("You have successfully joined that game.");
-			} catch (NumberFormatException e) {
-				logger.error(
-						"There was a problem parsing the number. That probably means there is an error detecting that this is a number.",
-						e);
-				writer.println("No game with that ID exists.");
-			} catch (NotLoggedInException e) {
-				logger.error(
-						"The player appears to be not logged in. Hopefully this was caused by something as simple as the database being reset.",
-						e);
-				writer.println("The server doesn't seem to recognize you.  This is probably our fault.  Try logging out and back in again.");
-			} catch (NoSuchGameException e) {
-				writer.println("No game with that ID exists.");
-			} catch (SuspectTakenException e) {
-				writer.println(String
-						.format("The suspect %s is already taken.  Try picking a different one.",
-								args[1]));
-			} catch (GameStartedException e) {
-				writer.println("That game has already started.");
-			} catch (AlreadyJoinedException e) {
-				writer.println("You have already joined that game.  Perhaps using a different client.  You cannot rejoin the game.");
-			}
-		} else {
-			GameData[] games = service.getGames(args[1],
-					GameStartedState.NOT_STARTED);
-			if (games.length < 1)
-				writer.println("No game by that name exists (or all games by that name have already started).");
-			else if (games.length > 1) {
-				writer.println("There are several games by that name which you may join.  Their ids are below.  Type join <id> <suspect> to join one of those games.");
-				for (GameData gd : games) {
-					writer.println(gd.getGameId());
-				}
-			} else {
-				try {
-					service.join(player.getKey(), games[0].getGameId(), suspect);
-					setupPlayer(games[0].getGameId(), suspect, player);
-					writer.println("You have successfully joined the game.");
-				} catch (NotLoggedInException e) {
-					logger.error("The user is not logged in.", e);
-					writer.println("The server doesn't appear to recognize you.  This is probably our fault.  Try logging out and back in again.");
-				} catch (NoSuchGameException e) {
-					logger.error("We found the game but it disappeared.", e);
-					writer.println("We tried to put you in that game but the game seems to have disappeared.  Try joining again.");
-				} catch (SuspectTakenException e) {
-					writer.println("That suspect is already taken.");
-				} catch (GameStartedException e) {
-					writer.println("The game has already started.  You were too late.");
-				} catch (AlreadyJoinedException e) {
-					writer.println("You are already in that game.  You cannot join again.");
-				}
-			}
 		}
 	}
 
@@ -117,9 +58,65 @@ public class JoinCommand implements Command {
 			MudPlayer player) {
 		player.setGameId(gameId);
 		player.suspect = suspect;
-		//Position ourselves.
+		// Position ourselves.
 		player.getPlayers().put(player.getUsername(),
 				Grid.getStartingPosition(suspect));
 		player.startMessageConnection();
+	}
+
+	private static void join(MudPlayer player, String gameName,
+			String suspectName) {
+		final ClueServiceAPI service = player.getService();
+		final PrintWriter writer = player.getWriter();
+		Suspect suspect;
+		try {
+			suspect = Suspect.valueOf(suspectName);
+		} catch (IllegalArgumentException e) {
+			writer.println("That is not a valid suspect.");
+			return;
+		}
+		GameData data = null;
+		try {
+			data = service.getStatusByName(gameName);
+			final int gameId = data.getGameId();
+			service.join(player.getKey(), gameId, suspect);
+			setupPlayer(gameId, suspect, player);
+		} catch (NoSuchGameException e) {
+			writer.println("There is no game with that name.");
+		} catch (NotLoggedInException e) {
+			writer.println("The server seems to think you are not logged in.  Try logging out and back in again.");
+			logger.error("Player " + player.getUsername()
+					+ " is not logged in.", e);
+		} catch (SuspectTakenException e) {
+			writer.println("That suspect is already in use by another player.  Try choosing a different suspect.");
+		} catch (GameStartedException e) {
+			writer.println("This game has already started.  You cannot join a game that is already in progress.");
+		} catch (AlreadyJoinedException e) {
+			// gameId will be valid here because we will either fail to get it
+			// and cause a different exception, or succeed in getting it and be
+			// able to use it here.
+			rejoin(player, data);
+		}
+	}
+
+	private static void rejoin(MudPlayer player, String gameName) {
+		try {
+			rejoin(player, player.getService().getStatusByName(gameName));
+		} catch (NoSuchGameException e) {
+			player.getWriter().println("No game by that name exists.");
+		}
+	}
+
+	private static Suspect getPlayerSuspect(String playerName, GameData data) {
+		for (PlayerData pd : data.getPlayers()) {
+			if (pd.getPlayerName().equals(playerName))
+				return pd.getSuspect();
+		}
+		return null;
+	}
+
+	private static void rejoin(MudPlayer player, GameData data) {
+		setupPlayer(data.getGameId(),
+				getPlayerSuspect(player.getUsername(), data), player);
 	}
 }

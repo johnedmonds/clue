@@ -266,23 +266,6 @@ public interface ClueServiceAPI {
 			NotYourTurnException, NoSuchGameException;
 
 	/**
-	 * Gets a list of games running on this server. This can also be used for
-	 * searching for games by name with a certain state. The main idea is that
-	 * we allow users to reuse names and when they are joining a game, they will
-	 * want to find a game that has not yet started and goes by a certain name.
-	 * You can also use null for both parameters to get every game on the
-	 * server.
-	 * 
-	 * @param name
-	 *            The name of the game for which to search.
-	 * @param state
-	 *            The state of the game for which to search.
-	 * 
-	 * @return A list of games running on this server.
-	 */
-	public GameData[] getGames(String name, GameStartedState state);
-
-	/**
 	 * Gets the status of a particular game.
 	 * 
 	 * @param gameId
@@ -292,6 +275,26 @@ public interface ClueServiceAPI {
 	 *             Thrown if no game with gameId exists.
 	 */
 	public GameData getStatus(int gameId) throws NoSuchGameException;
+
+	/**
+	 * Gets the status of a game using the game's name.
+	 * 
+	 * Though the game's name could definitely be used as the primary key, I
+	 * would rather not have strings be passed around. Also, the database would
+	 * perform slightly more slowly for strings than for integers.
+	 * 
+	 * @param gameName
+	 * @return
+	 * @throws NoSuchGameException
+	 */
+	public GameData getStatusByName(String gameName) throws NoSuchGameException;
+
+	/**
+	 * Lists all the games being played on the server.
+	 * 
+	 * @return All the games being played on the server.
+	 */
+	public GameData[] getGames();
 
 	/**
 	 * Starts the game.
@@ -363,6 +366,6 @@ public interface ClueServiceAPI {
 	 * @throws NoSuchGameException
 	 * @throws NotInGameException
 	 */
-	public Card[] getCards(String key, int gameId)
-			throws NoSuchGameException, NotInGameException;
+	public Card[] getCards(String key, int gameId) throws NoSuchGameException,
+			NotInGameException;
 }

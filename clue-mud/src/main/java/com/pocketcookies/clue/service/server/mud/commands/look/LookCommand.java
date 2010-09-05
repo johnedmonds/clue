@@ -34,7 +34,7 @@ public class LookCommand implements Command {
 					writer.println("\t" + e.toString());
 				}
 			} else {
-				GameData[] games = player.getService().getGames(null, null);
+				GameData[] games = player.getService().getGames();
 				writer.println("Games: ");
 				for (GameData g : games) {
 					writer.println("\t" + g.getGameId() + "\t"

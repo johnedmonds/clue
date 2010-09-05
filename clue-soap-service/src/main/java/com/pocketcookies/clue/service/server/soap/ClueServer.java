@@ -8,9 +8,7 @@ import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import javax.jms.Topic;
 import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.jws.WebMethod;
@@ -19,13 +17,11 @@ import javax.jws.WebService;
 import javax.naming.NamingException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
-import com.pocketcookies.clue.GameStartedState;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
@@ -48,27 +44,6 @@ public class ClueServer {
 	private static final ClueServiceAPI service;
 	private static final TopicConnection topicConnection;
 	private static Logger logger;
-
-	private static class PlayerId {
-		public String key;
-		public int gameId;
-
-		public PlayerId(String key, int gameId) {
-			this.key = key;
-			this.gameId = gameId;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			PlayerId p = (PlayerId) o;
-			return p.gameId == this.gameId && p.key.equals(this.key);
-		}
-
-		@Override
-		public int hashCode() {
-			return gameId + key.hashCode();
-		}
-	}
 
 	static {
 		logger = Logger.getLogger(ClueServer.class);
@@ -164,7 +139,6 @@ public class ClueServer {
 			@WebParam(name = "timeout") long timeout,
 			@WebParam(name = "since") Date since) throws NotLoggedInException,
 			NoSuchGameException, NotYourTurnException {
-		PlayerId pid = new PlayerId(key, gameId);
 		TopicSession session = null;
 		TopicSubscriber subscriber = null;
 		/*
@@ -287,6 +261,12 @@ public class ClueServer {
 	}
 
 	@WebMethod
+	public GameData getStatusByName(@WebParam(name = "gameName") String gameName)
+			throws NoSuchGameException {
+		return service.getStatusByName(gameName);
+	}
+
+	@WebMethod
 	public void startGame(@WebParam(name = "key") String key,
 			@WebParam(name = "gameId") int gameId) throws NotLoggedInException,
 			NoSuchGameException, GameStartedException,
@@ -301,12 +281,6 @@ public class ClueServer {
 			throws NotLoggedInException, NoSuchGameException,
 			NotYourTurnException, NotInGameException {
 		service.chat(key, gameId, message);
-	}
-
-	@WebMethod
-	public GameData[] getGames(@WebParam(name = "name") String name,
-			@WebParam(name = "state") GameStartedState state) {
-		return service.getGames(name, state);
 	}
 
 }
