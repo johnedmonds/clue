@@ -277,62 +277,6 @@ public class ClueServiceTest extends TestCase {
 		return false;
 	}
 
-	public void testGetGames() throws NotLoggedInException,
-			GameAlreadyExistsException, NoSuchGameException,
-			SuspectTakenException, GameStartedException,
-			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException {
-		ClueService service = new ClueService(new Random(3));
-		String key1 = service.login("clue1", "pass1");
-		String key2 = service.login("clue2", "pass2");
-		String key3 = service.login("clue3", "pass3");
-		int gameId1 = service.create(key1, "test");
-		service.join(key1, gameId1, Suspect.SCARLETT);
-		service.join(key2, gameId1, Suspect.GREEN);
-		service.join(key3, gameId1, Suspect.WHITE);
-		service.startGame(key1, gameId1);
-		service.accuse(key1, gameId1, Card.DINING_ROOM, Card.MUSTARD,
-				Card.SPANNER);
-
-		int gameId2 = service.create(key1, "test");
-		service.join(key1, gameId2, Suspect.SCARLETT);
-		service.join(key2, gameId2, Suspect.GREEN);
-		service.join(key3, gameId2, Suspect.WHITE);
-		service.startGame(key1, gameId2);
-
-		int gameId3 = service.create(key1, "test");
-		int gameId4 = service.create(key1, "test2");
-
-		GameData[] data = service
-				.getGames("test", GameStartedState.NOT_STARTED);
-		assertEquals(1, data.length);
-		assertEquals(gameId3, data[0].getGameId());
-		data = service.getGames("test", GameStartedState.STARTED);
-		assertEquals(1, data.length);
-		assertEquals(gameId2, data[0].getGameId());
-		data = service.getGames("test", GameStartedState.ENDED);
-		assertEquals(1, data.length);
-		assertEquals(gameId1, data[0].getGameId());
-		data = service.getGames("test", null);
-		assertEquals(3, data.length);
-		assertTrue(gameDataIncludesGameWithId(data, gameId1));
-		assertTrue(gameDataIncludesGameWithId(data, gameId2));
-		assertTrue(gameDataIncludesGameWithId(data, gameId3));
-
-		data = service.getGames(null, GameStartedState.NOT_STARTED);
-		assertEquals(2, data.length);
-		assertTrue(gameDataIncludesGameWithId(data, gameId3));
-		assertTrue(gameDataIncludesGameWithId(data, gameId4));
-
-		data = service.getGames(null, null);
-		assertEquals(4, data.length);
-		assertTrue(gameDataIncludesGameWithId(data, gameId1));
-		assertTrue(gameDataIncludesGameWithId(data, gameId2));
-		assertTrue(gameDataIncludesGameWithId(data, gameId3));
-		assertTrue(gameDataIncludesGameWithId(data, gameId4));
-
-	}
-
 	public void testLeave() throws NotLoggedInException,
 			GameAlreadyExistsException, NoSuchGameException,
 			GameStartedException, NotEnoughPlayersException,
