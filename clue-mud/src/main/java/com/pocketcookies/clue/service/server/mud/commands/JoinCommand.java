@@ -3,6 +3,7 @@ package com.pocketcookies.clue.service.server.mud.commands;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,9 +71,11 @@ public class JoinCommand implements Command {
 		final PrintWriter writer = player.getWriter();
 		Suspect suspect;
 		try {
-			suspect = Suspect.valueOf(suspectName);
+			suspect = Suspect.valueOf(suspectName.toUpperCase());
 		} catch (IllegalArgumentException e) {
-			writer.println("That is not a valid suspect.");
+			new Formatter(writer).format("%s is not a valid suspect.",
+					suspectName);
+			writer.println();
 			return;
 		}
 		GameData data = null;
@@ -116,6 +119,11 @@ public class JoinCommand implements Command {
 	}
 
 	private static void rejoin(MudPlayer player, GameData data) {
+		Suspect suspect=getPlayerSuspect(player.getUsername(), data);
+		if (suspect==null){
+			player.getWriter().println("Which suspect do you want to join as?");
+			return;
+		}
 		setupPlayer(data.getGameId(),
 				getPlayerSuspect(player.getUsername(), data), player);
 	}
