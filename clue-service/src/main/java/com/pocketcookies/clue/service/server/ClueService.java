@@ -13,12 +13,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 
 import com.caucho.hessian.server.HessianServlet;
 import com.pocketcookies.clue.Card;
+import com.pocketcookies.clue.DeleteTimerTask;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
@@ -53,6 +55,9 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private static Logger logger = Logger.getLogger(ClueService.class);
 	private Random random = new Random();
 	private BrokerService broker;
+	// !How long games will last until they are deleted.
+	private static final long GAME_LIFE_TIME = 10000;
+	private Timer timer = new Timer();
 
 	public void init() {
 		try {
@@ -168,6 +173,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.flush();
 		int ret = g.getId();
 		session.getTransaction().commit();
+		this.timer.schedule(new DeleteTimerTask(ret), GAME_LIFE_TIME);
 		return ret;
 	}
 
