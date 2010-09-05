@@ -530,4 +530,20 @@ public class ClueServiceTest extends TestCase {
 		}
 		assertEquals(gameId, service.getStatusByName("test").getGameId());
 	}
+
+	public void testGetGames() throws NotLoggedInException,
+			GameAlreadyExistsException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final int gameId1 = service.create(key1, "test");
+		assertEquals(1, service.getGames().length);
+		assertEquals("test", service.getGames()[0].getGameName());
+		assertEquals(gameId1, service.getGames()[0].getGameId());
+		final int gameId2 = service.create(key1, "test2");
+		assertEquals(2, service.getGames().length);
+		assertEquals("test", service.getGames()[0].getGameName());
+		assertEquals(gameId1, service.getGames()[0].getGameId());
+		assertEquals("test2", service.getGames()[1].getGameName());
+		assertEquals(gameId2, service.getGames()[1].getGameId());
+	}
 }
