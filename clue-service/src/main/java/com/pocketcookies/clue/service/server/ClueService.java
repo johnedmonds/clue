@@ -45,7 +45,9 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.type.EnumType;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
@@ -56,7 +58,12 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private Random random = new Random();
 	private BrokerService broker;
 	// !How long games will last until they are deleted.
-	private static final long GAME_LIFE_TIME = 10000;
+	private static final long CREATE_EMPTY_GAME_LIFE_TIME = 10000;
+	private static final long LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
+	// After a certain amount of time, players will be booted from a game that
+	// has ended in case they forgot to leave (or their client does not leave
+	// for them).
+	private static final long PLAYER_BOOT_TIME = 10000;
 	private Timer timer = new Timer();
 
 	public void init() {
@@ -78,10 +85,30 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 					e);
 			throw new ExceptionInInitializerError(e);
 		}
+		logger.info("Clearing games that have ended or are empty which are left over.");
+		clearEndedGames();
+	}
+
+	public static void clearEndedGames() {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		session.createQuery(
+				"delete Game g where g.gameStartedState = :gameStartedState or (select count(*) from Player p where p.id.gameId = g.id) = 0")
+				.setParameter(
+						"gameStartedState",
+						GameStartedState.ENDED,
+						Hibernate
+								.custom(EnumType.class,
+										new String[] { "enumClass" },
+										new String[] { GameStartedState.class
+												.getName() })).executeUpdate();
+		session.getTransaction().commit();
 	}
 
 	public void destroy() {
 		super.destroy();
+		logger.info("Stopping timer.");
+		this.timer.cancel();
 		try {
 			broker.stop();
 			logger.info("Broker stopped.");
@@ -173,7 +200,8 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.flush();
 		int ret = g.getId();
 		session.getTransaction().commit();
-		this.timer.schedule(new DeleteTimerTask(ret), GAME_LIFE_TIME);
+		this.timer.schedule(new DeleteTimerTask(ret),
+				CREATE_EMPTY_GAME_LIFE_TIME);
 		return ret;
 	}
 
@@ -384,6 +412,11 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		if (g == null)
 			throw new NoSuchGameException();
 		g.leave(key);
+		// If, by leaving, the game becomes empty, we schedule a task to delete
+		// the game.
+		if (g.getJoinedPlayersCount() == 0)
+			this.timer.schedule(new DeleteTimerTask(g.getId()),
+					LEAVE_EMPTY_GAME_LIFE_TIME);
 		session.getTransaction().commit();
 	}
 

@@ -148,7 +148,18 @@ public class Game {
 		return null;
 	}
 
-	public synchronized void accuse(Card room, Card suspect, Card weapon) {
+	/**
+	 * Accuses a suspect of the crime in the given room with the given weapon.
+	 * 
+	 * @param room
+	 *            The accused room.
+	 * @param suspect
+	 *            The accused suspect.
+	 * @param weapon
+	 *            The accused weapon.
+	 * @return True if the accusation was correct and false otherwise.
+	 */
+	public boolean accuse(Card room, Card suspect, Card weapon) {
 		this.proposition = new Accusation(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
 		publish(this.proposition);
@@ -159,6 +170,7 @@ public class Game {
 					.getName());
 			publish(gameOver);
 			this.gameStartedState = GameStartedState.ENDED;
+			return true;
 		} else {
 			this.currentPlayer.setLost(true);
 			this.disprovingPlayer = findDisprovingPlayer(this.proposition);
@@ -181,6 +193,7 @@ public class Game {
 				}
 			}
 		}
+		return false;
 	}
 
 	private synchronized void publish(Message m) {
@@ -221,7 +234,7 @@ public class Game {
 
 	public synchronized void start(Random random)
 			throws NotEnoughPlayersException {
-		int cachedJoinedPlayersCount = this.joinedPlayersCount();
+		int cachedJoinedPlayersCount = this.getJoinedPlayersCount();
 		if (cachedJoinedPlayersCount <= 2)
 			throw new NotEnoughPlayersException();
 		// We don't really know how many cards will be dealt to each player (we
@@ -373,7 +386,7 @@ public class Game {
 		this.publish(chat);
 	}
 
-	private int joinedPlayersCount() {
+	public int getJoinedPlayersCount() {
 		int count = 0;
 		for (Player p : this.players) {
 			if (p != null)
