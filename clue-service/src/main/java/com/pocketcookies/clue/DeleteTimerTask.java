@@ -38,7 +38,6 @@ public class DeleteTimerTask extends TimerTask {
 										new String[] { GameStartedState.class
 												.getName() })).executeUpdate();
 		session.getTransaction().commit();
-		System.out.println("Deleted game.");
 	}
 
 }

@@ -200,6 +200,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.flush();
 		int ret = g.getId();
 		session.getTransaction().commit();
+		// If no one joins the game, it will be deleted.
 		this.timer.schedule(new DeleteTimerTask(ret),
 				CREATE_EMPTY_GAME_LIFE_TIME);
 		return ret;
