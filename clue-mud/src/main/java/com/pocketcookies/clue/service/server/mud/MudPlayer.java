@@ -29,6 +29,7 @@ import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
 import com.pocketcookies.clue.messages.broadcast.Chat;
 import com.pocketcookies.clue.messages.broadcast.Disprove;
+import com.pocketcookies.clue.messages.broadcast.GameOver;
 import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
@@ -213,6 +214,8 @@ public class MudPlayer implements Runnable, MessageListener {
 				processLeave((Leave) o);
 			else if (o instanceof DisprovingCard)
 				processDisprovingCard((DisprovingCard) o);
+			else if (o instanceof GameOver)
+				processGameOver((GameOver) o);
 			else {
 				logger.warn("You forgot to handle this type of message.");
 				writer.println("Unknown message type.");
@@ -231,8 +234,18 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
+	private void processGameOver(GameOver go) {
+		new Formatter(writer).format("%s won the game.", go.getPlayer());
+		try {
+			service.leave(this.key, this.gameId);
+		} catch (Exception e) {
+			logger.error("There was an error leaving.", e);
+		}
+		this.leave();
+		this.stopMessageConnection();
+	}
+
 	public void processNextTurn(NextTurn nextTurn) {
-		System.out.println("Here");
 		new Formatter(writer)
 				.format("It is now %s's turn.  That player has %d movement points available.",
 						nextTurn.getPlayer(),

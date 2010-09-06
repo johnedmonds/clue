@@ -32,7 +32,7 @@ public class AccuseCommand implements Command {
 			return;
 		}
 		Card room = null, suspect = null, weapon = null;
-		for (String s : Arrays.asList(args).subList(1, args.length - 1)) {
+		for (String s : Arrays.asList(args).subList(1, args.length)) {
 			try {
 				Card temp = Card.valueOf(s);
 				if (temp.isRoom())
