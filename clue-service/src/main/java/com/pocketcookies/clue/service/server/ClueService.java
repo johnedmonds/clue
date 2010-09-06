@@ -46,9 +46,7 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.type.EnumType;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
@@ -86,24 +84,6 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 					e);
 			throw new ExceptionInInitializerError(e);
 		}
-		logger.info("Clearing games that have ended or are empty which are left over.");
-		clearEndedGames();
-	}
-
-	public static void clearEndedGames() {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		session.createQuery(
-				"delete Game g where g.gameStartedState = :gameStartedState or (select count(*) from Player p where p.id.gameId = g.id) = 0")
-				.setParameter(
-						"gameStartedState",
-						GameStartedState.ENDED,
-						Hibernate
-								.custom(EnumType.class,
-										new String[] { "enumClass" },
-										new String[] { GameStartedState.class
-												.getName() })).executeUpdate();
-		session.getTransaction().commit();
 	}
 
 	public void destroy() {
@@ -120,17 +100,17 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	public ClueService() {
-		this.CREATE_EMPTY_GAME_LIFE_TIME = 10000;
-		this.LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
-		this.PLAYER_BOOT_TIME = 10000;
+		this.CREATE_EMPTY_GAME_LIFE_TIME = 100000;
+		this.LEAVE_EMPTY_GAME_LIFE_TIME = 100000;
+		this.PLAYER_BOOT_TIME = 100000;
 		this.timer = new Timer();
 		this.random = new Random();
 	}
 
 	public ClueService(Random random) {
-		this.CREATE_EMPTY_GAME_LIFE_TIME = 10000;
-		this.LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
-		this.PLAYER_BOOT_TIME = 10000;
+		this.CREATE_EMPTY_GAME_LIFE_TIME = 100000;
+		this.LEAVE_EMPTY_GAME_LIFE_TIME = 100000;
+		this.PLAYER_BOOT_TIME = 100000;
 		this.random = random;
 		this.timer = null;
 	}
