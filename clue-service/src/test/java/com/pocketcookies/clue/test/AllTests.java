@@ -11,6 +11,7 @@ public class AllTests {
 		suite.addTestSuite(BoardTest.class);
 		suite.addTestSuite(ClueServiceTest.class);
 		suite.addTestSuite(HibernateTest.class);
+		suite.addTestSuite(TimerTests.class);
 		// $JUnit-END$
 		return suite;
 	}

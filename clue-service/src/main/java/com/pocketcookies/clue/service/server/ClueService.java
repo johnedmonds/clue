@@ -55,16 +55,16 @@ import org.hibernate.type.EnumType;
 public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(ClueService.class);
-	private Random random = new Random();
+	private final Random random;
 	private BrokerService broker;
 	// !How long games will last until they are deleted.
-	private static final long CREATE_EMPTY_GAME_LIFE_TIME = 10000;
-	private static final long LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
+	private final long CREATE_EMPTY_GAME_LIFE_TIME;
+	private final long LEAVE_EMPTY_GAME_LIFE_TIME;
 	// After a certain amount of time, players will be booted from a game that
 	// has ended in case they forgot to leave (or their client does not leave
 	// for them).
-	private static final long PLAYER_BOOT_TIME = 10000;
-	private Timer timer = new Timer();
+	private final long PLAYER_BOOT_TIME;
+	private final Timer timer;
 
 	public void init() {
 		try {
@@ -108,7 +108,8 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	public void destroy() {
 		super.destroy();
 		logger.info("Stopping timer.");
-		this.timer.cancel();
+		if (this.timer != null)
+			this.timer.cancel();
 		try {
 			broker.stop();
 			logger.info("Broker stopped.");
@@ -118,9 +119,27 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	public ClueService() {
+		this.CREATE_EMPTY_GAME_LIFE_TIME = 10000;
+		this.LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
+		this.PLAYER_BOOT_TIME = 10000;
+		this.timer = new Timer();
+		this.random = new Random();
 	}
 
 	public ClueService(Random random) {
+		this.CREATE_EMPTY_GAME_LIFE_TIME = 10000;
+		this.LEAVE_EMPTY_GAME_LIFE_TIME = 10000;
+		this.PLAYER_BOOT_TIME = 10000;
+		this.random = random;
+		this.timer = null;
+	}
+
+	public ClueService(Random random, Timer timer, int createTime,
+			int leaveTime, int bootTime) {
+		this.CREATE_EMPTY_GAME_LIFE_TIME = createTime;
+		this.LEAVE_EMPTY_GAME_LIFE_TIME = leaveTime;
+		this.PLAYER_BOOT_TIME = bootTime;
+		this.timer = timer;
 		this.random = random;
 	}
 
@@ -201,8 +220,9 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		int ret = g.getId();
 		session.getTransaction().commit();
 		// If no one joins the game, it will be deleted.
-		this.timer.schedule(new DeleteTimerTask(ret),
-				CREATE_EMPTY_GAME_LIFE_TIME);
+		if (this.timer != null)
+			this.timer.schedule(new DeleteTimerTask(ret),
+					CREATE_EMPTY_GAME_LIFE_TIME);
 		return ret;
 	}
 
@@ -415,7 +435,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		g.leave(key);
 		// If, by leaving, the game becomes empty, we schedule a task to delete
 		// the game.
-		if (g.getJoinedPlayersCount() == 0)
+		if (this.timer != null && g.getJoinedPlayersCount() == 0)
 			this.timer.schedule(new DeleteTimerTask(g.getId()),
 					LEAVE_EMPTY_GAME_LIFE_TIME);
 		session.getTransaction().commit();
