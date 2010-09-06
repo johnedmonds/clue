@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
@@ -16,7 +17,6 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.SuspectTakenException;
-import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
@@ -61,7 +61,7 @@ public class JoinCommand implements Command {
 		player.suspect = suspect;
 		// Position ourselves.
 		player.getPlayers().put(player.getUsername(),
-				Grid.getStartingPosition(suspect));
+				Board.getStartingPosition(suspect));
 		player.startMessageConnection();
 	}
 
@@ -119,8 +119,8 @@ public class JoinCommand implements Command {
 	}
 
 	private static void rejoin(MudPlayer player, GameData data) {
-		Suspect suspect=getPlayerSuspect(player.getUsername(), data);
-		if (suspect==null){
+		Suspect suspect = getPlayerSuspect(player.getUsername(), data);
+		if (suspect == null) {
 			player.getWriter().println("Which suspect do you want to join as?");
 			return;
 		}

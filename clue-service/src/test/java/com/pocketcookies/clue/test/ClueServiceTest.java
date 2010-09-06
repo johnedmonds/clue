@@ -11,11 +11,11 @@ import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
 import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
@@ -33,7 +33,6 @@ import com.pocketcookies.clue.messages.broadcast.Disprove;
 import com.pocketcookies.clue.messages.broadcast.GameOver;
 import com.pocketcookies.clue.messages.broadcast.Leave;
 import com.pocketcookies.clue.messages.broadcast.NextTurn;
-import com.pocketcookies.clue.messages.broadcast.Move;
 import com.pocketcookies.clue.messages.broadcast.Suggestion;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueService;
@@ -48,8 +47,7 @@ public class ClueServiceTest extends TestCase {
 			NotLoggedInException, NoSuchGameException, AlreadyJoinedException,
 			SuspectTakenException, GameStartedException,
 			NotEnoughPlayersException, NotYourTurnException,
-			IllegalMoveException, NotInRoomException, CheatException,
-			NotInGameException {
+			NotInRoomException, CheatException, NotInGameException {
 		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("clue", "pass");
 		String key2 = service.login("clue2", "pass2");
@@ -114,45 +112,17 @@ public class ClueServiceTest extends TestCase {
 		NextTurn p1NextTurn = (NextTurn) p1Messages[4];
 		assertEquals("clue", p1NextTurn.getPlayer());
 		assertEquals(9, p1NextTurn.getMovementPointsAvailable());
-		// Make sure we actually do return from this function as it is
-		// implemented as a blocking queue.
 		assertEquals(0, service.getUpdates(key1, gameId, p1Since).length);
 		// Have everyone else attempt to move to make sure we prevent players
 		// from moving when it is not their turn.
 		try {
-			service.move(key2, gameId, 0, 0);
+			service.move(key2, gameId, Room.BALLROOM);
 			fail("Player 2 should not be allowed to move.");
 		} catch (NotYourTurnException e) {
 		}
-		try {
-			service.move(key3, gameId, 1, 1);
-			fail("Player 3 should not be allowed to move.");
-		} catch (NotYourTurnException e) {
-		}
-		try {
-			service.move(key1, gameId, 7, 24);
-			fail("Can't move into yourself.");
-		} catch (IllegalMoveException e) {
-		}
-		// Try to move somewhere. Note that for the purposes of this test, we
-		// will always pick something one square away because we don't know how
-		// many movement points were assigned but we do know that a minimum of
-		// one movement point was given.
-		assertEquals(1, service.move(key1, gameId, 7, 23));
+		assertTrue(service.move(key1, gameId, Room.HALL));
 		p1Messages = service.getUpdates(key1, gameId, p1Since);
 		p1Since = p1Messages[p1Messages.length - 1].getPublished();
-		assertEquals(1, p1Messages.length);
-		assertEquals(1, ((Move) p1Messages[0]).getCost());
-		// Attempt to make a suggestion while not in a room.
-		try {
-			service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
-			fail("We were able to suggest while not in a room.");
-		} catch (NotInRoomException e) {
-		}
-		assertEquals(3, service.move(key1, gameId, 11, 22));
-		p1Messages = service.getUpdates(key1, gameId, p1Since);
-		p1Since = p1Messages[p1Messages.length - 1].getPublished();
-		assertEquals(3, ((Move) p1Messages[0]).getCost());
 		// Attempt to suggest something players 1, 2, and 3 can disprove.
 		// However, only player 2 should disprove it.
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
@@ -215,17 +185,17 @@ public class ClueServiceTest extends TestCase {
 		// it is actually 11 because player 2 only receives messages from the
 		// time it joins and player 1 joined before player 2 received the
 		// message.
-		assertEquals(11, p2Messages.length);
-		assertEquals(5, service.move(key2, gameId, 12, 5));
+		assertEquals(10, p2Messages.length);
+		assertTrue(service.move(key2, gameId, Room.KITCHEN));
 
 		service.endTurn(key2, gameId);
 		Date p3Since = null;
 		Message[] p3Messages = service.getUpdates(key3, gameId, p3Since);
 		p3Since = p3Messages[p3Messages.length - 1].getPublished();
-		assertEquals(12, p3Messages.length);
+		assertEquals(11, p3Messages.length);
 
-		assertEquals(9,
-				((NextTurn) p3Messages[11]).getMovementPointsAvailable());
+		assertEquals(1,
+				((NextTurn) p3Messages[10]).getMovementPointsAvailable());
 		// Make sure player 1 is skipped because that player lost.
 		service.endTurn(key3, gameId);
 		p1Messages = service.getUpdates(key1, gameId, p1Since);
@@ -320,8 +290,8 @@ public class ClueServiceTest extends TestCase {
 			throws NotLoggedInException, GameAlreadyExistsException,
 			NoSuchGameException, SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException, IllegalMoveException, NotInRoomException,
-			NotInGameException, CheatException {
+			NotYourTurnException, NotInRoomException, NotInGameException,
+			CheatException {
 		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("user1", "pass1");
 		String key2 = service.login("user2", "pass2");
@@ -331,7 +301,7 @@ public class ClueServiceTest extends TestCase {
 		service.join(key2, gameId, Suspect.GREEN);
 		service.join(key3, gameId, Suspect.PEACOCK);
 		service.startGame(key1, gameId);
-		service.move(key1, gameId, 11, 22);
+		service.move(key1, gameId, Room.HALL);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		service.leave(key1, gameId);
 		assertEquals("user2",
@@ -354,8 +324,7 @@ public class ClueServiceTest extends TestCase {
 			throws NotLoggedInException, GameAlreadyExistsException,
 			NoSuchGameException, SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException, IllegalMoveException, NotInRoomException,
-			NotInGameException {
+			NotYourTurnException, NotInRoomException, NotInGameException {
 		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("user1", "pass1");
 		String key2 = service.login("user2", "pass2");
@@ -366,7 +335,7 @@ public class ClueServiceTest extends TestCase {
 		service.join(key3, gameId, Suspect.PEACOCK);
 		service.startGame(key1, gameId);
 		service.leave(key2, gameId);
-		service.move(key1, gameId, 11, 22);
+		service.move(key1, gameId, Room.HALL);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		assertEquals(Card.HALL, ((DisprovingCard) service.getUpdates(key1,
 				gameId, null)[9]).getCard());
@@ -385,8 +354,7 @@ public class ClueServiceTest extends TestCase {
 			GameAlreadyExistsException, NoSuchGameException,
 			SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotYourTurnException,
-			NotEnoughPlayersException, IllegalMoveException,
-			NotInRoomException, NotInGameException {
+			NotEnoughPlayersException, NotInRoomException, NotInGameException {
 		ClueService service = new ClueService(new Random(3));
 		String key1 = service.login("user1", "pass1");
 		String key2 = service.login("user2", "pass2");
@@ -399,7 +367,7 @@ public class ClueServiceTest extends TestCase {
 		assertEquals("user1",
 				((NextTurn) service.getUpdates(key1, gameId, null)[4])
 						.getPlayer());
-		service.move(key1, gameId, 11, 22);
+		service.move(key1, gameId, Room.HALL);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		service.leave(key2, gameId);
 		assertEquals("user2",
@@ -415,7 +383,7 @@ public class ClueServiceTest extends TestCase {
 			GameAlreadyExistsException, NoSuchGameException,
 			SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException, IllegalMoveException, NotInRoomException {
+			NotYourTurnException, NotInRoomException {
 		// Mustard starts since he will be closest to the dining room. We need
 		// him to be in the dining room because we know that is the solution and
 		// we are testing whether a suggestion that can be disproved by no one
@@ -430,7 +398,7 @@ public class ClueServiceTest extends TestCase {
 		service.join(white, gameId, Suspect.WHITE);
 		service.join(green, gameId, Suspect.GREEN);
 		service.startGame(mustard, gameId);
-		service.move(mustard, gameId, 5, 14);
+		service.move(mustard, gameId, Room.HALL);
 		service.suggest(mustard, gameId, Card.MUSTARD, Card.SPANNER);
 		assertEquals(null,
 				((Disprove) service.getUpdates(mustard, gameId, null)[7])
@@ -442,7 +410,7 @@ public class ClueServiceTest extends TestCase {
 			GameAlreadyExistsException, NoSuchGameException,
 			SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException, IllegalMoveException, NotInRoomException {
+			NotYourTurnException, NotInRoomException {
 		ClueService service = new ClueService(new Random(3));
 		// Tests that wrapping around to check if a player can disprove does not
 		// throw an exception (e.g. Plum suggesting needs to wrap around to
@@ -457,7 +425,7 @@ public class ClueServiceTest extends TestCase {
 		service.startGame(plum, gameId);
 		service.endTurn(scarlett, gameId);
 		service.endTurn(white, gameId);
-		service.move(plum, gameId, 21, 17);
+		service.move(plum, gameId, Room.HALL);
 		service.suggest(plum, gameId, Card.MUSTARD, Card.SPANNER);
 	}
 

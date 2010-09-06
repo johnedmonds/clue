@@ -1,6 +1,5 @@
 package com.pocketcookies.clue.players;
 
-import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,8 +18,9 @@ import org.hibernate.Hibernate;
 import org.hibernate.type.EnumType;
 
 import com.pocketcookies.clue.Card;
-import com.pocketcookies.clue.Grid;
+import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.User;
 import com.pocketcookies.clue.hibernate.HibernateMessage;
 import com.pocketcookies.clue.hibernate.util.HibernateUtil;
@@ -73,7 +73,7 @@ public class Player implements Serializable {
 	private boolean lost = false;
 	List<HibernateMessage> allMessages = new ArrayList<HibernateMessage>();
 	private List<Card> hand = new ArrayList<Card>();
-	private Point position;
+	private Room room;
 	private static final TopicPublisher publisher;
 	private static final TopicSession topicSession;
 	private static Logger logger = Logger.getLogger(Player.class);
@@ -109,26 +109,7 @@ public class Player implements Serializable {
 	public Player(User user, Suspect suspect, int gameId) {
 		this.id = new PlayerKey(gameId, suspect);
 		this.user = user;
-		switch (this.id.getSuspect()) {
-		case SCARLETT:
-			this.setPosition(Grid.SCARLETT_START);
-			break;
-		case GREEN:
-			this.setPosition(Grid.GREEN_START);
-			break;
-		case MUSTARD:
-			this.setPosition(Grid.MUSTARD_START);
-			break;
-		case PEACOCK:
-			this.setPosition(Grid.PEACOCK_START);
-			break;
-		case PLUM:
-			this.setPosition(Grid.PLUM_START);
-			break;
-		case WHITE:
-			this.setPosition(Grid.WHITE_START);
-			break;
-		}
+		this.room = Board.getStartingPosition(suspect);
 	}
 
 	public void setLost(boolean lost) {
@@ -234,12 +215,12 @@ public class Player implements Serializable {
 		this.hand = hand;
 	}
 
-	public void setPosition(Point position) {
-		this.position = position;
+	public Room getRoom() {
+		return this.room;
 	}
 
-	public Point getPosition() {
-		return position;
+	public void setRoom(Room room) {
+		this.room = room;
 	}
 
 	public User getUser() {
@@ -258,32 +239,6 @@ public class Player implements Serializable {
 
 	public void setAllMessages(List<HibernateMessage> messages) {
 		this.allMessages = messages;
-	}
-
-	public int getX() {
-		if (this.position == null) {
-			return -1;
-		}
-		return this.position.x;
-	}
-
-	public int getY() {
-		if (this.position == null) {
-			return -1;
-		}
-		return this.position.y;
-	}
-
-	public void setX(int x) {
-		if (this.position == null)
-			this.position = new Point();
-		this.position.x = x;
-	}
-
-	public void setY(int y) {
-		if (this.position == null)
-			this.position = new Point();
-		this.position.y = y;
 	}
 
 	public Player() {

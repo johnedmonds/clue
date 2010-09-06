@@ -1,16 +1,14 @@
 package com.pocketcookies.clue.service.server;
 
-import java.util.Collection;
 import java.util.Date;
 
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
-import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
@@ -227,26 +225,19 @@ public interface ClueServiceAPI {
 	 *            The key given to you when you logged in.
 	 * @param gameId
 	 *            The id of the game in which to move.
-	 * @param x
-	 *            Where to move.
-	 * @param y
-	 *            Where to move.
-	 * @return How much it cost to move to this position. The server will
-	 *         attempt to find the optimal path from your current position to
-	 *         the new position and this will be the length of the path.
+	 * @param room
+	 *            The room to which you wish to move.
+	 * @return Whether you are allowed to move to that room.
 	 * @throws NotLoggedInException
 	 *             Thrown when the key is not valid.s
 	 * @throws NotYourTurnException
 	 *             Thrown when it is not your turn.
 	 * @throws NoSuchGameException
 	 *             Thrown if no game with gameId exists.
-	 * @throws IllegalMoveException
-	 *             Thrown if you are trying to move too far or into an invalid
-	 *             space.
 	 */
-	public int move(String key, int gameId, int x, int y)
+	public boolean move(String key, int gameId, Room room)
 			throws NotLoggedInException, NotYourTurnException,
-			NoSuchGameException, IllegalMoveException;
+			NoSuchGameException;
 
 	/**
 	 * Ends your turn.

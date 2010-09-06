@@ -7,7 +7,6 @@ package com.pocketcookies.clue.service.server;
  * by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:00 EDT)
  */
 
-import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -25,12 +24,12 @@ import com.pocketcookies.clue.DeleteEmptyGameTimerTask;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.User;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
@@ -312,16 +311,16 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	@Override
-	public int move(String key, int gameId, int x, int y)
+	public boolean move(String key, int gameId, Room room)
 			throws NotLoggedInException, NotYourTurnException,
-			NoSuchGameException, IllegalMoveException {
+			NoSuchGameException {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		Game g = (Game) session.load(Game.class, gameId);
 		if (g == null)
-			throw new NotYourTurnException();
+			throw new NoSuchGameException();
 		validateCurrentUser(key, g);
-		int ret = g.move(new Point(x, y));
+		boolean ret = g.move(room);
 		session.getTransaction().commit();
 		return ret;
 	}
