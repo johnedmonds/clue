@@ -19,8 +19,9 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import com.caucho.hessian.server.HessianServlet;
+import com.pocketcookies.clue.BootTimerTask;
 import com.pocketcookies.clue.Card;
-import com.pocketcookies.clue.DeleteTimerTask;
+import com.pocketcookies.clue.DeleteEmptyGameTimerTask;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
@@ -221,7 +222,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.getTransaction().commit();
 		// If no one joins the game, it will be deleted.
 		if (this.timer != null)
-			this.timer.schedule(new DeleteTimerTask(ret),
+			this.timer.schedule(new DeleteEmptyGameTimerTask(ret),
 					CREATE_EMPTY_GAME_LIFE_TIME);
 		return ret;
 	}
@@ -302,8 +303,11 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 
 		validateCurrentUser(key, g);
 
-		g.accuse(room, suspect, weapon);
+		boolean gameHasEnded = g.accuse(room, suspect, weapon);
 		session.getTransaction().commit();
+		if (gameHasEnded && this.timer != null)
+			this.timer.schedule(new BootTimerTask(gameId),
+					this.PLAYER_BOOT_TIME);
 	}
 
 	@Override
@@ -436,7 +440,7 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		// If, by leaving, the game becomes empty, we schedule a task to delete
 		// the game.
 		if (this.timer != null && g.getJoinedPlayersCount() == 0)
-			this.timer.schedule(new DeleteTimerTask(g.getId()),
+			this.timer.schedule(new DeleteEmptyGameTimerTask(g.getId()),
 					LEAVE_EMPTY_GAME_LIFE_TIME);
 		session.getTransaction().commit();
 	}
