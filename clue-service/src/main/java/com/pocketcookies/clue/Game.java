@@ -299,7 +299,7 @@ public class Game {
 				break;
 			}
 		}
-		this.movementAllowed = 9;
+		this.movementAllowed = 1;
 		this.gameStartedState = GameStartedState.STARTED;
 		NextTurn nextTurn = new NextTurn(
 				this.currentPlayer.getUser().getName(), this.movementAllowed);
