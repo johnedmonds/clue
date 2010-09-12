@@ -27,6 +27,9 @@ public class LookCommand implements Command {
 		PrintWriter writer = player.getWriter();
 		if (arguments.length == 1) {
 			if (player.isInGame()) {
+				writer.println("Room: "
+						+ player.getPlayers().get(player.getUsername())
+								.toString());
 				writer.println("Exits:");
 				for (Room r : Board.getAdjacentRooms(player.getPlayers().get(
 						player.getUsername()))) {
