@@ -46,6 +46,7 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
@@ -194,16 +195,21 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		validateUser(key);
-		Game g = new Game(gameName);
-		session.save(g);
-		session.flush();
-		int ret = g.getId();
-		session.getTransaction().commit();
-		// If no one joins the game, it will be deleted.
-		if (this.timer != null)
-			this.timer.schedule(new DeleteEmptyGameTimerTask(ret),
-					CREATE_EMPTY_GAME_LIFE_TIME);
-		return ret;
+		try {
+			Game g = new Game(gameName);
+			session.save(g);
+			session.flush();
+			int ret = g.getId();
+			session.getTransaction().commit();
+			// If no one joins the game, it will be deleted.
+			if (this.timer != null)
+				this.timer.schedule(new DeleteEmptyGameTimerTask(ret),
+						CREATE_EMPTY_GAME_LIFE_TIME);
+			return ret;
+		} catch (ConstraintViolationException e) {
+			session.getTransaction().rollback();
+			throw new GameAlreadyExistsException();
+		}
 	}
 
 	@Override

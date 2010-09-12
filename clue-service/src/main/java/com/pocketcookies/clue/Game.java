@@ -232,7 +232,10 @@ public class Game {
 	}
 
 	public synchronized void start(Random random)
-			throws NotEnoughPlayersException {
+			throws NotEnoughPlayersException, GameStartedException {
+		if (this.gameStartedState != GameStartedState.NOT_STARTED) {
+			throw new GameStartedException();
+		}
 		int cachedJoinedPlayersCount = this.getJoinedPlayersCount();
 		if (cachedJoinedPlayersCount <= 2)
 			throw new NotEnoughPlayersException();
@@ -362,12 +365,14 @@ public class Game {
 	}
 
 	public boolean move(Room room) {
-		if (!Board.getAdjacentRooms(this.currentPlayer.getRoom())
-				.contains(room))
+		if (this.movementAllowed <= 0
+				|| !Board.getAdjacentRooms(this.currentPlayer.getRoom())
+						.contains(room))
 			return false;
 		publish(new Move(this.currentPlayer.getUser().getName(),
 				this.currentPlayer.getRoom(), room));
 		this.currentPlayer.setRoom(room);
+		this.movementAllowed--;
 		return true;
 	}
 

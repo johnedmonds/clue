@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
 
 import org.apache.log4j.Logger;
 
@@ -33,7 +34,13 @@ public class MoveCommand implements Command {
 		PrintWriter writer = player.getWriter();
 		try {
 			Room to = Room.valueOf(command.toUpperCase());
-			player.getService().move(player.getKey(), player.getGameId(), to);
+			if (!player.getService().move(player.getKey(), player.getGameId(),
+					to)) {
+				new Formatter(writer)
+						.format("You cannot move to %s.  Either that room is not adjacent to the room in which you are currently, or you have moved between too many rooms so far.",
+								to.toString());
+				writer.println();
+			}
 			// There is no need to move the player here because if the move is
 			// successful, we will get a message which will cause us to position
 			// the player properly.
