@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
 
 import org.apache.log4j.Logger;
 
@@ -43,6 +44,9 @@ public class DisproveCommand implements Command {
 		try {
 			player.getService().disprove(player.getKey(), player.getGameId(),
 					disprovingCard);
+			new Formatter(writer).format("You present the card %s",
+					disprovingCard.toString());
+			writer.println();
 		} catch (NotLoggedInException e) {
 			writer.println("The server does not seem to think you are logged in.  Try logging out and then back in again.");
 			logger.error("Player " + player.getUsername()
