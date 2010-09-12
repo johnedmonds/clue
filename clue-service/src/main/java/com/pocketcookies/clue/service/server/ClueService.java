@@ -462,4 +462,20 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		session.getTransaction().commit();
 		return data;
 	}
+
+	@Override
+	public Suspect getSuspectForPlayer(String key, int gameId) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		Player player = (Player) session
+				.createQuery(
+						"from Player p where p.id.gameId = :gameId and p.user.key = :key")
+				.setInteger("gameId", gameId).setString("key", key)
+				.uniqueResult();
+		if (player == null)
+			return null;
+		Suspect s = player.getId().getSuspect();
+		session.getTransaction().commit();
+		return s;
+	}
 }

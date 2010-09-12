@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
@@ -158,8 +159,9 @@ public class ClueServer {
 			// We only want to be notified of messages that fit this
 			// description.
 			subscriber = session.createSubscriber(
-					session.createTopic("ClueTopic"), "userKey = '" + key
-							+ "' and gameId = " + gameId, true);
+					session.createTopic("ClueTopic"),
+					"gameId = " + gameId + " and suspect = "
+							+ service.getSuspectForPlayer(key, gameId), true);
 		} catch (JMSException e) {
 			logger.error(
 					"Error creating a session from the connection to the message broker.  Maybe the message broker went down.",

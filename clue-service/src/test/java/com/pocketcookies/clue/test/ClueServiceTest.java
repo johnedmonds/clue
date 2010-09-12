@@ -111,7 +111,7 @@ public class ClueServiceTest extends TestCase {
 		assertFalse(p1Messages[4] instanceof Cards);
 		NextTurn p1NextTurn = (NextTurn) p1Messages[4];
 		assertEquals("clue", p1NextTurn.getPlayer());
-		assertEquals(9, p1NextTurn.getMovementPointsAvailable());
+		assertEquals(1, p1NextTurn.getMovementPointsAvailable());
 		assertEquals(0, service.getUpdates(key1, gameId, p1Since).length);
 		// Have everyone else attempt to move to make sure we prevent players
 		// from moving when it is not their turn.
@@ -513,5 +513,17 @@ public class ClueServiceTest extends TestCase {
 		assertEquals(gameId1, service.getGames()[0].getGameId());
 		assertEquals("test2", service.getGames()[1].getGameName());
 		assertEquals(gameId2, service.getGames()[1].getGameId());
+	}
+
+	public void testGetSuspectForUserWithKey() throws NotLoggedInException,
+			NoSuchGameException, SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, GameAlreadyExistsException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		assertEquals(Suspect.SCARLETT,
+				service.getSuspectForPlayer(key1, gameId));
+		assertNull(service.getSuspectForPlayer(key1, gameId - 1));
 	}
 }

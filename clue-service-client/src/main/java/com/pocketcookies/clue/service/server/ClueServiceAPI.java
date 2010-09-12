@@ -359,4 +359,15 @@ public interface ClueServiceAPI {
 	 */
 	public Card[] getCards(String key, int gameId) throws NoSuchGameException,
 			NotInGameException;
+
+	/**
+	 * Finds the suspect used by the player identified by key and gameId
+	 * 
+	 * @param key
+	 *            The key of the player.
+	 * @param gameId
+	 *            The game id of the player.
+	 * @return The suspect being used by the player.
+	 */
+	public Suspect getSuspectForPlayer(String key, int gameId);
 }

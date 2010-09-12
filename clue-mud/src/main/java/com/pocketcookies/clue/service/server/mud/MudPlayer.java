@@ -323,9 +323,10 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	public void startMessageConnection() {
 		try {
-			this.subscriber = this.session.createSubscriber(
-					session.createTopic("ClueTopic"), "userKey = '" + this.key
-							+ "' and gameId = " + this.gameId, false);
+			this.subscriber = this.session
+					.createSubscriber(session.createTopic("ClueTopic"),
+							"gameId = " + this.gameId + " and suspect = "
+									+ this.suspect.ordinal(), false);
 			this.subscriber.setMessageListener(this);
 		} catch (JMSException e) {
 			logger.error("There was an error working with the message server.",

@@ -132,8 +132,6 @@ public class Player implements Serializable {
 			objectMessage.setIntProperty("gameId", this.id.getGameId());
 			objectMessage.setIntProperty("suspect", this.id.getSuspect()
 					.ordinal());
-			objectMessage.setStringProperty("username", this.user.getName());
-			objectMessage.setStringProperty("userKey", this.user.getKey());
 			objectMessage.setObject(m);
 			publisher.publish(objectMessage);
 		} catch (JMSException e) {
