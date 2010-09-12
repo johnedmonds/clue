@@ -22,11 +22,11 @@ import org.apache.log4j.Logger;
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
@@ -240,11 +240,11 @@ public class ClueServer {
 	}
 
 	@WebMethod
-	public int move(@WebParam(name = "key") String key,
-			@WebParam(name = "gameId") int gameId, @WebParam(name = "x") int x,
-			@WebParam(name = "y") int y) throws NotLoggedInException,
-			NotYourTurnException, NoSuchGameException, IllegalMoveException {
-		return service.move(key, gameId, x, y);
+	public boolean move(@WebParam(name = "key") String key,
+			@WebParam(name = "gameId") int gameId,
+			@WebParam(name = "room") Room room) throws NotLoggedInException,
+			NotYourTurnException, NoSuchGameException {
+		return service.move(key, gameId, room);
 	}
 
 	@WebMethod

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<board>
+	<rooms>
+		<room room="KITCHEN">
+			<adjacent-room room="BALLROOM" />
+			<adjacent-room room="DINING_ROOM" />
+			<adjacent-room room="STUDY" />
+		</room>
+		<room room="BALLROOM">
+			<adjacent-room room="KITCHEN" />
+			<adjacent-room room="CONSERVATORY" />
+		</room>
+		<room room="CONSERVATORY">
+			<adjacent-room room="BALLROOM" />
+			<adjacent-room room="BILLIARD_ROOM" />
+			<adjacent-room room="LOUNGE" />
+		</room>
+		<room room="BILLIARD_ROOM">
+			<adjacent-room room="CONSERVATORY" />
+			<adjacent-room room="LIBRARY" />
+		</room>
+		<room room="LIBRARY">
+			<adjacent-room room="STUDY" />
+			<adjacent-room room="BILLIARD_ROOM" />
+		</room>
+		<room room="STUDY">
+			<adjacent-room room="LIBRARY" />
+			<adjacent-room room="HALL" />
+			<adjacent-room room="KITCHEN" />
+		</room>
+		<room room="HALL">
+			<adjacent-room room="STUDY" />
+			<adjacent-room room="LOUNGE" />
+		</room>
+		<room room="LOUNGE">
+			<adjacent-room room="HALL" />
+			<adjacent-room room="DINING_ROOM" />
+			<adjacent-room room="CONSERVATORY" />
+		</room>
+		<room room="DINING_ROOM">
+			<adjacent-room room="KITCHEN" />
+			<adjacent-room room="LOUNGE" />
+		</room>
+	</rooms>
+	<starting-positions>
+		<start suspect="SCARLETT" room="LOUNGE" />
+		<start suspect="MUSTARD" room="DINING_ROOM" />
+		<start suspect="WHITE" room="KITCHEN" />
+		<start suspect="GREEN" room="BALLROOM" />
+		<start suspect="PEACOCK" room="CONSERVATORY" />
+		<start suspect="PLUM" room="LIBRARY" />
+	</starting-positions>
+</board>

@@ -7,7 +7,6 @@ package com.pocketcookies.clue.service.server;
  * by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:00 EDT)
  */
 
-import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -25,12 +24,12 @@ import com.pocketcookies.clue.DeleteEmptyGameTimerTask;
 import com.pocketcookies.clue.Game;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.GameStartedState;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.User;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
@@ -47,6 +46,7 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * ClueServiceSkeleton java skeleton for the axisService
@@ -195,16 +195,21 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		validateUser(key);
-		Game g = new Game(gameName);
-		session.save(g);
-		session.flush();
-		int ret = g.getId();
-		session.getTransaction().commit();
-		// If no one joins the game, it will be deleted.
-		if (this.timer != null)
-			this.timer.schedule(new DeleteEmptyGameTimerTask(ret),
-					CREATE_EMPTY_GAME_LIFE_TIME);
-		return ret;
+		try {
+			Game g = new Game(gameName);
+			session.save(g);
+			session.flush();
+			int ret = g.getId();
+			session.getTransaction().commit();
+			// If no one joins the game, it will be deleted.
+			if (this.timer != null)
+				this.timer.schedule(new DeleteEmptyGameTimerTask(ret),
+						CREATE_EMPTY_GAME_LIFE_TIME);
+			return ret;
+		} catch (ConstraintViolationException e) {
+			session.getTransaction().rollback();
+			throw new GameAlreadyExistsException();
+		}
 	}
 
 	@Override
@@ -312,16 +317,16 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	}
 
 	@Override
-	public int move(String key, int gameId, int x, int y)
+	public boolean move(String key, int gameId, Room room)
 			throws NotLoggedInException, NotYourTurnException,
-			NoSuchGameException, IllegalMoveException {
+			NoSuchGameException {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		Game g = (Game) session.load(Game.class, gameId);
 		if (g == null)
-			throw new NotYourTurnException();
+			throw new NoSuchGameException();
 		validateCurrentUser(key, g);
-		int ret = g.move(new Point(x, y));
+		boolean ret = g.move(room);
 		session.getTransaction().commit();
 		return ret;
 	}

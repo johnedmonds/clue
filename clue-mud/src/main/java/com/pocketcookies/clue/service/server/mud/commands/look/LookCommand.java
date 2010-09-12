@@ -4,10 +4,10 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.PlayerData;
-import com.pocketcookies.clue.mud.Exit;
-import com.pocketcookies.clue.mud.Grid;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.service.server.mud.MudPlayer;
 import com.pocketcookies.clue.service.server.mud.commands.Command;
 
@@ -28,10 +28,9 @@ public class LookCommand implements Command {
 		if (arguments.length == 1) {
 			if (player.isInGame()) {
 				writer.println("Exits:");
-				for (Exit e : Grid.findExits(
-						player.getPlayers().get(player.getUsername()), player
-								.getPlayers().values())) {
-					writer.println("\t" + e.toString());
+				for (Room r : Board.getAdjacentRooms(player.getPlayers().get(
+						player.getUsername()))) {
+					writer.println("\t" + r.toString());
 				}
 			} else {
 				GameData[] games = player.getService().getGames();

@@ -1,6 +1,5 @@
 package com.pocketcookies.clue;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
-import com.pocketcookies.clue.exceptions.IllegalMoveException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
@@ -44,6 +42,7 @@ public class Game {
 	private Player currentPlayer;
 	private GameStartedState gameStartedState = GameStartedState.NOT_STARTED;
 	private boolean suggestionMade = false;
+	// How many rooms you may jump between.
 	private int movementAllowed = -1;
 	private Card suspect, room, weapon;
 	private Proposition proposition;
@@ -99,7 +98,7 @@ public class Game {
 		this.suggestionMade = false;
 		this.proposition = null;
 		this.disprovingPlayer = null;
-		this.movementAllowed = 9;
+		this.movementAllowed = 1;
 		NextTurn nextTurn = new NextTurn(
 				this.currentPlayer.getUser().getName(), this.movementAllowed);
 		this.publish(nextTurn);
@@ -233,7 +232,10 @@ public class Game {
 	}
 
 	public synchronized void start(Random random)
-			throws NotEnoughPlayersException {
+			throws NotEnoughPlayersException, GameStartedException {
+		if (this.gameStartedState != GameStartedState.NOT_STARTED) {
+			throw new GameStartedException();
+		}
 		int cachedJoinedPlayersCount = this.getJoinedPlayersCount();
 		if (cachedJoinedPlayersCount <= 2)
 			throw new NotEnoughPlayersException();
@@ -300,7 +302,7 @@ public class Game {
 				break;
 			}
 		}
-		this.movementAllowed = 9;
+		this.movementAllowed = 1;
 		this.gameStartedState = GameStartedState.STARTED;
 		NextTurn nextTurn = new NextTurn(
 				this.currentPlayer.getUser().getName(), this.movementAllowed);
@@ -325,8 +327,7 @@ public class Game {
 			throws NotYourTurnException, NotInRoomException {
 		if (this.proposition != null || this.suggestionMade)
 			throw new NotYourTurnException();
-		Card room = Grid.grid[this.currentPlayer.getPosition().x][this.currentPlayer
-				.getPosition().y].toCard();
+		Card room = this.currentPlayer.getRoom().toCard();
 		// The player must be in a room to make a suggestion.
 		if (room == null)
 			throw new NotInRoomException();
@@ -363,18 +364,16 @@ public class Game {
 		}
 	}
 
-	public synchronized int move(Point p) throws IllegalMoveException {
-		int distance = Board.distance(this.players,
-				this.currentPlayer.getPosition(), p);
-		if (distance < 0 || this.movementAllowed < distance)
-			throw new IllegalMoveException();
-		this.movementAllowed -= distance;
-		Move move = new Move(this.currentPlayer.getUser().getName(),
-				this.currentPlayer.getPosition().x,
-				this.currentPlayer.getPosition().y, p.x, p.y, distance);
-		this.currentPlayer.setPosition(new Point(p.x, p.y));
-		this.publish(move);
-		return distance;
+	public boolean move(Room room) {
+		if (this.movementAllowed <= 0
+				|| !Board.getAdjacentRooms(this.currentPlayer.getRoom())
+						.contains(room))
+			return false;
+		publish(new Move(this.currentPlayer.getUser().getName(),
+				this.currentPlayer.getRoom(), room));
+		this.currentPlayer.setRoom(room);
+		this.movementAllowed--;
+		return true;
 	}
 
 	public synchronized void chat(String key, String message)

@@ -1,6 +1,5 @@
 package com.pocketcookies.clue.service.server.mud;
 
-import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,8 +21,10 @@ import javax.jms.TopicSubscriber;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
+import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
@@ -36,7 +37,6 @@ import com.pocketcookies.clue.messages.broadcast.NextTurn;
 import com.pocketcookies.clue.messages.broadcast.Suggestion;
 import com.pocketcookies.clue.messages.targeted.Cards;
 import com.pocketcookies.clue.messages.targeted.DisprovingCard;
-import com.pocketcookies.clue.mud.Grid;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 import com.pocketcookies.clue.service.server.mud.commands.CommandProcessor;
@@ -45,7 +45,7 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	private Socket client;
 	private static final Logger logger = Logger.getLogger(MudPlayer.class);
-	private Map<String, Point> players = new TreeMap<String, Point>();
+	private Map<String, Room> players = new TreeMap<String, Room>();
 
 	private static final TopicConnection topicConnection;
 	static {
@@ -295,15 +295,14 @@ public class MudPlayer implements Runnable, MessageListener {
 	}
 
 	public void processMove(Move m) {
-		new Formatter(writer).format("Player %s moved from (%d,%d) to (%d,%d)",
-				m.getPlayer(), m.getxFrom(), m.getyFrom(), m.getxTo(),
-				m.getyTo()).flush();
+		new Formatter(writer).format("Player %s moved from %s to %s.",
+				m.getPlayer(), m.getFrom().toString(), m.getTo().toString())
+				.flush();
 		// Sanity check that we remember the original position of the
 		// player.
-		assert (new Point(m.getxFrom(), m.getxTo()).equals(this.players.get(m
-				.getPlayer())));
+		assert (m.getFrom().equals(this.players.get(m.getPlayer())));
 		// Move where we think that player is.
-		this.players.put(m.getPlayer(), new Point(m.getxTo(), m.getyTo()));
+		this.players.put(m.getPlayer(), m.getTo());
 	}
 
 	public void processCardsMessage(Cards cards) throws NoSuchGameException {
@@ -318,7 +317,7 @@ public class MudPlayer implements Runnable, MessageListener {
 	public void loadPlayerPositions() throws NoSuchGameException {
 		for (PlayerData pd : service.getStatus(this.gameId).getPlayers()) {
 			this.players.put(pd.getPlayerName(),
-					Grid.getStartingPosition(pd.getSuspect()));
+					Board.getStartingPosition(pd.getSuspect()));
 		}
 	}
 
@@ -347,7 +346,7 @@ public class MudPlayer implements Runnable, MessageListener {
 		}
 	}
 
-	public Map<String, Point> getPlayers() {
+	public Map<String, Room> getPlayers() {
 		return players;
 	}
 

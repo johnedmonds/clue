@@ -33,7 +33,10 @@
 				</type>
 			</element>
 		</bag>
-		<property name="x" type="integer" column="x" />
-		<property name="y" type="integer" column="y" />
+		<property name="room" column="room">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Room</param>
+			</type>
+		</property>
 	</class>
 </hibernate-mapping> 
