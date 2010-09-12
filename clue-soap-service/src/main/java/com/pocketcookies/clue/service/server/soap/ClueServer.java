@@ -160,8 +160,11 @@ public class ClueServer {
 			// description.
 			subscriber = session.createSubscriber(
 					session.createTopic("ClueTopic"),
-					"gameId = " + gameId + " and suspect = "
-							+ service.getSuspectForPlayer(key, gameId), true);
+					"gameId = "
+							+ gameId
+							+ " and suspect = "
+							+ service.getSuspectForPlayer(key, gameId)
+									.ordinal(), true);
 		} catch (JMSException e) {
 			logger.error(
 					"Error creating a session from the connection to the message broker.  Maybe the message broker went down.",
