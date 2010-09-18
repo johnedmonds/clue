@@ -3,5 +3,13 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Archetype Created Web Application</display-name>
+	<display-name>Archetype Created Web Application</display-name>
+	<servlet>
+		<servlet-name>ClueWebServlet</servlet-name>
+		<servlet-class>com.pocketcookies.clue.service.server.web.ClueWebServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ClueWebServlet</servlet-name>
+		<url-pattern>/clue/*</url-pattern>
+	</servlet-mapping>
 </web-app>
