@@ -59,7 +59,6 @@ public class MudPlayer implements Runnable, MessageListener {
 			logger.info("Starting JMS.");
 			topicConnection.start();
 			logger.info("JMS successfully started.");
-			System.out.println("MUD Success");
 		} catch (JMSException e) {
 			logger.error(
 					"There was a problem starting a connection to the message server.",
