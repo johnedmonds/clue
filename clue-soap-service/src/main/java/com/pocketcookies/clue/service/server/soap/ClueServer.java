@@ -44,11 +44,16 @@ public class ClueServer {
 
 	private static final ClueServiceAPI service;
 	private static final TopicConnection topicConnection;
-	private static Logger logger;
+	private static final Logger logger;
 
 	static {
 		logger = Logger.getLogger(ClueServer.class);
 		try {
+			// TODO: Make this configurable;
+			logger.info("Establishing connection to the service.");
+			service = (ClueServiceAPI) new HessianProxyFactory().create(
+					ClueServiceAPI.class,
+					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
 			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
 					"tcp://localhost:61616");
@@ -56,11 +61,7 @@ public class ClueServer {
 			topicConnection = connectionFactory.createTopicConnection();
 			logger.info("Starting connection.");
 			topicConnection.start();
-			logger.info("Loading service.");
-			// TODO: Make this configurable;
-			service = (ClueServiceAPI) new HessianProxyFactory().create(
-					ClueServiceAPI.class,
-					"http://localhost:8080/clue-service/ClueService");
+			logger.info("Connection to JMS successfully started.");
 		} catch (JMSException e) {
 			logger.fatal(
 					"There was a problem starting a connection to the message server.",
