@@ -22,6 +22,11 @@ import com.pocketcookies.clue.players.Suspect;
 public interface ClueServiceAPI {
 
 	/**
+	 * Does nothing. Though this can be good for testing your connection.
+	 */
+	public void ping();
+
+	/**
 	 * Adds the user to the list of logged in user and gives the user a key.
 	 * 
 	 * @param username

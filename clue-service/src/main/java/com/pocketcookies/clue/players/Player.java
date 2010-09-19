@@ -200,8 +200,8 @@ public class Player implements Serializable {
 	}
 
 	public PlayerData getData() {
-		PlayerData data = new PlayerData(this.id.getSuspect().ordinal(),
-				this.user.getName(), this.id.getSuspect());
+		PlayerData data = new PlayerData(this.user.getName(),
+				this.id.getSuspect());
 		return data;
 	}
 
