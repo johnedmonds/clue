@@ -5,6 +5,10 @@ import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 
+import javax.jms.JMSException;
+import javax.jms.TopicConnection;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
@@ -18,6 +22,7 @@ public class ClueMudServer implements Runnable {
 	private Thread myThread;
 	// We need to keep track of players so we can gracefully stop them.
 	private LinkedList<MudPlayer> players = new LinkedList<MudPlayer>();
+	private final TopicConnection topicConnection;
 
 	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
@@ -26,9 +31,23 @@ public class ClueMudServer implements Runnable {
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
 					"http://localhost:8080/clue-service/ClueService");
+			logger.info("Loading connection factory.");
+			// TODO: Make this configurable.
+			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+					"tcp://localhost:61616");
+			logger.info("Creating JMS connection.");
+			topicConnection = connectionFactory.createTopicConnection();
+			logger.info("Starting JMS.");
+			topicConnection.start();
+			logger.info("JMS successfully started.");
 		} catch (MalformedURLException e) {
 			logger.error(
 					"There was a problem contacting the server (malformed URL).",
+					e);
+			throw new ExceptionInInitializerError(e);
+		} catch (JMSException e) {
+			logger.error(
+					"There was a problem starting a connection to the message server.",
 					e);
 			throw new ExceptionInInitializerError(e);
 		}
@@ -58,7 +77,7 @@ public class ClueMudServer implements Runnable {
 				try {
 					// Add the player.
 					this.players.add(new MudPlayer(serverSocket.accept(),
-							service));
+							service, this.topicConnection));
 					new Thread(this.players.getLast()).start();
 				} catch (IOException e) {
 					logger.error(

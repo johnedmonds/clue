@@ -1,0 +1,31 @@
+@CHARSET "UTF-8";
+
+#games-container {
+	margin-left: auto;
+	margin-right: auto;
+	width: 500px;
+	background-color: #BBBBBB;
+	padding: 10px;
+}
+
+#games-container h1 {
+	margin: 0 0 10px 0;
+}
+
+#games {
+	padding: 10px;
+	height: 400px;
+	overflow: auto;
+}
+
+.game {
+	padding: 20px;
+}
+
+.game-dark {
+	background-color: #CCCCCC;
+}
+
+.game-light {
+	background-color: #EEEEEE;
+}

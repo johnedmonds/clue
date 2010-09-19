@@ -1,0 +1,24 @@
+@CHARSET "UTF-8";
+
+#login-container {
+	width: 300px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 10px;
+	background-color: #BBBBBB;
+	margin-top: 100px;
+}
+
+#login {
+	background-color: #DDDDDD;
+	padding: 30px;
+}
+
+#login input {
+	margin: 5px 0;
+}
+
+#login h1 {
+	margin: 0 0 10px 0;
+	padding:0;
+}

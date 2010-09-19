@@ -18,7 +18,6 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.pocketcookies.clue.Board;
@@ -47,26 +46,6 @@ public class MudPlayer implements Runnable, MessageListener {
 	private static final Logger logger = Logger.getLogger(MudPlayer.class);
 	private Map<String, Room> players = new TreeMap<String, Room>();
 
-	private static final TopicConnection topicConnection;
-	static {
-		try {
-			logger.info("Loading connection factory.");
-			// TODO: Make this configurable.
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"tcp://localhost:61616");
-			logger.info("Creating JMS connection.");
-			topicConnection = connectionFactory.createTopicConnection();
-			logger.info("Starting JMS.");
-			topicConnection.start();
-			logger.info("JMS successfully started.");
-		} catch (JMSException e) {
-			logger.error(
-					"There was a problem starting a connection to the message server.",
-					e);
-			throw new ExceptionInInitializerError(e);
-		}
-	}
-
 	private PrintWriter writer;
 	private BufferedReader reader;
 	private String key = null;
@@ -78,7 +57,8 @@ public class MudPlayer implements Runnable, MessageListener {
 	private TopicSession session;
 	private TopicSubscriber subscriber;
 
-	public MudPlayer(Socket client, ClueServiceAPI service) {
+	public MudPlayer(Socket client, ClueServiceAPI service,
+			TopicConnection topicConnection) {
 		this.client = client;
 		this.service = service;
 		try {
