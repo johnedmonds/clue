@@ -57,6 +57,8 @@ public class ClueWebServlet extends HttpServlet {
 			login(request, response);
 		else if (dispatchSection.equals("/clue/games"))
 			games(request, response);
+		else if (dispatchSection.equals("/clue/logout"))
+			logout(request, response);
 		else
 			response.sendRedirect(request.getContextPath());
 	}
@@ -74,11 +76,17 @@ public class ClueWebServlet extends HttpServlet {
 		if (request.getSession().getAttribute("key") == null)
 			response.getOutputStream().println("{\"key\":null}");
 		else {
-			request.getSession().setAttribute("username", request.getParameter("username"));
+			request.getSession().setAttribute("username",
+					request.getParameter("username"));
 			response.getOutputStream().println(
 					"{\"key\":\"" + request.getSession().getAttribute("key")
 							+ "\"}");
 		}
+	}
+
+	private void logout(HttpServletRequest request, HttpServletResponse response) {
+		request.getSession().removeAttribute("username");
+		request.getSession().removeAttribute("key");
 	}
 
 	private static String gameDataToString(GameData gd) {

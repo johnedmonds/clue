@@ -9,15 +9,25 @@
 	src="<%=request.getContextPath()%>/jquery.js"></script>
 
 <script type="text/javascript">
+	function logout(){
+		$.get("<%=request.getContextPath()%>/clue/logout",{},
+			function(){
+				$("#welcome").slideUp(400,function(){$("#welcome").remove();});
+				$("#login").slideDown();
+			});
+	}
 	function tryLogin(){
 		$.get("<%=request.getContextPath()%>/clue/login",{"username":$("#username").val(),"password":$("#password").val()},
 		function(data){
 			if (data.key!=null){
-				$("#login").slideUp(400,function(){$("#login").remove();});
+				$("#login").slideUp();
+				var logoutButton=$("<input type=\"submit\" value=\"Logout\" style=\"width:100%;\"/>");
+				logoutButton.click(logout);
+				var welcome=$("<div id=\"welcome\" class=\"content-section\"><h1>Welcome "+$("#username").val()+"</h1></div>").hide();
+				welcome.append(logoutButton);
+				$("#left-column").prepend(welcome);
+				welcome.slideDown();
 			}
-			var welcome=$("<div id=\"welcome\" class=\"content-section\"><h1>Welcome "+$("#username").val()+"</h1></div>").hide();
-			$("#left-column").prepend(welcome);
-			welcome.slideDown();
 		});
 	}
 	function makeGameHtml(game,index){
@@ -54,7 +64,8 @@
 %>
 <div id="welcome" class="content-section">
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
-</div>
+<input type="submit" value="Logout" style="width: 100%;"
+	onclick="logout()" /></div>
 <%
 	}
 %>
@@ -83,10 +94,9 @@
 </div>
 </div>
 <div id="right-column">
-<%
-	if (request.getSession().getAttribute("key") == null) {
-%>
-<div id="login" class="content-section">
+<div id="login" class="content-section"
+	<%=request.getSession().getAttribute("key") == null ? ""
+					: "style=\"display:none\""%>>
 <h1>Login</h1>
 <table>
 	<tr>
@@ -103,9 +113,6 @@
 	</tr>
 </table>
 </div>
-<%
-	}
-%>
 <div id="games-container" class="content-section">
 <h1>Games</h1>
 <div id="games"></div>
