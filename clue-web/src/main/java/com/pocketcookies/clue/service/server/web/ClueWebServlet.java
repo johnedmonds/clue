@@ -20,11 +20,18 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
  */
 public class ClueWebServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ClueServiceAPI service = null;
+	private final ClueServiceAPI service;
 	private static final Logger logger = Logger.getLogger(ClueWebServlet.class);
 
 	@Override
 	public void init() {
+	}
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public ClueWebServlet() {
+		super();
 		try {
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
@@ -33,14 +40,6 @@ public class ClueWebServlet extends HttpServlet {
 			logger.fatal("There was a problem connecting to the service.", e);
 			throw new ExceptionInInitializerError(e);
 		}
-	}
-
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public ClueWebServlet() {
-		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -64,6 +63,7 @@ public class ClueWebServlet extends HttpServlet {
 
 	private void login(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
+		response.setContentType("application/json");
 		if (!request.getParameter("username").equals("")
 				&& !request.getParameter("password").equals("")) {
 			request.getSession().setAttribute(
@@ -72,9 +72,13 @@ public class ClueWebServlet extends HttpServlet {
 							request.getParameter("password")));
 		}
 		if (request.getSession().getAttribute("key") == null)
-			response.sendRedirect(request.getContextPath() + "/login.jsp");
-		else
-			response.sendRedirect(request.getContextPath() + "/games.jsp");
+			response.getOutputStream().println("{\"key\":null}");
+		else {
+			request.getSession().setAttribute("username", request.getParameter("username"));
+			response.getOutputStream().println(
+					"{\"key\":\"" + request.getSession().getAttribute("key")
+							+ "\"}");
+		}
 	}
 
 	private static String gameDataToString(GameData gd) {
@@ -83,6 +87,8 @@ public class ClueWebServlet extends HttpServlet {
 		sb.append(gd.getGameId());
 		sb.append(",\"name\":\"");
 		sb.append(gd.getGameName());
+		sb.append("\",\"state\":\"");
+		sb.append(gd.getGameStartedState().toString());
 		sb.append("\",\"players\":[");
 		if (gd.getPlayers().length > 0) {
 			sb.append(playerDataToString(gd.getPlayers()[0]));

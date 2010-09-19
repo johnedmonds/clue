@@ -1,0 +1,48 @@
+@CHARSET "UTF-8";
+
+#telnet-connections li {
+	font-family: monospace;
+	margin-bottom: 8px;
+}
+
+#telnet-connections {
+	margin: 0 0 0 10px;
+	list-style: none;
+	padding: 0;
+}
+
+#left-column {
+	float: left;
+	overflow: auto;
+}
+
+#right-column {
+	float: left;
+	overflow: auto;
+	margin-left: 10px;
+}
+
+.content-section {
+	background-color: #DDDDDD;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+.content-section h1 {
+	margin: 0 0 10px 0;
+}
+
+.game {
+	padding: 10px;
+}
+
+#games {
+}
+
+.game-light {
+	background-color: #CCCCCC;
+}
+
+.game-dark {
+	background-color: #EEEEEE;
+}
