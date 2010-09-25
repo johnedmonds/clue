@@ -22,5 +22,6 @@
     <module>clue-service</module>
     <module>clue-ear</module>
     <module>clue-web</module>
+    <module>clue-util</module>
   </modules>
 </project>
