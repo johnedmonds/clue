@@ -7,8 +7,10 @@ import java.util.LinkedList;
 
 import javax.jms.JMSException;
 import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
@@ -27,16 +29,16 @@ public class ClueMudServer implements Runnable {
 	public ClueMudServer() {
 		logger.info("Starting to load clue service and message service objects.");
 		try {
+			final InitialContext initialContext = new InitialContext();
 			logger.info("Loading clue service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
 					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
-			// TODO: Make this configurable.
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"tcp://localhost:61616");
+			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
+					.lookup("clue/jms/clue-broker");
 			logger.info("Creating JMS connection.");
-			topicConnection = connectionFactory.createTopicConnection();
+			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting JMS.");
 			topicConnection.start();
 			logger.info("JMS successfully started.");
@@ -49,6 +51,9 @@ public class ClueMudServer implements Runnable {
 			logger.error(
 					"There was a problem starting a connection to the message server.",
 					e);
+			throw new ExceptionInInitializerError(e);
+		} catch (NamingException e) {
+			logger.error("There was an error with the InitialContext", e);
 			throw new ExceptionInInitializerError(e);
 		}
 		logger.info("MUD server has loaded the message service and clue service objects successfully.");

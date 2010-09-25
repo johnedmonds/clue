@@ -9,11 +9,13 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -49,16 +51,16 @@ public class ClueServer {
 	static {
 		logger = Logger.getLogger(ClueServer.class);
 		try {
-			// TODO: Make this configurable;
+			InitialContext initialContext = new InitialContext();
 			logger.info("Establishing connection to the service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
 					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"tcp://localhost:61616");
+			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
+					.lookup("clue/jms/clue-broker");
 			logger.info("Creating connection.");
-			topicConnection = connectionFactory.createTopicConnection();
+			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting connection.");
 			topicConnection.start();
 			logger.info("Connection to JMS successfully started.");
@@ -69,6 +71,9 @@ public class ClueServer {
 			throw new ExceptionInInitializerError(e);
 		} catch (MalformedURLException e) {
 			logger.fatal("There was an error retrieving the service.", e);
+			throw new ExceptionInInitializerError(e);
+		} catch (NamingException e) {
+			logger.fatal("There was a naming error.", e);
 			throw new ExceptionInInitializerError(e);
 		} catch (Exception e) {
 			logger.fatal("Something really bad happened.", e);
