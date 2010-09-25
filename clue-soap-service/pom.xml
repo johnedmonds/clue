@@ -49,7 +49,6 @@
 			<groupId>com.pocketcookies</groupId>
 			<artifactId>clue-service-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.pocketcookies</groupId>
