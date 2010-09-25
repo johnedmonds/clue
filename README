@@ -1,0 +1,11 @@
+In order to install clue, you will need Maven.
+Although Maven will be able to download almost everything, it will not be able to download javax.jms which is required to compile (though it should be provided by your container.)
+You will need to download the specification jar and then install it with maven using
+maven install:install-file -Dfile=javax.jms.jar -DartifactId=jms -DgroupId=javax.jms -Dpackaging=jar -Dversion=1.1
+
+We also use JNDI for looking up the JMS connection factory and topic.
+We use ActiveMQ during the testing phase but, in theory, you may use anything you want.  In order to set it up in Tomcat (5.5+), you will need to edit context.xml and add
+<Resource name="clue/jms/clue-broker" auth="Container" type="org.apache.activemq.ActiveMQConnectionFactory" description="Clue JMS connection factory." factory="org.apache.activemq.jndi.JNDIReferenceFactory" brokerURL="vm://clue-broker" brokerName="ClueBroker"/>
+<Resource name="clue/jms/clue-topic" auth="Container" type="org.apache.activemq.command.ActiveMQTopic" description="Clue JMS topic" factory="org.apache.activemq.jndi.JNDIReferenceFactory" physicalName="clue-topic"/>
+
+You may change the JNDI names by editing service-locations.properties.  There is one instance of this file per application in Clue.  This will allow the different modules to point to different locations.  This file will also allow you to point to different services.
