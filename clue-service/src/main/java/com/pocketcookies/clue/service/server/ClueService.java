@@ -66,6 +66,8 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 
 	public void destroy() {
 		super.destroy();
+		logger.info("Closing connections to JMS server.");
+		Player.destroy();
 		logger.info("Stopping timer.");
 		if (this.timer != null)
 			this.timer.cancel();

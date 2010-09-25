@@ -58,11 +58,13 @@ public class MudPlayer implements Runnable, MessageListener {
 	public Suspect suspect;
 	// In which game the player is currently.
 	private int gameId = -1;
+	private final TopicConnection topicConnection;
 	private TopicSession session;
 	private TopicSubscriber subscriber;
 
 	public MudPlayer(Socket client, ClueServiceAPI service,
 			TopicConnection topicConnection) {
+		this.topicConnection = topicConnection;
 		this.client = client;
 		this.service = service;
 		try {
@@ -73,24 +75,6 @@ public class MudPlayer implements Runnable, MessageListener {
 			logger.error(
 					"There was an error initializing the writer or reader for the client.",
 					e);
-			throw new ExceptionInInitializerError(e);
-		}
-		try {
-			this.session = topicConnection.createTopicSession(false,
-					Session.AUTO_ACKNOWLEDGE);
-		} catch (JMSException e) {
-			logger.error(
-					"There was an error creating a topic session or a subscriber to that topic.",
-					e);
-			writer.println("There was an error connecting to one of our servers.  Sorry.");
-			writer.flush();
-			try {
-				client.close();
-			} catch (IOException e1) {
-				logger.error(
-						"There was an error closing the socket while handling another error.",
-						e);
-			}
 			throw new ExceptionInInitializerError(e);
 		}
 	}
@@ -308,9 +292,10 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	public void startMessageConnection() {
 		try {
+			this.session = topicConnection.createTopicSession(false,
+					Session.AUTO_ACKNOWLEDGE);
 			this.subscriber = this.session.createSubscriber(
-					(Topic) new InitialContext()
-							.lookup(Config.TOPIC_JNDI),
+					(Topic) new InitialContext().lookup(Config.TOPIC_JNDI),
 					"gameId = " + this.gameId + " and suspect = "
 							+ this.suspect.ordinal(), false);
 			this.subscriber.setMessageListener(this);
@@ -325,11 +310,13 @@ public class MudPlayer implements Runnable, MessageListener {
 	}
 
 	public void stopMessageConnection() {
-		if (subscriber == null)
-			return;
 		try {
-			subscriber.setMessageListener(null);
-			subscriber.close();
+			if (subscriber != null) {
+				subscriber.setMessageListener(null);
+				subscriber.close();
+			}
+			if (session != null)
+				session.close();
 		} catch (JMSException e) {
 			logger.error(
 					"There was an error closing the subscriber or session.", e);

@@ -79,6 +79,7 @@ public class Player implements Serializable {
 	private Room room;
 	private static final TopicPublisher publisher;
 	private static final TopicSession topicSession;
+	private static final TopicConnection topicConnection;
 	private static Logger logger = Logger.getLogger(Player.class);
 	private PlayerKey id;
 	static {
@@ -92,8 +93,7 @@ public class Player implements Serializable {
 			final TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
 					.lookup(Config.CONNECTION_FACTORY_JNDI);
 			logger.info("Creating connection.");
-			final TopicConnection topicConnection = topicConnectionFactory
-					.createTopicConnection();
+			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Creating session.");
 			topicSession = topicConnection.createTopicSession(false,
 					Session.AUTO_ACKNOWLEDGE);
@@ -254,5 +254,23 @@ public class Player implements Serializable {
 
 	public void setId(PlayerKey id) {
 		this.id = id;
+	}
+
+	public static void destroy() {
+		try {
+			publisher.close();
+		} catch (JMSException e) {
+			logger.error("There was an error closing the publisher.", e);
+		}
+		try {
+			topicSession.close();
+		} catch (JMSException e) {
+			logger.error("There was an error closing the topic session.", e);
+		}
+		try {
+			topicConnection.close();
+		} catch (JMSException e) {
+			logger.error("There was an error closing the topic connection.", e);
+		}
 	}
 }

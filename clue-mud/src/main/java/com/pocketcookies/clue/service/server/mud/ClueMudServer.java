@@ -33,8 +33,7 @@ public class ClueMudServer implements Runnable {
 			final InitialContext initialContext = new InitialContext();
 			logger.info("Loading clue service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
-					ClueServiceAPI.class,
-					Config.SERVICE_LOCATION);
+					ClueServiceAPI.class, Config.SERVICE_LOCATION);
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
 					.lookup(Config.CONNECTION_FACTORY_JNDI);
@@ -110,11 +109,18 @@ public class ClueMudServer implements Runnable {
 						.println(
 								"The server is being shut down.  You may try re-connecting later.");
 				player.getWriter().flush();
+				player.stopMessageConnection();
 				player.getClient().close();
 			} catch (IOException e) {
 				logger.error("There was an error closing the socket for "
 						+ player.getUsername() + ".");
 			}
+		}
+		logger.info("Closing topic connection.");
+		try {
+			this.topicConnection.close();
+		} catch (JMSException e) {
+			logger.error("There was an error closing the topic connection.", e);
 		}
 		myThread.interrupt();
 		try {
