@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
@@ -14,9 +13,9 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.type.EnumType;
@@ -91,7 +90,7 @@ public class Player implements Serializable {
 			// different broker, we need to make sure that we use something that
 			// does implement TopicConnectionFactory
 			final TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("clue/jms/clue-broker");
+					.lookup("java:comp/env/clue/jms/clue-broker");
 			logger.info("Creating connection.");
 			final TopicConnection topicConnection = topicConnectionFactory
 					.createTopicConnection();
@@ -100,7 +99,7 @@ public class Player implements Serializable {
 					Session.AUTO_ACKNOWLEDGE);
 			logger.info("Loading topic.");
 			final Topic topic = (Topic) initialContext
-					.lookup("clue/jms/clue-topic");
+					.lookup("java:comp/env/clue/jms/clue-topic");
 			publisher = topicSession.createPublisher(topic);
 		} catch (JMSException e) {
 			logger.fatal("There was an error initializing the JMS system.", e);

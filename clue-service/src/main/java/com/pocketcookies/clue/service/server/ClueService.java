@@ -41,7 +41,6 @@ import com.pocketcookies.clue.players.Player;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
-import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -53,7 +52,6 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = Logger.getLogger(ClueService.class);
 	private final Random random;
-	private BrokerService broker;
 	// !How long games will last until they are deleted.
 	private final long CREATE_EMPTY_GAME_LIFE_TIME;
 	private final long LEAVE_EMPTY_GAME_LIFE_TIME;
@@ -71,12 +69,6 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 		logger.info("Stopping timer.");
 		if (this.timer != null)
 			this.timer.cancel();
-		try {
-			broker.stop();
-			logger.info("Broker stopped.");
-		} catch (Exception e) {
-			logger.fatal("There was an error shutting down the broker.", e);
-		}
 	}
 
 	public ClueService() {

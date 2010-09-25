@@ -18,13 +18,11 @@ import javax.jws.WebService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
-import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
@@ -58,7 +56,7 @@ public class ClueServer {
 					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("clue/jms/clue-broker");
+					.lookup("java:comp/env/clue/jms/clue-broker");
 			logger.info("Creating connection.");
 			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting connection.");

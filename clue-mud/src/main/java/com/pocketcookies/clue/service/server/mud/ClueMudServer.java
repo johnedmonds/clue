@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import javax.jms.JMSException;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -36,7 +37,7 @@ public class ClueMudServer implements Runnable {
 					"http://localhost:8080/clue-service/ClueService");
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("clue/jms/clue-broker");
+					.lookup("java:comp/env/clue/jms/clue-broker");
 			logger.info("Creating JMS connection.");
 			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting JMS.");

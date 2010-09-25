@@ -14,9 +14,12 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 
@@ -304,15 +307,19 @@ public class MudPlayer implements Runnable, MessageListener {
 
 	public void startMessageConnection() {
 		try {
-			this.subscriber = this.session
-					.createSubscriber(session.createTopic("ClueTopic"),
-							"gameId = " + this.gameId + " and suspect = "
-									+ this.suspect.ordinal(), false);
+			this.subscriber = this.session.createSubscriber(
+					(Topic) new InitialContext()
+							.lookup("java:comp/env/clue/jms/clue-topic"),
+					"gameId = " + this.gameId + " and suspect = "
+							+ this.suspect.ordinal(), false);
 			this.subscriber.setMessageListener(this);
 		} catch (JMSException e) {
 			logger.error("There was an error working with the message server.",
 					e);
 			writer.println("There was an error connecting to one of our servers.  Try whatever you just did again later.");
+		} catch (NamingException e) {
+			logger.error("There was an error getting the topic.", e);
+			writer.println("There was an error looking up a resource.  Try logging out and back in again.");
 		}
 	}
 
