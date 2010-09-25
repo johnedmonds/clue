@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: clue-service-client-1.0-SNAPSHOT.jar hessian-4.0.7.jar log
- 4j-1.2.14.jar servlet-api-2.5.jar
+Class-Path: clue-util-1.0-SNAPSHOT.jar hessian-4.0.7.jar log4j-1.2.14.
+ jar servlet-api-2.5.jar
 
