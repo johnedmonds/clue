@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.pocketcookies.clue">
+	<class name="User" table="users">
+		<id name="name" type="string" column="name" />
+		<property name="key" type="string" column="key" unique="true" />
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.pocketcookies.clue">
+	<class name="Game" table="games">
+		<id name="id" column="id">
+			<generator class="native" />
+		</id>
+		<property name="name" type="string" column="name" unique="true"></property>
+		<property name="gameStartedState" column="game_started_state">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.GameStartedState</param>
+			</type>
+		</property>
+		<property name="suggestionMade" type="boolean" column="suggestion_made" />
+		<property name="movementAllowed" type="integer" column="movement_allowed" />
+		<property name="suspect" column="suspect">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<property name="room" column="room">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<property name="weapon" column="weapon">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<many-to-one name="currentPlayer" cascade="all">
+			<column name="current_player_game_id" />
+			<column name="current_player_suspect" />
+		</many-to-one>
+		<many-to-one name="disprovingPlayer" cascade="all">
+			<column name="disproving_player_game_id" />
+			<column name="disproving_player_suspect" />
+		</many-to-one>
+		<property name="proposedSuspect" column="proposed_suspect">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<property name="proposedRoom" column="proposed_room">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<property name="proposedWeapon" column="proposed_weapon">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">com.pocketcookies.clue.Card</param>
+			</type>
+		</property>
+		<list name="players" cascade="all-delete-orphan" inverse="true">
+			<key column="game_id" />
+			<list-index column="suspect" />
+			<one-to-many class="com.pocketcookies.clue.players.Player" />
+		</list>
+	</class>
+</hibernate-mapping>

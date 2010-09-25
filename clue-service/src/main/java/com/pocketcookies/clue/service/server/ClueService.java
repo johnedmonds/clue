@@ -15,8 +15,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.UUID;
 
-import javax.servlet.ServletException;
-
 import com.caucho.hessian.server.HessianServlet;
 import com.pocketcookies.clue.BootTimerTask;
 import com.pocketcookies.clue.Card;
@@ -64,27 +62,6 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	// for them).
 	private final long PLAYER_BOOT_TIME;
 	private final Timer timer;
-
-	public void init() {
-		try {
-			super.init();
-			broker = new BrokerService();
-			// TODO: External broker should be used in production.
-			broker.setBrokerName("clue-broker");
-			broker.setPersistent(false);
-			broker.addConnector("tcp://localhost:61616");
-			broker.start();
-			logger.info("Broker started.");
-		} catch (ServletException e) {
-			logger.fatal("There was a servlet exception.", e);
-			throw new ExceptionInInitializerError(e);
-		} catch (Exception e) {
-			logger.fatal(
-					"There was an unknown error.  It was probably from the BrokerService.",
-					e);
-			throw new ExceptionInInitializerError(e);
-		}
-	}
 
 	public void ping() {
 	}

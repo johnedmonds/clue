@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.Topic;
 import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
+import javax.naming.InitialContext;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
@@ -81,20 +85,23 @@ public class Player implements Serializable {
 	static {
 		try {
 			logger.info("Starting connection to ActiveMQ.");
-			// TODO: Make this configurable.
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-					"vm://clue-broker");
+			final InitialContext initialContext = new InitialContext();
+			// Fortunately for us, ActiveMQ's main ConnectionFactory implements
+			// TopicConnectionFactory. If we ever decide to switch to a
+			// different broker, we need to make sure that we use something that
+			// does implement TopicConnectionFactory
+			final TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
+					.lookup("clue/jms/clue-broker");
 			logger.info("Creating connection.");
-			TopicConnection topicConnection = connectionFactory
+			final TopicConnection topicConnection = topicConnectionFactory
 					.createTopicConnection();
 			logger.info("Creating session.");
 			topicSession = topicConnection.createTopicSession(false,
 					Session.AUTO_ACKNOWLEDGE);
-
 			logger.info("Loading topic.");
-			// TODO: Make this configurable.
-			publisher = topicSession.createPublisher(topicSession
-					.createTopic("ClueTopic"));
+			final Topic topic = (Topic) initialContext
+					.lookup("clue/jms/clue-topic");
+			publisher = topicSession.createPublisher(topic);
 		} catch (JMSException e) {
 			logger.fatal("There was an error initializing the JMS system.", e);
 			throw new ExceptionInInitializerError(e);
