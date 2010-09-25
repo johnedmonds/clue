@@ -53,8 +53,7 @@ public class ClueServer {
 			InitialContext initialContext = new InitialContext();
 			logger.info("Establishing connection to the service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
-					ClueServiceAPI.class,
-					Config.SERVICE_LOCATION);
+					ClueServiceAPI.class, Config.SERVICE_LOCATION);
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
 					.lookup(Config.CONNECTION_FACTORY_JNDI);
@@ -80,7 +79,7 @@ public class ClueServer {
 		}
 	}
 
-	public ClueServer() throws NamingException {
+	public ClueServer() {
 	}
 
 	@WebMethod
