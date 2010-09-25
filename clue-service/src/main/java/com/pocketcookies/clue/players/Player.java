@@ -13,7 +13,6 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
-import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.apache.log4j.Logger;
@@ -25,6 +24,7 @@ import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.User;
+import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.hibernate.HibernateMessage;
 import com.pocketcookies.clue.hibernate.util.HibernateUtil;
 import com.pocketcookies.clue.messages.Message;
@@ -90,7 +90,7 @@ public class Player implements Serializable {
 			// different broker, we need to make sure that we use something that
 			// does implement TopicConnectionFactory
 			final TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("java:comp/env/clue/jms/clue-broker");
+					.lookup(Config.CONNECTION_FACTORY_JNDI);
 			logger.info("Creating connection.");
 			final TopicConnection topicConnection = topicConnectionFactory
 					.createTopicConnection();
@@ -99,7 +99,7 @@ public class Player implements Serializable {
 					Session.AUTO_ACKNOWLEDGE);
 			logger.info("Loading topic.");
 			final Topic topic = (Topic) initialContext
-					.lookup("java:comp/env/clue/jms/clue-topic");
+					.lookup(Config.TOPIC_JNDI);
 			publisher = topicSession.createPublisher(topic);
 		} catch (JMSException e) {
 			logger.fatal("There was an error initializing the JMS system.", e);

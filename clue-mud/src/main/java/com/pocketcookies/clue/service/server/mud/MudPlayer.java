@@ -27,6 +27,7 @@ import com.pocketcookies.clue.Board;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.PlayerData;
 import com.pocketcookies.clue.Room;
+import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.messages.Join;
 import com.pocketcookies.clue.messages.broadcast.Accusation;
@@ -309,7 +310,7 @@ public class MudPlayer implements Runnable, MessageListener {
 		try {
 			this.subscriber = this.session.createSubscriber(
 					(Topic) new InitialContext()
-							.lookup("java:comp/env/clue/jms/clue-topic"),
+							.lookup(Config.TOPIC_JNDI),
 					"gameId = " + this.gameId + " and suspect = "
 							+ this.suspect.ordinal(), false);
 			this.subscriber.setMessageListener(this);

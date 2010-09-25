@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.PlayerData;
+import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 /**
@@ -34,8 +35,7 @@ public class ClueWebServlet extends HttpServlet {
 		super();
 		try {
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
-					ClueServiceAPI.class,
-					"http://localhost:8080/clue-service/ClueService");
+					ClueServiceAPI.class, Config.SERVICE_LOCATION);
 		} catch (MalformedURLException e) {
 			logger.fatal("There was a problem connecting to the service.", e);
 			throw new ExceptionInInitializerError(e);

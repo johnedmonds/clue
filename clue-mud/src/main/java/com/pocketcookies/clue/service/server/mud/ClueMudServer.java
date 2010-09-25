@@ -8,13 +8,13 @@ import java.util.LinkedList;
 import javax.jms.JMSException;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
+import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
 public class ClueMudServer implements Runnable {
@@ -34,10 +34,10 @@ public class ClueMudServer implements Runnable {
 			logger.info("Loading clue service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
-					"http://localhost:8080/clue-service/ClueService");
+					Config.SERVICE_LOCATION);
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("java:comp/env/clue/jms/clue-broker");
+					.lookup(Config.CONNECTION_FACTORY_JNDI);
 			logger.info("Creating JMS connection.");
 			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting JMS.");

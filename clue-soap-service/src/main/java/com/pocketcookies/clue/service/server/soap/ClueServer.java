@@ -24,6 +24,7 @@ import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.Room;
+import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.exceptions.AlreadyJoinedException;
 import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameAlreadyExistsException;
@@ -53,10 +54,10 @@ public class ClueServer {
 			logger.info("Establishing connection to the service.");
 			service = (ClueServiceAPI) new HessianProxyFactory().create(
 					ClueServiceAPI.class,
-					"http://localhost:8080/clue-service/ClueService");
+					Config.SERVICE_LOCATION);
 			logger.info("Loading connection factory.");
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-					.lookup("java:comp/env/clue/jms/clue-broker");
+					.lookup(Config.CONNECTION_FACTORY_JNDI);
 			logger.info("Creating connection.");
 			topicConnection = topicConnectionFactory.createTopicConnection();
 			logger.info("Starting connection.");
