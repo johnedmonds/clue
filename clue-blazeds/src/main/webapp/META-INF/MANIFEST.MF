@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: backport-util-concurrent-3.1.jar blazeds-common-3.2.0.3978
+ .jar blazeds-core-3.2.0.3978.jar blazeds-opt-3.2.0.3978.jar blazeds-p
+ roxy-3.2.0.3978.jar blazeds-remoting-3.2.0.3978.jar commons-codec-1.2
+ .jar commons-httpclient-3.1.jar commons-logging-1.0.4.jar
+
