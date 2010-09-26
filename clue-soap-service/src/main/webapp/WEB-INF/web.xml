@@ -6,6 +6,9 @@
 	<listener>
 		<listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>com.pocketcookies.clue.service.server.soap.ClueServerListener</listener-class>
+	</listener>
 	<servlet>
 		<servlet-name>ClueSoapService</servlet-name>
 		<servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>

@@ -14,6 +14,7 @@ import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -77,8 +78,6 @@ public class Player implements Serializable {
 	List<HibernateMessage> allMessages = new ArrayList<HibernateMessage>();
 	private List<Card> hand = new ArrayList<Card>();
 	private Room room;
-	private static final TopicPublisher publisher;
-	private static final TopicSession topicSession;
 	private static final TopicConnection topicConnection;
 	private static Logger logger = Logger.getLogger(Player.class);
 	private PlayerKey id;
@@ -94,13 +93,6 @@ public class Player implements Serializable {
 					.lookup(Config.CONNECTION_FACTORY_JNDI);
 			logger.info("Creating connection.");
 			topicConnection = topicConnectionFactory.createTopicConnection();
-			logger.info("Creating session.");
-			topicSession = topicConnection.createTopicSession(false,
-					Session.AUTO_ACKNOWLEDGE);
-			logger.info("Loading topic.");
-			final Topic topic = (Topic) initialContext
-					.lookup(Config.TOPIC_JNDI);
-			publisher = topicSession.createPublisher(topic);
 		} catch (JMSException e) {
 			logger.fatal("There was an error initializing the JMS system.", e);
 			throw new ExceptionInInitializerError(e);
@@ -110,6 +102,9 @@ public class Player implements Serializable {
 					e);
 			throw new ExceptionInInitializerError(e);
 		}
+	}
+
+	public Player() {
 	}
 
 	public Player(User user, Suspect suspect, int gameId) {
@@ -134,15 +129,26 @@ public class Player implements Serializable {
 		this.allMessages.add(m2);
 		ObjectMessage objectMessage;
 		try {
+			final TopicSession topicSession = topicConnection
+					.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+			final Topic topic = (Topic) new InitialContext()
+					.lookup(Config.TOPIC_JNDI);
+			final TopicPublisher publisher = topicSession
+					.createPublisher(topic);
 			objectMessage = topicSession.createObjectMessage();
 			objectMessage.setIntProperty("gameId", this.id.getGameId());
 			objectMessage.setIntProperty("suspect", this.id.getSuspect()
 					.ordinal());
 			objectMessage.setObject(m);
 			publisher.publish(objectMessage);
+			publisher.close();
+			topicSession.close();
 		} catch (JMSException e) {
 			logger.error(
 					"Attempted to create and publish a message to the message server but encountered an error.",
+					e);
+		} catch (NamingException e) {
+			logger.error("There was an error looking up the topic using JNDI.",
 					e);
 		}
 	}
@@ -245,9 +251,6 @@ public class Player implements Serializable {
 		this.allMessages = messages;
 	}
 
-	public Player() {
-	}
-
 	public PlayerKey getId() {
 		return this.id;
 	}
@@ -257,16 +260,6 @@ public class Player implements Serializable {
 	}
 
 	public static void destroy() {
-		try {
-			publisher.close();
-		} catch (JMSException e) {
-			logger.error("There was an error closing the publisher.", e);
-		}
-		try {
-			topicSession.close();
-		} catch (JMSException e) {
-			logger.error("There was an error closing the topic session.", e);
-		}
 		try {
 			topicConnection.close();
 		} catch (JMSException e) {

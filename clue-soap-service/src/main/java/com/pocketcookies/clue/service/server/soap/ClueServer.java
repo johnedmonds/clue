@@ -44,11 +44,10 @@ import com.pocketcookies.clue.service.server.ClueServiceAPI;
 public class ClueServer {
 
 	private static final ClueServiceAPI service;
-	private static final TopicConnection topicConnection;
-	private static final Logger logger;
+	public static final TopicConnection topicConnection;
+	private static final Logger logger = Logger.getLogger(ClueServer.class);
 
 	static {
-		logger = Logger.getLogger(ClueServer.class);
 		try {
 			InitialContext initialContext = new InitialContext();
 			logger.info("Establishing connection to the service.");
