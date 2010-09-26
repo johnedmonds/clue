@@ -20,8 +20,8 @@
     <module>clue-mud</module>
     <module>clue-service-client</module>
     <module>clue-service</module>
-    <module>clue-ear</module>
     <module>clue-web</module>
     <module>clue-util</module>
+    <module>clue-blazeds</module>
   </modules>
 </project>
