@@ -112,6 +112,8 @@ public class MudPlayer implements Runnable, MessageListener {
 			logger.error(
 					"There was an error relating to the output stream of the client socket.",
 					e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			this.stopMessageConnection();
 			writer.flush();
