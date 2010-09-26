@@ -14,11 +14,16 @@
 #left-column {
 	float: left;
 	overflow: auto;
+	margin-right: 10px;
+}
+
+#mid-column {
+	overflow: auto;
 }
 
 #right-column {
-	float: left;
 	overflow: auto;
+	float: right;
 	margin-left: 10px;
 }
 
@@ -37,6 +42,7 @@
 }
 
 #games {
+	
 }
 
 .game-light {

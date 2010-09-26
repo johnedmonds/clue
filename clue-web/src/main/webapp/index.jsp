@@ -94,9 +94,15 @@
 </div>
 </div>
 <div id="right-column">
-<div id="login" class="content-section"
+<div class="content-section">
+<h1>Right Column</h1>
+</div>
+</div>
+<div id="mid-column">
+<div id="login" class="content-section" style="overflow: auto;"
 	<%=request.getSession().getAttribute("key") == null ? ""
 					: "style=\"display:none\""%>>
+<div id="login-content">
 <h1>Login</h1>
 <table>
 	<tr>
@@ -113,11 +119,11 @@
 	</tr>
 </table>
 </div>
+</div>
 <div id="games-container" class="content-section">
 <h1>Games</h1>
 <div id="games"></div>
 </div>
 </div>
-
 </body>
 </html>
