@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.messaging.events.MessageFaultEvent;
+		import mx.messaging.events.MessageEvent;
+		import mx.messaging.Consumer;
+		import messages.Chat;
+		private function echo():void {
+			var text:String=ti.text;
+			remoteObject.echo(text);
+		}
+		private function resultHandler(event:ResultEvent):void {
+			ta.text += "Server responded: " + event.result + "\n";
+		}
+		private function faultHandler(event:FaultEvent):void {
+			ta.text += "Received fault: " + event.fault + "\n";
+		}
+		private function messageFaultHandler(event:MessageFaultEvent):void{
+			ta.text += "Received fault: " + event.faultString + "\n";
+		}
+		private function messageHandler(event:MessageEvent):void {
+			if (event.message.body is Chat){ta.text += "Here";}
+			ta.text += "Received message: " + event.message + "\n";
+			ta.text += "Message is of type: " + flash.utils.getQualifiedClassName(event.message.body) + "\n";
+		}
+		]]>
+	</mx:Script>
+	<mx:RemoteObject id="remoteObject" destination="echoServiceDestination"
+		result="resultHandler(event);" fault="faultHandler(event);" />
+	<mx:Consumer id="consumer" destination="clue-jms-destination"
+		fault="messageFaultHandler(event);" message="messageHandler(event);" />
+	<mx:Label text="Enter text for the server to echo." />
+	<mx:TextInput id="ti" text="Hello world!" />
+	<mx:Button label="Send" click="echo();" />
+	<mx:Button label="Subscribe" click="consumer.subscribe();" />
+	<mx:TextArea id="ta" width="100%" height="100%" />
+</mx:Application>

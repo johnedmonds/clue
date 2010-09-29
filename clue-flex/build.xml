@@ -1,0 +1,24 @@
+<project basedir="." name="clue-flex" default="main">
+	<taskdef resource="flexTasks.tasks" classpath="ant/flexTasks.jar" />
+	<property environment="env"/>
+	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="APP_ROOT" value="." />
+	<target name="init">
+		<mkdir dir="build" />
+	</target>
+	<target name="messages" depends="init">
+		<compc output="build/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message">
+			<source-path path-element="src"/>
+		</compc>
+	</target>
+	<target name="main" depends="messages">
+		<mxmlc output="../clue-web/src/main/webapp/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml">
+			<compiler.library-path dir="build" append="true">
+				<include name="shared" />
+			</compiler.library-path>
+		</mxmlc>
+	</target>
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+</project>
