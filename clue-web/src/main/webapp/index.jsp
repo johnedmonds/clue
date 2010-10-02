@@ -129,7 +129,7 @@
 </table>
 </div>
 </div>
-<div id="clue-game">
+<div id="clue-game" style="margin-bottom: 10px;">
 <div id="clue-object"></div>
 </div>
 <div id="games-container" class="content-section">
