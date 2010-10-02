@@ -6,18 +6,19 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript"
-	src="<%=request.getContextPath()%>/jquery.js"></script>
-<script type="text/javascript" src="swfobject.js"></script>
+	src="<%=getServletContext().getContextPath()%>/jquery.js"></script>
+<script type="text/javascript"
+	src="<%=getServletContext().getContextPath()%>/swfobject.js"></script>
 <script type="text/javascript">
 	function logout(){
-		$.get("<%=request.getContextPath()%>/clue/logout",{},
+		$.get("<%=getServletContext().getContextPath()%>/clue/logout",{},
 			function(){
 				$("#welcome").slideUp(400,function(){$("#welcome").remove();});
 				$("#login").slideDown();
 			});
 	}
 	function tryLogin(){
-		$.get("<%=request.getContextPath()%>/clue/login",{"username":$("#username").val(),"password":$("#password").val()},
+		$.get("<%=getServletContext().getContextPath()%>/clue/login",{"username":$("#username").val(),"password":$("#password").val()},
 		function(data){
 			if (data.key!=null){
 				$("#login").slideUp();
@@ -49,11 +50,19 @@
 				currentGame.slideDown(300,addGameClosure(games,index+1));
 			}
 		}
-	}
-	$.get("<%=request.getContextPath()%>/clue/games", function(data,status,r){addGameClosure(data.games,0)()});
+	}$(document).ready(
+			function() {
+				<%if (request.getSession().getAttribute("key") != null) {%>
+				$("#login").hide();
+				<%}%>
+				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","100%","100%","9.0.0");
+				$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addGameClosure(data.games,0)()});
+			}
+	);
 	</script>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/index.css"
+<link rel="stylesheet"
+	href="<%=getServletContext().getContextPath()%>/index.css"
 	type="text/css" />
 <title>Clue - Games</title>
 </head>
@@ -119,6 +128,9 @@
 	</tr>
 </table>
 </div>
+</div>
+<div id="clue-game">
+<div id="clue-object"></div>
 </div>
 <div id="games-container" class="content-section">
 <h1>Games</h1>

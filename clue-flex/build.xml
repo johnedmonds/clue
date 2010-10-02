@@ -1,27 +1,30 @@
-<project basedir="." name="clue-flex" default="main">
+<project basedir="." name="clue-flex" default="install">
 	<taskdef resource="flexTasks.tasks" classpath="ant/flexTasks.jar" />
 	<property environment="env"/>
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property name="APP_ROOT" value="." />
-	<property name="output_swf" value="../clue-web/src/main/webapp/application.swf" />
+	<property name="install_swf" value="../clue-web/src/main/webapp/application.swf" />
+	<property name="build" value="build" />
 	<target name="init">
 		<mkdir dir="build" />
 	</target>
 	<target name="actionscript" depends="init">
-		<compc incremental="true" output="build/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message,clue.components.Card">
+		<compc incremental="true" output="${build}/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message,clue.components.Card">
 			<source-path path-element="src" />
 		</compc>
 	</target>
 	<target name="main" depends="actionscript">
-		<mxmlc output="${output_swf}" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true">
+		<mxmlc output="${build}/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true">
 			<compiler.library-path dir="build" append="true">
 				<include name="shared" />
 			</compiler.library-path>
 		</mxmlc>
 	</target>
+	<target name="install" depends="main">
+		<copy file="${build}/application.swf" tofile="${install_swf}" />
+	</target>
 	<target name="clean">
 		<delete dir="build" />
-		<delete file="${output_swf}" />
-		<delete file="${output_swf}.cache" />
+		<delete file="${install_swf}" />
 	</target>
 </project>
