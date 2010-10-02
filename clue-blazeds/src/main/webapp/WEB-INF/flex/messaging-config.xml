@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<service id="message-service" 
-    class="flex.messaging.services.MessageService">
+<service id="message-service" class="flex.messaging.services.MessageService">
 
-    <adapters>
-        <adapter-definition id="actionscript" class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" />
-        <!-- <adapter-definition id="jms" class="flex.messaging.services.messaging.adapters.JMSAdapter"/> -->
-    </adapters>
+	<adapters>
+		<adapter-definition id="actionscript"
+			class="flex.messaging.services.messaging.adapters.ActionScriptAdapter"
+			default="true" />
+		<!-- <adapter-definition id="jms" class="flex.messaging.services.messaging.adapters.JMSAdapter"/> -->
+		<adapter-definition id="jms"
+			class="flex.messaging.services.messaging.adapters.JMSAdapter" />
+	</adapters>
 
-    <default-channels>
-        <channel ref="my-polling-amf"/>
-    </default-channels>
+	<default-channels>
+		<channel ref="my-polling-amf" />
+	</default-channels>
 
+	<destination id="clue-jms-destination" channels="clue-message-amf">
+		<adapter ref="jms" />
+		<properties>
+			<jms>
+				<destination-type>Topic</destination-type>
+				<message-type>javax.jms.ObjectMessage</message-type>
+				<connection-factory>java:comp/env/clue/jms/clue-broker
+				</connection-factory>
+				<destination-jndi-name>java:comp/env/clue/jms/clue-topic
+				</destination-jndi-name>
+				<acknowledge-mode>AUTO_ACKNOWLEDGE</acknowledge-mode>
+				<delivery-mode>NON_PERSISTENT</delivery-mode>
+				<message-priority>DEFAULT_PRIORITY</message-priority>
+			</jms>
+		</properties>
+	</destination>
 </service>

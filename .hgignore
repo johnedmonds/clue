@@ -7,3 +7,7 @@ target/
 activemq-data/
 *.log
 bin/
+*.swc
+*.swf
+.asdt_classpath
+.externalToolBuilders/
