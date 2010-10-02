@@ -42,21 +42,23 @@
 		ret +="</ul></div>";
 		return ret;
 	}
-	function addGameClosure(games,index){
-		return function(){
-			if (index<games.length){
-				var currentGame=$(makeGameHtml(games[index],index)).hide();
-				$("#games").append(currentGame);
-				currentGame.slideDown(300,addGameClosure(games,index+1));
-			}
+	function getGames(){
+		$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)()});
+		setTimeout("getGames();",4000);
+	}
+	function addAllGames(games){
+		$("#games").html("");
+		for (var g in games){
+			$("#games").append($(makeGameHtml(games[g],g)));
 		}
-	}$(document).ready(
+	}
+	$(document).ready(
 			function() {
 				<%if (request.getSession().getAttribute("key") != null) {%>
 				$("#login").hide();
 				<%}%>
 				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","100%","100%","9.0.0");
-				$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addGameClosure(data.games,0)()});
+				getGames();
 			}
 	);
 	</script>
@@ -134,6 +136,14 @@
 </div>
 <div id="games-container" class="content-section">
 <h1>Games</h1>
+<table width="100%">
+	<tr>
+		<td><label for="txtCreateGame">Game name</label></td>
+		<td><input style="width: 100%;" type="text" id="txtCreateGame" /></td>
+		<td><input style="width: 100%;" type="submit" value="Create"
+			onclick="$.get('<%=getServletContext().getContextPath()%>/clue/create',{'gameName':$('#txtCreateGame').val()});$('#txtCreateGame').val('');" /></td>
+	</tr>
+</table>
 <div id="games"></div>
 </div>
 </div>
