@@ -43,7 +43,7 @@
 		return ret;
 	}
 	function getGames(){
-		$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)()});
+		$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});
 		setTimeout("getGames();",4000);
 	}
 	function addAllGames(games){
