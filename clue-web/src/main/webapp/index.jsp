@@ -42,10 +42,8 @@
 		ret +="</ul></div>";
 		return ret;
 	}
-	function getGames(){
-		$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});
-		setTimeout("getGames();",4000);
-	}
+	function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",4000);}
+	function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
 	function addAllGames(games){
 		$("#games").html("");
 		for (var g in games){
@@ -58,7 +56,7 @@
 				$("#login").hide();
 				<%}%>
 				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","100%","100%","9.0.0");
-				getGames();
+				getGamesOnTimer();
 			}
 	);
 	</script>
@@ -141,7 +139,7 @@
 		<td><label for="txtCreateGame">Game name</label></td>
 		<td><input style="width: 100%;" type="text" id="txtCreateGame" /></td>
 		<td><input style="width: 100%;" type="submit" value="Create"
-			onclick="$.get('<%=getServletContext().getContextPath()%>/clue/create',{'gameName':$('#txtCreateGame').val()});$('#txtCreateGame').val('');" /></td>
+			onclick="$.get('<%=getServletContext().getContextPath()%>/clue/create',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');" /></td>
 	</tr>
 </table>
 <div id="games"></div>
