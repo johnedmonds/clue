@@ -11,3 +11,4 @@ bin/
 *.swf
 .asdt_classpath
 .externalToolBuilders/
+*.cache

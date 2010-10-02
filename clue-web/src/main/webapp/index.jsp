@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript"
 	src="<%=request.getContextPath()%>/jquery.js"></script>
-
+<script type="text/javascript" src="swfobject.js"></script>
 <script type="text/javascript">
 	function logout(){
 		$.get("<%=request.getContextPath()%>/clue/logout",{},
