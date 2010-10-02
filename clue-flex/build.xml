@@ -3,16 +3,17 @@
 	<property environment="env"/>
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property name="APP_ROOT" value="." />
+	<property name="output_swf" value="../clue-web/src/main/webapp/application.swf" />
 	<target name="init">
 		<mkdir dir="build" />
 	</target>
-	<target name="messages" depends="init">
-		<compc output="build/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message">
-			<source-path path-element="src"/>
+	<target name="actionscript" depends="init">
+		<compc incremental="true" output="build/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message,clue.components.Card">
+			<source-path path-element="src" />
 		</compc>
 	</target>
-	<target name="main" depends="messages">
-		<mxmlc output="../clue-web/src/main/webapp/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml">
+	<target name="main" depends="actionscript">
+		<mxmlc output="${output_swf}" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true">
 			<compiler.library-path dir="build" append="true">
 				<include name="shared" />
 			</compiler.library-path>
@@ -20,5 +21,7 @@
 	</target>
 	<target name="clean">
 		<delete dir="build" />
+		<delete file="${output_swf}" />
+		<delete file="${output_swf}.cache" />
 	</target>
 </project>
