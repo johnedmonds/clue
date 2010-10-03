@@ -53,7 +53,17 @@
 				<%if (request.getSession().getAttribute("key") != null) {%>
 				$("#login").hide();
 				<%}%>
-				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","500","600","9.0.0","",{},{},{},function(e){if(e.success)clueswfobject=e.ref;});
+				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","500","600","9.0.0","",{},{},{},
+						function(e){
+							if(e.success){
+								clueswfobject=e.ref;
+								<%if (request.getSession().getAttribute("key") != null) {%>
+								clueswfobject.successfulLogin(<%=request.getAttribute("username")%>,<%=request.getAttribute("key")%>);
+								<%}%>
+							}
+						}
+				);
+						
 				getGamesOnTimer();
 			}
 	);
@@ -123,7 +133,8 @@
 </table>
 </div>
 </div>
-<div id="clue-game" style="margin-bottom: 10px; width:100%; height:100%;">
+<div id="clue-game"
+	style="margin-bottom: 10px; width: 100%; height: 100%;">
 <div id="clue-object"></div>
 </div>
 <div id="games-container" class="content-section">
