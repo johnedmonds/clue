@@ -13,23 +13,20 @@
 	function logout(){
 		$.get("<%=getServletContext().getContextPath()%>/clue/logout",{},
 			function(){
-				$("#welcome").slideUp(400,function(){$("#welcome").remove();});
+				$("#welcome").slideUp();
 				$("#login").slideDown();
+				clueswfobject.logout();
 			});
 	}
-	function tryLogin(){
-		$.get("<%=getServletContext().getContextPath()%>/clue/login",{"username":$("#username").val(),"password":$("#password").val()},
-		function(data){
-			if (data.key!=null){
-				$("#login").slideUp();
-				var logoutButton=$("<input type=\"submit\" value=\"Logout\" style=\"width:100%;\"/>");
-				logoutButton.click(logout);
-				var welcome=$("<div id=\"welcome\" class=\"content-section\"><h1>Welcome "+$("#username").val()+"</h1></div>").hide();
-				welcome.append(logoutButton);
-				$("#left-column").prepend(welcome);
-				welcome.slideDown();
-			}
-		});
+	function tryLogin(){$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},
+			function(data){
+				loginSuccess();
+				clueswfobject.loginSuccess($("#username").val(),data.key);
+			});}
+	function loginSuccess() {
+		$("#login").slideUp();
+		$("#welcome>h1:first").text("Welcome "+$("#username").val());
+		$("#welcome").slideDown();
 	}
 	function makeGameHtml(game,index){
 		var secondGameClass="game-light";
@@ -50,12 +47,13 @@
 			$("#games").append($(makeGameHtml(games[g],g)));
 		}
 	}
+	var clueswfobject;
 	$(document).ready(
 			function() {
 				<%if (request.getSession().getAttribute("key") != null) {%>
 				$("#login").hide();
 				<%}%>
-				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","100%","100%","9.0.0");
+				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","500","600","9.0.0","",{},{},{},function(e){if(e.success)clueswfobject=e.ref;});
 				getGamesOnTimer();
 			}
 	);
@@ -68,16 +66,12 @@
 </head>
 <body>
 <div id="left-column">
-<%
-	if (request.getSession().getAttribute("key") != null) {
-%>
-<div id="welcome" class="content-section">
+<div id="welcome" class="content-section"
+	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
+					: ""%>>
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
 <input type="submit" value="Logout" style="width: 100%;"
 	onclick="logout()" /></div>
-<%
-	}
-%>
 <div id="about" class="content-section">
 <h1>About</h1>
 <p>Hello world.</p>
@@ -129,7 +123,7 @@
 </table>
 </div>
 </div>
-<div id="clue-game" style="margin-bottom: 10px;">
+<div id="clue-game" style="margin-bottom: 10px; width:100%; height:100%;">
 <div id="clue-object"></div>
 </div>
 <div id="games-container" class="content-section">

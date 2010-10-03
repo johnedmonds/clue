@@ -11,9 +11,9 @@
 		<channel ref="my-amf" />
 	</default-channels>
 
-	<destination id="echoServiceDestination" channels="my-amf">
+	<destination id="BlazeDSClueService" channels="my-amf">
 		<properties>
-			<source>remoting.EchoService</source>
+			<source>com.pocketcookies.clue.blazeds.remoting.BlazeDSClueService</source>
 		</properties>
 	</destination>
 

@@ -14,7 +14,7 @@
 		</compc>
 	</target>
 	<target name="main" depends="actionscript">
-		<mxmlc output="${build}/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true">
+		<mxmlc output="${build}/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true" debug="true">
 			<compiler.library-path dir="build" append="true">
 				<include name="shared" />
 			</compiler.library-path>

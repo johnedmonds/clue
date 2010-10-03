@@ -6,10 +6,40 @@
 	<s:layout>
 		<s:VerticalLayout />
 	</s:layout>
+	<s:states>
+		<s:State name="login" />
+		<s:State name="games" />
+		<s:State name="prestart" stateGroups="clueGroup" />
+		<s:State name="clue" stateGroups="clueGroup" />
+		<s:State name="accuse" stateGroups="clueGroup" />
+		<s:State name="suggest" stateGroups="clueGroup" />
+		<s:State name="disprove" stateGroups="clueGroup" />
+	</s:states>
 	<fx:Script>
-	public function f(s:String):void{chat.text+=s+"\n";}
-	public function initApp():void{ExternalInterface.addCallback("f",f);}
+	<![CDATA[
+		import mx.rpc.remoting.mxml.RemoteObject;
+		import mx.rpc.events.ResultEvent;
+		import mx.rpc.events.FaultEvent;
+	
+		private var key:String;
+		private var username:String;
+		//Handlers
+		private function defaultServiceResultHandler(event:ResultEvent):void{}
+		private function defaultServiceFaultHandler(event:FaultEvent):void{}
+		
+		private function logout():void{key=null;username=null;}
+		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;}
+				
+		private function initApp():void{
+			chat.text+="here3";
+		}	
+	]]>
 	</fx:Script>
+	<fx:Declarations>
+		<mx:RemoteObject id="blazeDSClueService" destination="BlazeDSClueService"
+			result="defaultServiceResultHandler(event);" fault="defaultServiceFaultHandler(event);">
+		</mx:RemoteObject>
+	</fx:Declarations>
 	<!-- Main scene container. -->
 	<s:VGroup width="100%" height="100%">
 		<!-- Cards and rooms. -->
