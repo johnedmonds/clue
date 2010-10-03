@@ -41,8 +41,25 @@
 			result="defaultServiceResultHandler(event);" fault="defaultServiceFaultHandler(event);">
 		</mx:RemoteObject>
 	</fx:Declarations>
+	<!-- Telling someone to login -->
+	<s:Group includeIn="login" width="100%" height="100%">
+		<s:Group verticalCenter="0" horizontalCenter="0">
+			<s:Rect radiusX="10" radiusY="10" width="100%" height="100%">
+				<s:fill>
+					<s:SolidColor color="#dddddd" />
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke color="#bbbbbb" weight="10" />
+				</s:stroke>
+			</s:Rect>
+			<s:VGroup paddingLeft="50" paddingRight="50" paddingTop="50"
+				paddingBottom="50">
+				<s:Label text="You must login first." />
+			</s:VGroup>
+		</s:Group>
+	</s:Group>
 	<!-- Main scene container. -->
-	<s:VGroup width="100%" height="100%">
+	<s:VGroup width="100%" height="100%" includeIn="clueGroup">
 		<!-- Cards and rooms. -->
 		<s:HGroup width="100%" height="100%">
 			<s:Panel id="cardsPanel" title="Cards" height="100%">
