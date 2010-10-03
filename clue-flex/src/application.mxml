@@ -15,6 +15,22 @@
 		<s:State name="suggest" stateGroups="clueGroup" />
 		<s:State name="disprove" stateGroups="clueGroup" />
 	</s:states>
+	<s:transitions>
+		<s:Transition toState="games">
+			<s:Parallel>
+				<s:Fade target="{beforeStartText}" duration="1000" />
+				<s:Resize targets="{[beforeStartContainer,beforeStartRect]}"
+					duration="1000" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition toState="login">
+			<s:Parallel>
+				<s:Fade target="{beforeStartText}" duration="1000" />
+				<s:Resize targets="{[beforeStartContainer,beforeStartRect]}"
+					duration="1000" />
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
 	<fx:Script>
 	<![CDATA[
 		import mx.rpc.remoting.mxml.RemoteObject;
@@ -27,8 +43,8 @@
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
 		
-		private function logout():void{key=null;username=null;}
-		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;chat.text+=username;}
+		private function logout():void{key=null;username=null;currentState="login";}
+		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";chat.text+=username;}
 				
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
@@ -42,9 +58,12 @@
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<!-- Telling someone to login -->
-	<s:Group includeIn="login" width="100%" height="100%">
+	<s:Group id="beforeStartContainer" includeIn="login,games"
+		width="100%" height="100%">
+		<s:filters><s:DropShadowFilter/></s:filters>
 		<s:Group verticalCenter="0" horizontalCenter="0">
-			<s:Rect radiusX="10" radiusY="10" width="100%" height="100%">
+			<s:Rect id="beforeStartRect" radiusX="10" radiusY="10" width="100%"
+				height="100%">
 				<s:fill>
 					<s:SolidColor color="#dddddd" />
 				</s:fill>
@@ -54,10 +73,12 @@
 			</s:Rect>
 			<s:VGroup paddingLeft="50" paddingRight="50" paddingTop="50"
 				paddingBottom="50">
-				<s:Label text="You must login first." />
+				<s:Label id="beforeStartText" includeIn="login,games"
+					text.login="Please login before continuing." text.games="Please select a game to join." />
 			</s:VGroup>
 		</s:Group>
 	</s:Group>
+	<!-- Telling someone to pick a game -->
 	<!-- Main scene container. -->
 	<s:VGroup width="100%" height="100%" includeIn="clueGroup">
 		<!-- Cards and rooms. -->
