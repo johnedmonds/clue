@@ -28,10 +28,11 @@
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
 		
 		private function logout():void{key=null;username=null;}
-		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;}
+		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;chat.text+=username;}
 				
 		private function initApp():void{
-			chat.text+="here3";
+			ExternalInterface.addCallback("successfulLogin",successfulLogin);
+			ExternalInterface.addCallback("logout",logout);
 		}	
 	]]>
 	</fx:Script>

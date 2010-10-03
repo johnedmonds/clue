@@ -21,7 +21,7 @@
 	function tryLogin(){$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},
 			function(data){
 				loginSuccess();
-				clueswfobject.loginSuccess($("#username").val(),data.key);
+				clueswfobject.successfulLogin($("#username").val(),data.key);
 			});}
 	function loginSuccess() {
 		$("#login").slideUp();
