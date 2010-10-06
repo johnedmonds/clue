@@ -49,6 +49,7 @@
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
 			ExternalInterface.addCallback("logout",logout);
+			ExternalInterface.call("clueFinishedLoading");
 		}	
 	]]>
 	</fx:Script>

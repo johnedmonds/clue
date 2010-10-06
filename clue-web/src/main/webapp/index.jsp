@@ -28,6 +28,11 @@
 		$("#welcome>h1:first").text("Welcome "+$("#username").val());
 		$("#welcome").slideDown();
 	}
+	function clueFinishedLoading(){
+		<%if (request.getSession().getAttribute("key") != null) {%>
+		clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
+		<%}%>		
+	}
 	function makeGameHtml(game,index){
 		var secondGameClass="game-light";
 		if (index%2==0)
@@ -36,10 +41,18 @@
 		for (var i=0;i<game.players.length;i++){
 			ret+="<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>";
 		}
-		ret +="</ul></div>";
+		ret += "</ul>";
+		//Join as.
+		ret +="<div>Join as:<ul>";
+		var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
+		for (var suspect in suspects){
+			ret+="<li><input type='submit' value='"+suspects[suspect]+"'/></li>";
+		}
+		ret += "</div>"
+		ret += "</div>";
 		return ret;
 	}
-	function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",4000);}
+	function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
 	function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
 	function addAllGames(games){
 		$("#games").html("");
@@ -54,14 +67,7 @@
 				$("#login").hide();
 				<%}%>
 				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","500","600","9.0.0","",{},{},{},
-						function(e){
-							if(e.success){
-								clueswfobject=e.ref;
-								<%if (request.getSession().getAttribute("key") != null) {%>
-								clueswfobject.successfulLogin(<%=request.getAttribute("username")%>,<%=request.getAttribute("key")%>);
-								<%}%>
-							}
-						}
+						function(e){if(e.success){clueswfobject=e.ref;}}
 				);
 						
 				getGamesOnTimer();
