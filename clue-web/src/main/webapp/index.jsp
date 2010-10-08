@@ -34,23 +34,26 @@
 		<%}%>		
 	}
 	function makeGameHtml(game,index){
-		var secondGameClass="game-light";
-		if (index%2==0)
-			secondGameClass="game-dark";
-		var ret="<div class=\"game " +secondGameClass+"\">"+game.name+" "+game.state+"<ul class=\"players\">";
+		var gameContainer=$("<div>"+game.name+" "+game.state+"</div>").addClass(index%2==0?"game-dark":"game-light");
+		playersContainer=$("<ul class=\"players\"></ul>");
 		for (var i=0;i<game.players.length;i++){
-			ret+="<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>";
+			playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
 		}
-		ret += "</ul>";
 		//Join as.
-		ret +="<div>Join as:<ul>";
+		joinContainer=$("<ul></ul>");
 		var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
 		for (var suspect in suspects){
-			ret+="<li><input type='submit' value='"+suspects[suspect]+"'/></li>";
+			joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
+					function (suspect){
+						return function(){
+							clueswfobject.join(suspect,game.id);
+						};
+					}(suspects[suspect])
+				)
+			);
 		}
-		ret += "</div>"
-		ret += "</div>";
-		return ret;
+		gameContainer.append(playersContainer).append(joinContainer);		
+		return gameContainer;
 	}
 	function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
 	function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}

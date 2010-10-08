@@ -39,16 +39,21 @@
 	
 		private var key:String;
 		private var username:String;
+		private var suspect:String;
+		private var gameId:int;
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
 		
 		private function logout():void{key=null;username=null;currentState="login";}
 		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";chat.text+=username;}
+		private function join(suspectin:String,gameIdIn:int):void{gameId=gameIdIn;suspect=suspectin;blazeDSClueService.join(key,gameId,suspect);}
+		private function joinSuccess(event:ResultEvent):void{currentState="prestart";}
 				
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
 			ExternalInterface.addCallback("logout",logout);
+			ExternalInterface.addCallback("join",join);
 			ExternalInterface.call("clueFinishedLoading");
 		}	
 	]]>
@@ -56,12 +61,15 @@
 	<fx:Declarations>
 		<mx:RemoteObject id="blazeDSClueService" destination="BlazeDSClueService"
 			result="defaultServiceResultHandler(event);" fault="defaultServiceFaultHandler(event);">
+			<mx:method name="join" result="joinSuccess(event);" />
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<!-- Telling someone to login -->
 	<s:Group id="beforeStartContainer" includeIn="login,games"
 		width="100%" height="100%">
-		<s:filters><s:DropShadowFilter/></s:filters>
+		<s:filters>
+			<s:DropShadowFilter />
+		</s:filters>
 		<s:Group verticalCenter="0" horizontalCenter="0">
 			<s:Rect id="beforeStartRect" radiusX="10" radiusY="10" width="100%"
 				height="100%">
