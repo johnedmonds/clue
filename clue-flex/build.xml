@@ -5,19 +5,16 @@
 	<property name="APP_ROOT" value="." />
 	<property name="install_swf" value="../clue-web/src/main/webapp/application.swf" />
 	<property name="build" value="build" />
+	<property name="src" value="${APP_ROOT}/src"/>
 	<target name="init">
 		<mkdir dir="build" />
 	</target>
-	<target name="actionscript" depends="init">
-		<compc incremental="true" output="${build}/shared/messages.swc" include-classes="messages.Chat,messages.PlayerMessage,messages.Message,clue.components.Card">
-			<source-path path-element="src" />
-		</compc>
-	</target>
-	<target name="main" depends="actionscript">
-		<mxmlc output="${build}/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${APP_ROOT}/src/application.mxml" incremental="true" debug="true">
+	<target name="main" depends="init">
+		<mxmlc output="${build}/application.swf" context-root="/clue-blazeds" services="../clue-blazeds/src/main/webapp/WEB-INF/flex/services-config.xml" file="${src}/application.mxml" incremental="true" debug="true">
 			<compiler.library-path dir="build" append="true">
 				<include name="shared" />
 			</compiler.library-path>
+			<source-path path-element="${src}"/>
 		</mxmlc>
 	</target>
 	<target name="install" depends="main">

@@ -36,6 +36,9 @@
 		import mx.rpc.remoting.mxml.RemoteObject;
 		import mx.rpc.events.ResultEvent;
 		import mx.rpc.events.FaultEvent;
+		import mx.messaging.events.MessageFaultEvent;
+		import mx.messaging.events.MessageEvent;
+		import messages.*;
 	
 		private var key:String;
 		private var username:String;
@@ -44,11 +47,18 @@
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
+		private function defaultMessageFaultHandler(event:MessageFaultEvent):void{}
 		
 		private function logout():void{key=null;username=null;currentState="login";}
 		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";chat.text+=username;}
 		private function join(suspectin:String,gameIdIn:int):void{gameId=gameIdIn;suspect=suspectin;blazeDSClueService.join(key,gameId,suspect);}
-		private function joinSuccess(event:ResultEvent):void{currentState="prestart";}
+		private function joinSuccess(event:ResultEvent):void{currentState="prestart";clueConsumer.subscribe();chat.text+="a";}
+		
+		private function onClueMessage(event:MessageEvent):void{
+			chat.text+=event.message+"\n";
+			if (event.message.body is messages.Join){chat.text+="was a join.\n";}
+			else if (event.message.body is messages.Chat){chat.text+="was a chat.\n";}
+		}
 				
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
@@ -63,6 +73,7 @@
 			result="defaultServiceResultHandler(event);" fault="defaultServiceFaultHandler(event);">
 			<mx:method name="join" result="joinSuccess(event);" />
 		</mx:RemoteObject>
+		<mx:Consumer id="clueConsumer" destination="clue-jms-destination" message="onClueMessage(event);" fault="defaultMessageFaultHandler(event);"/>
 	</fx:Declarations>
 	<!-- Telling someone to login -->
 	<s:Group id="beforeStartContainer" includeIn="login,games"

@@ -9,7 +9,7 @@ public class MessageFilter extends FlexClientOutboundQueueProcessor {
 	@Override
 	public void add(List outboundQueue, Message message) {
 		super.add(outboundQueue, message);
-		System.out.println(this.getFlexClient().getAttribute("test"));
-		System.out.println(message.getBody().getClass().getName());
+		System.out.println("SuspectId:"
+				+ this.getFlexClient().getAttribute("suspectOrdinal"));
 	}
 }

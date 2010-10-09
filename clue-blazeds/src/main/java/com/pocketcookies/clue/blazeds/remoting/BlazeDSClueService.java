@@ -9,6 +9,8 @@ import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
+import flex.messaging.FlexContext;
+
 public class BlazeDSClueService {
 	private static final ClueServiceAPI service;
 	private static final Logger logger = Logger
@@ -30,6 +32,9 @@ public class BlazeDSClueService {
 	public boolean join(String key, int gameId, Suspect suspect) {
 		try {
 			service.join(key, gameId, suspect);
+			FlexContext.getFlexClient().setAttribute("key", key);
+			FlexContext.getFlexClient().setAttribute("gameId",gameId);
+			FlexContext.getFlexClient().setAttribute("suspectOrdinal", suspect.ordinal());
 			return true;
 		} catch (Exception e) {
 			logger.error("There was an error", e);

@@ -10,74 +10,78 @@
 <script type="text/javascript"
 	src="<%=getServletContext().getContextPath()%>/swfobject.js"></script>
 <script type="text/javascript">
-	function logout(){
-		$.get("<%=getServletContext().getContextPath()%>/clue/logout",{},
-			function(){
-				$("#welcome").slideUp();
-				$("#login").slideDown();
-				clueswfobject.logout();
-			});
-	}
-	function tryLogin(){$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},
-			function(data){
-				loginSuccess();
-				clueswfobject.successfulLogin($("#username").val(),data.key);
-			});}
-	function loginSuccess() {
-		$("#login").slideUp();
-		$("#welcome>h1:first").text("Welcome "+$("#username").val());
-		$("#welcome").slideDown();
-	}
-	function clueFinishedLoading(){
-		<%if (request.getSession().getAttribute("key") != null) {%>
-		clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
-		<%}%>		
-	}
-	function makeGameHtml(game,index){
-		var gameContainer=$("<div>"+game.name+" "+game.state+"</div>").addClass(index%2==0?"game-dark":"game-light");
-		playersContainer=$("<ul class=\"players\"></ul>");
-		for (var i=0;i<game.players.length;i++){
-			playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
+function logout(){
+	$.get("<%=getServletContext().getContextPath()%>/clue/logout",{},
+		function(){
+			$("#welcome").slideUp();
+			$("#login").slideDown();
+			clueswfobject.logout();
 		}
-		//Join as.
-		joinContainer=$("<ul></ul>");
-		var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
-		for (var suspect in suspects){
-			joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
-					function (suspect){
-						return function(){
-							clueswfobject.join(suspect,game.id);
-						};
-					}(suspects[suspect])
-				)
-			);
-		}
-		gameContainer.append(playersContainer).append(joinContainer);		
-		return gameContainer;
-	}
-	function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
-	function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
-	function addAllGames(games){
-		$("#games").html("");
-		for (var g in games){
-			$("#games").append($(makeGameHtml(games[g],g)));
-		}
-	}
-	var clueswfobject;
-	$(document).ready(
-			function() {
-				<%if (request.getSession().getAttribute("key") != null) {%>
-				$("#login").hide();
-				<%}%>
-				swfobject.embedSWF("<%=getServletContext().getContextPath()%>/application.swf","clue-object","500","600","9.0.0","",{},{},{},
-						function(e){if(e.success){clueswfobject=e.ref;}}
-				);
-						
-				getGamesOnTimer();
-			}
 	);
-	</script>
-
+}
+function tryLogin(){
+	$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},
+		function(data){
+			loginSuccess();
+			clueswfobject.successfulLogin($("#username").val(),data.key);
+		}
+	);
+}
+function loginSuccess() {
+	$("#login").slideUp();
+	$("#welcome>h1:first").text("Welcome "+$("#username").val());
+	$("#welcome").slideDown();
+}
+function makeGameHtml(game,index){
+	var gameContainer=$("<div>"+game.name+" "+game.state+"</div>").addClass(index%2==0?"game-dark":"game-light");
+	playersContainer=$("<ul class=\"players\"></ul>");
+	for (var i=0;i<game.players.length;i++){
+		playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
+	}
+	// Join as.
+	joinContainer=$("<ul></ul>");
+	var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
+	for (var suspect in suspects){
+		joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
+				function (suspect){
+					return function(){
+						clueswfobject.join(suspect,game.id);
+					};
+				}(suspects[suspect])
+			)
+		);
+	}
+	gameContainer.append(playersContainer).append(joinContainer);		
+	return gameContainer;
+}
+function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
+function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
+function addAllGames(games){
+	$("#games").html("");
+	for (var g in games){
+		$("#games").append($(makeGameHtml(games[g],g)));
+	}
+}
+//Used to retrieve all necessary information from clue.
+function clueFinishedLoading(){
+	<%if (request.getSession().getAttribute("key") != null) {%>
+	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
+	<%}%>		
+}
+var clueswfobject;
+swfobject.registerObject("clue-object","9.0.0",null,function(e){
+	if (e.success)clueswfobject=e.ref;
+	else alert("There was an error registering the swf object.");
+});
+$(document).ready(
+		function() {
+			<%if (request.getSession().getAttribute("key") != null) {%>
+			$("#login").hide();
+			<%}%>
+			getGamesOnTimer();
+		}
+);
+</script>
 <link rel="stylesheet"
 	href="<%=getServletContext().getContextPath()%>/index.css"
 	type="text/css" />
@@ -121,7 +125,7 @@
 </div>
 </div>
 <div id="mid-column">
-<div id="login" class="content-section" style="overflow: auto;"
+<div id="login" class="content-section"
 	<%=request.getSession().getAttribute("key") == null ? ""
 					: "style=\"display:none\""%>>
 <div id="login-content">
@@ -142,10 +146,16 @@
 </table>
 </div>
 </div>
-<div id="clue-game"
-	style="margin-bottom: 10px; width: 100%; height: 100%;">
-<div id="clue-object"></div>
-</div>
+<div id="clue-game" style="margin-bottom: 10px;"><object
+	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%"
+	height="500" id="clue-object">
+	<param name="movie" value="application.swf" />
+	<!--[if !IE]>--> <object type="application/x-shockwave-flash"
+		data="application.swf" height="500" width="100%"> <!--<![endif]-->
+		<a href="http://www.adobe.com/go/getflashplayer"> <img
+			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+			alt="Get Adobe Flash player" /> </a> <!--[if !IE]>--> </object> <!--<![endif]-->
+</object></div>
 <div id="games-container" class="content-section">
 <h1>Games</h1>
 <table width="100%">
