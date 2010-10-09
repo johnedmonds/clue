@@ -94,9 +94,11 @@
 				</s:stroke>
 			</s:Rect>
 			<s:VGroup paddingLeft="50" paddingRight="50" paddingTop="50"
-				paddingBottom="50">
-				<s:Label id="beforeStartText" includeIn="login,games,prestart"
-					text.login="Please login before continuing." text.games="Please select a game to join." text.prestart="Once you have enough players, click the Start button below to start the game. ({playerCount}/3 players)."/>
+				paddingBottom="50" width="100%" horizontalAlign="center">
+				<s:Label id="beforeStartText" text.login="Please login before continuing."
+					text.games="Please select a game to join."
+					text.prestart="Once you have enough players, click the Start button below to start the game. ({playerCount}/3 players)." />
+				<s:Button label="Start" includeIn="prestart" />
 			</s:VGroup>
 		</s:Group>
 	</s:Group>
