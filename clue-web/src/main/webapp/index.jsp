@@ -147,11 +147,11 @@ $(document).ready(
 </div>
 </div>
 <div id="clue-game" style="margin-bottom: 10px;"><object
-	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%"
-	height="500" id="clue-object">
+	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="700"
+	height="600" id="clue-object">
 	<param name="movie" value="application.swf" />
 	<!--[if !IE]>--> <object type="application/x-shockwave-flash"
-		data="application.swf" height="500" width="100%"> <!--<![endif]-->
+		data="application.swf" width="700" height="600"> <!--<![endif]-->
 		<a href="http://www.adobe.com/go/getflashplayer"> <img
 			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
 			alt="Get Adobe Flash player" /> </a> <!--[if !IE]>--> </object> <!--<![endif]-->
