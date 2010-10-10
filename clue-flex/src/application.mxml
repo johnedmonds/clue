@@ -15,8 +15,9 @@
 	<s:transitions>
 		<s:Transition fromState="*" toState="*">
 			<s:Parallel>
-				<s:Fade target="{beforeStartText}" duration="1000" />
-				<s:Resize targets="{[beforeStartContainer,beforeStartRectContainer,beforeStartRect]}"
+				<s:Resize targets="{[beforeStartRect]}" duration="1000" />
+				<s:Move
+					targets="{[beforeStartRect,beforeStartRectContainer,beforeStartContainer]}"
 					duration="1000" />
 			</s:Parallel>
 		</s:Transition>
@@ -40,10 +41,12 @@
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
 		private function defaultMessageFaultHandler(event:MessageFaultEvent):void{}
 		
-		private function logout():void{key=null;username=null;currentState="login";}
-		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";chat.text+=username;}
+		private function logout():void{key=null;username=null;currentState="login";playerCount=0;chat.text=chatInput.text="";clueConsumer.unsubscribe();}
+		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";}
 		private function join(suspectin:String,gameIdIn:int):void{gameId=gameIdIn;suspect=suspectin;blazeDSClueService.join(key,gameId,suspect);}
+		private function rejoin(gameIdIn:int):void{gameId=gameIdIn;blazeDSClueService.associate(key,gameIdIn);}
 		private function joinSuccess(event:ResultEvent):void{currentState="prestart";clueConsumer.subscribe();playerCount=playerCount+1;}
+		private function rejoinSuccess(event:ResultEvent):void{suspect=event.result as String;joinSuccess(event);}
 		
 		private function onClueMessage(event:MessageEvent):void{
 			chat.text+=event.message+"\n";
@@ -55,6 +58,7 @@
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
 			ExternalInterface.addCallback("logout",logout);
 			ExternalInterface.addCallback("join",join);
+			ExternalInterface.addCallback("rejoin",rejoin);
 			ExternalInterface.call("clueFinishedLoading");
 		}	
 	]]>
@@ -63,13 +67,15 @@
 		<mx:RemoteObject id="blazeDSClueService" destination="BlazeDSClueService"
 			result="defaultServiceResultHandler(event);" fault="defaultServiceFaultHandler(event);">
 			<mx:method name="join" result="joinSuccess(event);" />
+			<mx:method name="associate" result="rejoinSuccess(event);" />
 		</mx:RemoteObject>
 		<mx:Consumer id="clueConsumer" destination="clue-jms-destination"
 			message="onClueMessage(event);" fault="defaultMessageFaultHandler(event);" />
 	</fx:Declarations>
 	<!-- Telling someone to pick a game -->
 	<!-- Main scene container. -->
-	<s:VGroup width="100%" height="100%" includeIn="clueGroup" enabled.prestart="false">
+	<s:VGroup width="100%" height="100%" includeIn="clueGroup"
+		enabled.prestart="false">
 		<s:filters>
 			<s:ColorMatrixFilter
 				matrix="[1,0,0,0,-50,
@@ -129,7 +135,8 @@
 		<s:filters>
 			<s:DropShadowFilter />
 		</s:filters>
-		<s:Group id="beforeStartRectContainer" verticalCenter="0" horizontalCenter="0">
+		<s:Group id="beforeStartRectContainer" verticalCenter="0"
+			horizontalCenter="0">
 			<s:Rect id="beforeStartRect" radiusX="10" radiusY="10" width="100%"
 				height="100%">
 				<s:fill>
@@ -144,8 +151,8 @@
 				<s:Label id="beforeStartText" text.login="Please login before continuing."
 					text.games="Please select a game to join."
 					text.prestart="Once you have enough players, click the Start button below to start the game. ({playerCount}/3 players)." />
-				<s:Button label="Start" includeIn="prestart"
-					click="chat.text+='a';currentState='clue';" />
+				<s:Button label="Start" includeIn="prestart" click="currentState='clue';"
+					id="btnStart" />
 			</s:VGroup>
 		</s:Group>
 	</s:Group>

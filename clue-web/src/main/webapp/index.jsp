@@ -16,48 +16,78 @@ function logout(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
 			clueswfobject.logout();
+			username=null;
 		}
 	);
 }
+//Sends an AJAX request to login.
 function tryLogin(){
-	$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},
-		function(data){
-			loginSuccess();
-			clueswfobject.successfulLogin($("#username").val(),data.key);
-		}
-	);
+	$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
 }
-function loginSuccess() {
+//Called when the AJAX request returns successfully.
+function loginSuccess(data) {
+	//Keep track of the username.  We will need this when determining whether to allow the user to join or rejoin a game.
+	username=$("#username").val();
+	//Hide the login div and show the welcome div.
 	$("#login").slideUp();
-	$("#welcome>h1:first").text("Welcome "+$("#username").val());
+	$("#welcome>h1:first").text("Welcome "+username);
 	$("#welcome").slideDown();
+	//Pass this data onto the plugin.
+	clueswfobject.successfulLogin(username,data.key);
 }
-function makeGameHtml(game,index){
-	var gameContainer=$("<div>"+game.name+" "+game.state+"</div>").addClass(index%2==0?"game-dark":"game-light");
-	playersContainer=$("<ul class=\"players\"></ul>");
-	for (var i=0;i<game.players.length;i++){
-		playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
-	}
-	// Join as.
-	joinContainer=$("<ul></ul>");
+//This section provides the controls for joining the game.
+function makeJoinContainer(gameId){
+	var joinContainer=$("<ul class='joinControls'></ul>");
 	var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
 	for (var suspect in suspects){
 		joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
 				function (suspect){
 					return function(){
-						clueswfobject.join(suspect,game.id);
+						clueswfobject.join(suspect,gameId);
 					};
 				}(suspects[suspect])
 			)
 		);
 	}
+	return joinContainer;
+}
+//Used to make a <div> entry in the list of games.
+//game is one of the entries in the data returned from the AJAX call to get the list of games.
+//index tells us what index this is in the list of games (this is not the id of the game).  It's primary purpose (and only purpose so far) is to let us know whether to apply a dark or light css class (since we are alternating colors in the divs).
+function makeGameHtml(game,index){
+	//Holds an entry in the list of games.
+	var gameContainer=$("<div>"+game.name+" "+game.state+"</div>").addClass(index%2==0?"game-dark":"game-light");
+	//Holds the list of players in this game.
+	playersContainer=$("<ul class=\"players\"></ul>");
+	//Whether the currently logged in user is part of this game.
+	var containsPlayer=false;
+	for (var i=0;i<game.players.length;i++){
+		//Check if this user is part of the game
+		containsPlayer=containsPlayer||game.players[i].name==username;
+		playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
+	}
+	var joinContainer;
+	//If the current player is already in this game, we only allow that player to rejoin.
+	if (containsPlayer)
+		joinContainer=$("<div class='joinContainer'></div>").append($("<input type='submit' value='Rejoin'/>")
+			.click(function(){
+				clueswfobject.rejoin(game.id);
+				}
+			)
+		);
+	else joinContainer=makeJoinContainer(game.id);
+	//Add the players and join lists to the game list.
 	gameContainer.append(playersContainer).append(joinContainer);		
 	return gameContainer;
 }
+//Calls getGames and then arranges for this function to be called again.
 function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
+//Sends an AJAX request to the server for the list of games.  Upon successfully retrieving the list of games, calls addAllGames.
 function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
+//Clears the list of games, then goes through each game retrieved from the server and adds it to the list of games.
 function addAllGames(games){
-	$("#games").html("");
+	$("#games").html(""); //Clear the list of games.
+	//Go through each game and add it to the list of games.
 	for (var g in games){
 		$("#games").append($(makeGameHtml(games[g],g)));
 	}
@@ -68,7 +98,12 @@ function clueFinishedLoading(){
 	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
 	<%}%>		
 }
+//The actualy swf object upon which we make calls.
 var clueswfobject;
+//The player's current username.
+var username=<%=request.getSession().getAttribute("username") == null ? "null"
+					: "\"" + request.getSession().getAttribute("username")
+							+ "\""%>
 swfobject.registerObject("clue-object","9.0.0",null,function(e){
 	if (e.success)clueswfobject=e.ref;
 	else alert("There was an error registering the swf object.");
@@ -78,6 +113,7 @@ $(document).ready(
 			<%if (request.getSession().getAttribute("key") != null) {%>
 			$("#login").hide();
 			<%}%>
+			//Start retrieving games.
 			getGamesOnTimer();
 		}
 );
