@@ -1,0 +1,16 @@
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Metadata>
+		[HostComponent("clue.components.Board")]
+	</fx:Metadata>
+	<s:Panel title="Board" width="100%" height="100%">
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+		<s:Group id="roomsContent">
+			<s:layout>
+				<s:VerticalLayout />
+			</s:layout>
+		</s:Group>
+	</s:Panel>
+</s:Skin>

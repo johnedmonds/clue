@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
+import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.blazeds.config.SessionAttributeKeys;
 import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
@@ -80,5 +81,9 @@ public class BlazeDSClueService {
 			throws NotLoggedInException, NoSuchGameException,
 			NotInGameException {
 		service.chat(key, gameId, message);
+	}
+
+	public GameData getStatus(int gameId) throws NoSuchGameException {
+		return service.getStatus(gameId);
 	}
 }
