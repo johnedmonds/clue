@@ -11,5 +11,12 @@
 			<s:SolidColor color="0x00ff00" />
 		</s:fill>
 	</s:Rect>
-	<s:Label text="{hostComponent.room}" />
+	<s:VGroup>
+		<s:Label text="{hostComponent.room}" />
+		<s:Group id="playersContent" width="100%" height="100%">
+			<s:layout>
+				<s:HorizontalLayout />
+			</s:layout>
+		</s:Group>
+	</s:VGroup>
 </s:Skin>

@@ -29,6 +29,7 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.messaging.events.MessageFaultEvent;
 		import mx.messaging.events.MessageEvent;
+		import mx.utils.*;
 		import messages.*;
 		import clue.components.*;
 		import clue.*;
@@ -38,7 +39,26 @@
 		private var suspect:String;
 		private var gameId:int;
 		[Bindable]private var playerCount:int=0;
-		[ArrayElementType("clue.components.Player")] [Bindable]private var currentPlayers:Array=new Array();
+		
+		[Bindable]private var kitchenPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var ballroomPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var conservatoryPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var diningRoomPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var billiardRoomPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var libraryPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var loungePlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var hallPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var studyPlayers:ArrayCollection=new ArrayCollection();
+		[Bindable]private var currentPlayers:Object={
+		KITCHEN:kitchenPlayers,
+		BALLROOM:ballroomPlayers,
+		CONSERVATORY:conservatoryPlayers,
+		DINING_ROOM:diningRoomPlayers,
+		BILLIARD_ROOM:billiardRoomPlayers,
+		LIBRARY:libraryPlayers,
+		LOUNGE:loungePlayers,
+		HALL:hallPlayers,
+		STUDY:studyPlayers};
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
@@ -57,7 +77,19 @@
 		}
 		private function onGetStatus(event:ResultEvent):void{
 			var gameData:GameData = event.result as GameData;
-			currentPlayers=gameData.players;
+			
+			for each (var ac:ArrayCollection in currentPlayers)ac.removeAll();
+			for each (var p:Player in gameData.players) {
+				p.setStyle("skinClass",PlayerSkin);
+				trace("beforeadd");
+				currentPlayers[Board.getSuspectStartingRoom(p.suspect)].addItem(p);
+				trace("afteradd");
+				trace(p.getStyle("skinClass"));
+			}
+			var temp:Player=new Player("a","SCARLETT");
+			temp.setStyle("skinClass",PlayerSkin);
+			kitchenPlayers.addItem(temp);
+			kitchenroom.players=kitchenPlayers;
 		}
 		
 		private function onClueMessage(event:MessageEvent):void{
@@ -111,7 +143,21 @@
 				</s:Scroller>
 			</s:Panel>
 			<clue-components:Board skinClass="clue.components.BoardSkin"
-				width="100%" height="100%" suspects="{currentPlayers}" />
+				width="100%" height="100%">
+				<clue-components:rooms>
+					<mx:ArrayCollection>
+						<clue-components:Room id="kitchenroom" room="Kitchen" skinClass="clue.components.RoomSkin"/>
+						<clue-components:Room room="Ballroom" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Conservatory" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Dining Room" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Billiard Room" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Library" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Lounge" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Hall" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Study" skinClass="clue.components.RoomSkin" />
+					</mx:ArrayCollection>
+				</clue-components:rooms>
+			</clue-components:Board>
 		</s:HGroup>
 		<s:HGroup width="100%">
 			<s:Panel id="chatPanel" title="Chat" width="100%" height="100%">

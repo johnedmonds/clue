@@ -12,6 +12,7 @@ package clue.components{
 			this.suspect=suspect;
 		}
 		public function get suspectColor():SolidColor{
+			trace("suspectColor");
 			var color:SolidColor=new SolidColor();
 			if (this.suspect=="SCARLETT")
 				color.color=0xff0000;

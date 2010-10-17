@@ -6,28 +6,20 @@ package clue.components{
 	public class Board extends SkinnableComponent{
 
 		[ArrayElementType("clue.components.Room")]
-		private var _rooms:Array=new Array();
+		private var _rooms:ArrayCollection=new ArrayCollection();
 		
-		private static function addRooms(rooms:ArrayCollection,roomsContent:Group):void{
-			if (roomsContent!=null)
-				for each (var r:Room in rooms)
-					roomsContent.addElement(r);
-		}
 		[ArrayElementType("clue.components.Room")]
-		public function get rooms():Array{return this._rooms;}
-		
-		public function Board(){
-			this._rooms["BALLROOM"]=new Room("Ballroom");
-			this._rooms["HALL"]=new Room("Hall");
-			this._rooms["CONSERVATORY"]=new Room("Conservatory");
-			this._rooms["BILLIARD_ROOM"]=new Room("Billiard Room");
-			this._rooms["LOUNGE"]=new Room("Lounge");
-			this._rooms["DINING_ROOM"]=new Room("Dining Room");
-			this._rooms["STUDY"]=new Room("Study");
-			this._rooms["KITCHEN"]=new Room("Kitchen");
-			this._rooms["LIBRARY"]=new Room("Library");
-			for each (var r:Room in this._rooms)r.setStyle("skinClass",RoomSkin);
+		public function get rooms():ArrayCollection{return _rooms;}
+		public function set rooms(v:ArrayCollection):void{
+			if (roomsContent!=null)
+				for each (var rold:Room in this._rooms)
+					this.roomsContent.removeElement(rold);
+			this._rooms=v;
+			if (roomsContent!=null)
+				for each (var rnew:Room in this._rooms)
+					this.roomsContent.addElement(rnew);
 		}
+		
 		[SkinPart(required="true")]
 		public var roomsContent:Group;
 		override protected function partAdded(partName:String, instance:Object):void{
@@ -43,10 +35,6 @@ package clue.components{
 			else if (suspect=="PEACOCK")return "CONSERVATORY";
 			else if (suspect=="PLUM")return "LIBRARY";
 			else return null;
-		}
-		public function set suspects(suspects:Array):void{
-			for each (var suspect:Player in suspects)
-				this._rooms[getSuspectStartingRoom(suspect.suspect)].addElement(suspect);
 		}
 	}
 }

@@ -3,9 +3,5 @@
 	<fx:Metadata>
 		[HostComponent("clue.components.Player")]
 	</fx:Metadata>
-	<s:Rect width="10" height="10">
-		<s:fill>
-			{hostComponent.suspectColor}
-		</s:fill>
-	</s:Rect>
+	<s:Rect width="10" height="10" fill="{hostComponent.suspectColor}"/>
 </s:Skin>
