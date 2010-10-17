@@ -1,6 +1,7 @@
 package clue.components{
 	import spark.components.supportClasses.*;
 	import mx.collections.*;
+	import mx.events.*;
 	import spark.components.*;
 	public class Room extends SkinnableComponent{
 		[Bindable]public var room:String;
@@ -8,19 +9,24 @@ package clue.components{
 		public var playersContent:Group;
 		[ArrayElementType("clue.components.Player")]private var _players:ArrayCollection=new ArrayCollection();
 		[ArrayElementType("clue.components.Player")]public function get players():ArrayCollection{return this._players;}
+		[Bindable]
 		public function set players(v:ArrayCollection):void{
-			if(this.playersContent!=null)for each (var pold:Player in this._players)playersContent.removeElement(pold);
 			this._players=v;
-			if (this.playersContent!=null)for each (var pnew:Player in this._players){trace("added player");playersContent.addElement(pnew);}
-			trace(this.playersContent!=null);
+			this._players.addEventListener("collectionChange",onCollectionChanged);
+		}
+		private function onCollectionChanged(event:CollectionEvent):void{
+			if (event.kind==CollectionEventKind.ADD)for each (var padd:Player in event.items)this.playersContent.addElement(padd);
+			else if (event.kind==CollectionEventKind.REMOVE)for each (var premove:Player in event.items)this.playersContent.removeElement(premove);
+			trace("Changed");
+			trace("kind "+event.kind);
+			trace("items "+event.items);
 		}
 		public function Room(room:String=""){
 			this.room=room;
 		}
 		override protected function partAdded(partName:String, instance:Object):void{
 			super.partAdded(partName,instance);
-			trace("partadded "+room);
-			if (instance==playersContent) for each (var p:Player in this._players){trace("partaddedplayer");playersContent.addElement(p);}
+			if (instance==playersContent) for each (var p:Player in this._players){playersContent.addElement(p);}
 		}
 	}
 }
