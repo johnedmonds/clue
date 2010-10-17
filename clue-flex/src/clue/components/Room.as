@@ -17,9 +17,6 @@ package clue.components{
 		private function onCollectionChanged(event:CollectionEvent):void{
 			if (event.kind==CollectionEventKind.ADD)for each (var padd:Player in event.items)this.playersContent.addElement(padd);
 			else if (event.kind==CollectionEventKind.REMOVE)for each (var premove:Player in event.items)this.playersContent.removeElement(premove);
-			trace("Changed");
-			trace("kind "+event.kind);
-			trace("items "+event.items);
 		}
 		public function Room(room:String=""){
 			this.room=room;

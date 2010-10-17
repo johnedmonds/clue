@@ -5,26 +5,29 @@ package clue.components{
 	public class Player extends SkinnableComponent{
 		[Bindable]
 		public var playerName:String;
+		private var _suspect:String;
 		[Bindable]
-		public var suspect:String;
+		public function get suspect():String{return this._suspect;}
+		public function set suspect(v:String):void{this._suspect=v;dispatchEvent(new Event("suspectColorChange"));}
 		public function Player(playerName:String="",suspect:String=""){
 			this.playerName=playerName;
-			this.suspect=suspect;
+			this._suspect=suspect;
 		}
+		
+		[Bindable(event="suspectColorChange")]
 		public function get suspectColor():SolidColor{
-			trace("suspectColor");
 			var color:SolidColor=new SolidColor();
-			if (this.suspect=="SCARLETT")
+			if (this._suspect=="SCARLETT")
 				color.color=0xff0000;
-			else if (this.suspect=="WHITE")
+			else if (this._suspect=="WHITE")
 				color.color=0xffffff;
-			else if (this.suspect=="GREEN")
+			else if (this._suspect=="GREEN")
 				color.color=0x00ff00;
-			else if (this.suspect=="PEACOCK")
+			else if (this._suspect=="PEACOCK")
 				color.color=0x0000ff;
-			else if (this.suspect=="MUSTARD")
+			else if (this._suspect=="MUSTARD")
 				color.color=0xffff00;
-			else if (this.suspect=="PLUM")
+			else if (this._suspect=="PLUM")
 				color.color=0xff00ff;
 			return color;
 		}

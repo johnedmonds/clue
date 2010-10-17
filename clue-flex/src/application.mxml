@@ -131,14 +131,14 @@
 				<clue-components:rooms>
 					<mx:ArrayCollection>
 						<clue-components:Room room="Kitchen" skinClass="clue.components.RoomSkin" players="{currentPlayers.KITCHEN}"/>
-						<clue-components:Room room="Ballroom" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Conservatory" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Dining Room" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Billiard Room" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Library" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Lounge" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Hall" skinClass="clue.components.RoomSkin" />
-						<clue-components:Room room="Study" skinClass="clue.components.RoomSkin" />
+						<clue-components:Room room="Ballroom" skinClass="clue.components.RoomSkin" players="{currentPlayers.BALLROOM}"/>
+						<clue-components:Room room="Conservatory" skinClass="clue.components.RoomSkin" players="{currentPlayers.CONSERVATORY}"/>
+						<clue-components:Room room="Dining Room" skinClass="clue.components.RoomSkin" players="{currentPlayers.DINING_ROOM}"/>
+						<clue-components:Room room="Billiard Room" skinClass="clue.components.RoomSkin" players="{currentPlayers.BILLIARD_ROOM}"/>
+						<clue-components:Room room="Library" skinClass="clue.components.RoomSkin" players="{currentPlayers.LIBRARY}"/>
+						<clue-components:Room room="Lounge" skinClass="clue.components.RoomSkin" players="{currentPlayers.LOUNGE}"/>
+						<clue-components:Room room="Hall" skinClass="clue.components.RoomSkin" players="{currentPlayers.HALL}"/>
+						<clue-components:Room room="Study" skinClass="clue.components.RoomSkin" players="{currentPlayers.STUDY}"/>
 					</mx:ArrayCollection>
 				</clue-components:rooms>
 			</clue-components:Board>
