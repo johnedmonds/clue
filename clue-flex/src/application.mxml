@@ -120,16 +120,15 @@
 		</s:filters>
 		<!-- Cards and rooms. -->
 		<s:HGroup width="100%" height="100%">
-			<s:Panel id="cardsPanel" title="Cards" height="100%">
-				<s:Scroller height="100%" width="100%">
-					<s:VGroup id="cards" height="100%" width="100%"
-						horizontalAlign="center" paddingLeft="10" paddingRight="10"
-						paddingTop="10" paddingBottom="10">
+			<clue-components:CardCollection
+				skinClass="clue.components.CardCollectionSkin" height="100%">
+				<clue-components:cards>
+					<mx:ArrayCollection>
 						<clue-components:Card face="test" width="100%"
 							skinClass="clue.components.CardSkin" />
-					</s:VGroup>
-				</s:Scroller>
-			</s:Panel>
+					</mx:ArrayCollection>
+				</clue-components:cards>
+			</clue-components:CardCollection>
 			<clue-components:Board skinClass="clue.components.BoardSkin"
 				width="100%" height="100%">
 				<clue-components:rooms>

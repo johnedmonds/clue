@@ -11,7 +11,10 @@ package clue.components{
 		[ArrayElementType("clue.components.Player")]public function get players():ArrayCollection{return this._players;}
 		[Bindable]
 		public function set players(v:ArrayCollection):void{
+			var p:Player;
+			if (playersContent!=null)for each (p in _players) this.playersContent.removeElement(p);
 			this._players=v;
+			if (playersContent!=null)for each (p in _players) this.playersContent.addElement(p);
 			this._players.addEventListener("collectionChange",onCollectionChanged);
 		}
 		private function onCollectionChanged(event:CollectionEvent):void{

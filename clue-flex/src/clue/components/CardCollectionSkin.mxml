@@ -1,0 +1,16 @@
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Metadata>
+		[HostComponent("clue.components.CardCollection")]
+	</fx:Metadata>
+	<s:Panel title="Cards" height="100%" width="100%">
+		<s:Scroller height="100%" width="100%">
+			<s:Group id="cardsContent" height="100%" width="100%">
+				<s:layout>
+					<s:VerticalLayout horizontalAlign="center"
+						paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" />
+				</s:layout>
+			</s:Group>
+		</s:Scroller>
+	</s:Panel>
+</s:Skin>
