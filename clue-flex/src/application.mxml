@@ -50,6 +50,7 @@
 		LOUNGE:new ArrayCollection(),
 		HALL:new ArrayCollection(),
 		STUDY:new ArrayCollection()});
+		[Bindable]private var myCardNames:Array;
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
@@ -74,17 +75,22 @@
 				currentPlayers[Board.getSuspectStartingRoom(p.suspect)].addItem(p);
 			}
 		}
+		private function onStartGameResult(event:ResultEvent):void{currentState="clue";}
 		
 		private function onClueMessage(event:MessageEvent):void{
 			chat.text+=event.message+"\n";
 			if (event.message.body is messages.Join)onJoinMessage(event.message.body as Join);
 			else if (event.message.body is messages.Chat){chat.text+="was a chat.\n";}
+			else if (event.message.body is messages.CardsMessage){onCardsMessage(event.message.body as CardsMessage);}
 		}
 		private function onJoinMessage(join:Join):void{
 			playerCount+=1;
 			var p:Player=new Player(join.player,join.suspect);
 			p.setStyle("skinClass",PlayerSkin);
 			currentPlayers[Board.getSuspectStartingRoom(p.suspect)].addItem(p);
+		}
+		private function onCardsMessage(cards:CardsMessage):void{
+			myCardNames=cards.cards;
 		}
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
@@ -101,6 +107,7 @@
 			<mx:method name="join" result="joinSuccess(event);" />
 			<mx:method name="associate" result="rejoinSuccess(event);" />
 			<mx:method name="getStatus" result="onGetStatus(event);" />
+			<mx:method name="startGame" result="onStartGameResult(event);" />
 		</mx:RemoteObject>
 		<mx:Consumer id="clueConsumer" destination="clue-jms-destination"
 			message="onClueMessage(event);" fault="defaultMessageFaultHandler(event);" />
@@ -121,14 +128,8 @@
 		<!-- Cards and rooms. -->
 		<s:HGroup width="100%" height="100%">
 			<clue-components:CardCollection
-				skinClass="clue.components.CardCollectionSkin" height="100%">
-				<clue-components:cards>
-					<mx:ArrayCollection>
-						<clue-components:Card face="test" width="100%"
-							skinClass="clue.components.CardSkin" />
-					</mx:ArrayCollection>
-				</clue-components:cards>
-			</clue-components:CardCollection>
+				skinClass="clue.components.CardCollectionSkin" height="100%"
+				cards="{CardCollection.makeCards(new ArrayCollection(myCardNames))}" />
 			<clue-components:Board skinClass="clue.components.BoardSkin"
 				width="100%" height="100%">
 				<clue-components:rooms>
@@ -199,8 +200,8 @@
 				<s:Label id="beforeStartText" text.login="Please login before continuing."
 					text.games="Please select a game to join."
 					text.prestart="Once you have enough players, click the Start button below to start the game. ({playerCount}/3 players)." />
-				<s:Button label="Start" includeIn="prestart" click="currentState='clue';"
-					id="btnStart" enabled="{playerCount>=3}" />
+				<s:Button label="Start" includeIn="prestart"
+					click="blazeDSClueService.startGame();" id="btnStart" enabled="{playerCount>=3}" />
 			</s:VGroup>
 		</s:Group>
 	</s:Group>

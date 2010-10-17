@@ -8,7 +8,9 @@ import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.blazeds.config.SessionAttributeKeys;
 import com.pocketcookies.clue.config.Config;
+import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
+import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.players.Suspect;
@@ -52,11 +54,11 @@ public class BlazeDSClueService {
 
 	/**
 	 * This is a version of join. It associates you with this server so that it
-	 * will deliver you messages. In other words it is a rather fancy
+	 * will deliver messages to you. In other words it is a rather fancy
 	 * authentication method.
 	 * 
-	 * The association will retrieve your suspect for you. If you are not part
-	 * of this game, it will return false.
+	 * If you have already joined the game, the association will retrieve your
+	 * suspect for you. Otherwise, it will return null.
 	 * 
 	 * @param key
 	 *            Your key.
@@ -85,5 +87,23 @@ public class BlazeDSClueService {
 
 	public GameData getStatus(int gameId) throws NoSuchGameException {
 		return service.getStatus(gameId);
+	}
+
+	/**
+	 * Attempts to start the game. You must have already called join() or
+	 * associate() before calling this method. Otherwise, it will throw an
+	 * exception.
+	 * 
+	 * @throws NotEnoughPlayersException
+	 * @throws GameStartedException
+	 * @throws NoSuchGameException
+	 * @throws NotLoggedInException
+	 */
+	public void startGame() throws NotLoggedInException, NoSuchGameException,
+			GameStartedException, NotEnoughPlayersException {
+		final FlexClient client = FlexContext.getFlexClient();
+		service.startGame(
+				(String) client.getAttribute(SessionAttributeKeys.KEY),
+				(Integer) client.getAttribute(SessionAttributeKeys.GAME_ID));
 	}
 }
