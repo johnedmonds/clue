@@ -1,0 +1,45 @@
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="init();">
+	<fx:Metadata>
+		[HostComponent("clue.components.Proposition")]
+	</fx:Metadata>
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	<fx:Script>
+	<![CDATA[
+		import spark.components.*;
+		import mx.binding.utils.*;
+		import spark.events.*;
+		[Bindable]public var room:String;
+		[Bindable]public var suspect:String;
+		[Bindable]public var weapon:String;
+		private function init():void{
+			roomsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{trace("here");room=roomsList.selectedItems.length>0?roomsList.selectedItems[0] as String:null;});
+			suspectsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{trace("here2");suspect=suspectsList.selectedItems.length>0?suspectsList.selectedItems[0] as String:null;});
+			weaponsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{trace("here3");weapon=weaponsList.selectedItems.length>0?weaponsList.selectedItems[0] as String:null;});
+		}
+	]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
+		<s:fill>
+			<s:SolidColor color="#dddddd" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="#bbbbbb" weight="10" />
+		</s:stroke>
+	</s:Rect>
+	<s:HGroup paddingLeft="10" paddingRight="10" paddingTop="10"
+		paddingBottom="10">
+		<s:List id="roomsList" dataProvider="{hostComponent.roomCardNames}"
+			itemRenderer="clue.components.renderers.CardRenderer" />
+		<s:List id="suspectsList" dataProvider="{hostComponent.suspectCardNames}"
+			itemRenderer="clue.components.renderers.CardRenderer" />
+		<s:List id="weaponsList" dataProvider="{hostComponent.weaponCardNames}"
+			itemRenderer="clue.components.renderers.CardRenderer" />
+	</s:HGroup>
+	<s:HGroup>
+		<s:Button id="makeProposition" />
+		<s:Button id="cancelProposition" />
+	</s:HGroup>
+</s:Skin>
