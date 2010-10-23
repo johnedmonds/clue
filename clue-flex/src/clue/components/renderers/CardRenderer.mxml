@@ -1,4 +1,5 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:s="library://ns.adobe.com/flex/spark">
-{data}
+	xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:clue-components="clue.components.*">
+	<clue-components:Card face="{data}" skinClass="clue.components.CardSkin"/>
 </s:ItemRenderer>

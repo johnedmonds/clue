@@ -50,7 +50,7 @@
 		LOUNGE:new ArrayCollection(),
 		HALL:new ArrayCollection(),
 		STUDY:new ArrayCollection()});
-		[ArrayElementType("clue.components.Card")] [Bindable]private var myCards:ArrayCollection;
+		[ArrayElementType("String")] [Bindable]private var myCardNames:ArrayCollection;
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
@@ -90,7 +90,7 @@
 			currentPlayers[Board.getSuspectStartingRoom(p.suspect)].addItem(p);
 		}
 		private function onCardsMessage(cards:CardsMessage):void{
-			myCards=new ArrayCollection(cards.cards.map(function(item:*,index:int,array:Array):Card{return new Card(item as String);}));
+			myCardNames=new ArrayCollection(cards.cards);
 		}
 		private function initApp():void{
 			ExternalInterface.addCallback("successfulLogin",successfulLogin);
@@ -127,8 +127,8 @@
 		</s:filters>
 		<!-- Cards and rooms. -->
 		<s:HGroup width="100%" height="100%">
-			<s:List itemRenderer="clue.components.renderers.CardRenderer"
-				dataProvider="{myCards}" height="100%" />
+			<s:List dataProvider="{myCardNames}" height="100%"
+				itemRenderer="clue.components.renderers.CardRenderer" />
 			<clue-components:Board skinClass="clue.components.BoardSkin"
 				width="100%" height="100%">
 				<clue-components:rooms>
