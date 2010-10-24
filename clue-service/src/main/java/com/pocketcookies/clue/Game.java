@@ -157,15 +157,17 @@ public class Game {
 	 * @param weapon
 	 *            The accused weapon.
 	 * @return True if the accusation was correct and false otherwise.
+	 * @throws NotYourTurnException
 	 */
-	public boolean accuse(Card room, Card suspect, Card weapon) {
+	public boolean accuse(Card room, Card suspect, Card weapon)
+			throws NotYourTurnException {
 		this.proposition = new Accusation(this.currentPlayer.getUser()
 				.getName(), room, suspect, weapon);
 		publish(this.proposition);
 		// Check if the player has won the game.
 		if (this.suspect == suspect && this.room == room
 				&& this.weapon == weapon) {
-			GameOver gameOver = new GameOver(this.currentPlayer.getUser()
+			final GameOver gameOver = new GameOver(this.currentPlayer.getUser()
 					.getName());
 			publish(gameOver);
 			this.gameStartedState = GameStartedState.ENDED;
@@ -177,6 +179,10 @@ public class Game {
 				// Then the accusing player was really stupid to accuse using
 				// one of its own cards.
 				publish(new Disprove(null));
+				this.proposition = null;
+				// Since the player lost, that player's turn is automatically
+				// ended.
+				this.endTurn();
 			} else {
 				publish(new Disprove(this.disprovingPlayer.getUser().getName()));
 				if (this.disprovingPlayer.isLost()) {
@@ -323,6 +329,9 @@ public class Game {
 		this.currentPlayer.publish(dc);
 		this.proposition = null;
 		this.disprovingPlayer = null;
+		// If the player has lost, end that player's turn.
+		if (this.currentPlayer.isLost())
+			this.endTurn();
 	}
 
 	public synchronized void suggest(Card suspect, Card weapon)

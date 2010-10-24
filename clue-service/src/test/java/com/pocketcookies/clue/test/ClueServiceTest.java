@@ -178,7 +178,6 @@ public class ClueServiceTest extends TestCase {
 		service.accuse(key1, gameId, Card.SCARLETT, Card.STUDY,
 				Card.CANDLESTICK);
 		service.disprove(key3, gameId, Card.SCARLETT);
-		service.endTurn(key1, gameId);
 		p1Messages = service.getUpdates(key1, gameId, p1Since);
 		p1Since = p1Messages[p1Messages.length - 1].getPublished();
 		assertEquals(4, p1Messages.length);
@@ -554,5 +553,47 @@ public class ClueServiceTest extends TestCase {
 		} catch (CheatException e) {
 		}
 		service.disprove(key3, gameId, Card.HALL);
+	}
+
+	public void testAutoEndTurnAfterLoss() throws NotLoggedInException,
+			GameAlreadyExistsException, NoSuchGameException,
+			SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, NotInRoomException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final String key2 = service.login("user2", "");
+		final String key3 = service.login("user3", "");
+		final int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.WHITE);
+		service.startGame(key1, gameId);
+		service.move(key1, gameId, Room.HALL);
+		service.accuse(key1, gameId, Card.LIBRARY, Card.WHITE, Card.ROPE);
+		assertEquals("user3",
+				((NextTurn) service.getAllUpdates(key1, gameId)[8]).getPlayer());
+	}
+
+	public void testAutoEndTurnAfterLossAndDisprove()
+			throws NotLoggedInException, GameAlreadyExistsException,
+			NoSuchGameException, SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, CheatException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final String key2 = service.login("user2", "");
+		final String key3 = service.login("user3", "");
+		final int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.WHITE);
+		service.startGame(key1, gameId);
+		service.move(key1, gameId, Room.HALL);
+		service.accuse(key1, gameId, Card.STUDY, Card.SCARLETT,
+				Card.CANDLESTICK);
+		service.disprove(key2, gameId, Card.CANDLESTICK);
+		assertEquals("user3",
+				((NextTurn) service.getAllUpdates(key1, gameId)[9]).getPlayer());
 	}
 }
