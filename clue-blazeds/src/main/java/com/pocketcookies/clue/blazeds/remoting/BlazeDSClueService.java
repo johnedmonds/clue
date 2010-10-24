@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import org.apache.log4j.Logger;
 
 import com.caucho.hessian.client.HessianProxyFactory;
+import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.blazeds.config.SessionAttributeKeys;
 import com.pocketcookies.clue.config.Config;
@@ -12,7 +13,9 @@ import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
 import com.pocketcookies.clue.exceptions.NotInGameException;
+import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
+import com.pocketcookies.clue.exceptions.NotYourTurnException;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
@@ -105,5 +108,50 @@ public class BlazeDSClueService {
 		service.startGame(
 				(String) client.getAttribute(SessionAttributeKeys.KEY),
 				(Integer) client.getAttribute(SessionAttributeKeys.GAME_ID));
+	}
+
+	/**
+	 * Attempts to make a suggestion. There is no need to provide the room
+	 * because suggestions may only be made from the room in which the player is
+	 * currently located.
+	 * 
+	 * @param suspect
+	 *            The suspected suspect.
+	 * @param weapon
+	 *            The suspected weapon.
+	 * @throws NotInRoomException
+	 * @throws NoSuchGameException
+	 * @throws NotYourTurnException
+	 * @throws NotLoggedInException
+	 */
+	public void suggest(Card suspect, Card weapon) throws NotLoggedInException,
+			NotYourTurnException, NoSuchGameException, NotInRoomException {
+		final FlexClient client = FlexContext.getFlexClient();
+		service.suggest((String) client.getAttribute(SessionAttributeKeys.KEY),
+				(Integer) client.getAttribute(SessionAttributeKeys.GAME_ID),
+				suspect, weapon);
+	}
+
+	/**
+	 * Accuses a tuple of room, suspect, weapon. The player either wins or loses
+	 * after this.
+	 * 
+	 * @param room
+	 *            The suspected room.
+	 * @param suspect
+	 *            The suspected suspect.
+	 * @param weapon
+	 *            The suspected weapon.
+	 * @throws NoSuchGameException
+	 * @throws NotYourTurnException
+	 * @throws NotLoggedInException
+	 */
+	public void accuse(Card room, Card suspect, Card weapon)
+			throws NotLoggedInException, NotYourTurnException,
+			NoSuchGameException {
+		final FlexClient client = FlexContext.getFlexClient();
+		service.accuse((String) client.getAttribute(SessionAttributeKeys.KEY),
+				(Integer) client.getAttribute(SessionAttributeKeys.GAME_ID),
+				room, suspect, weapon);
 	}
 }
