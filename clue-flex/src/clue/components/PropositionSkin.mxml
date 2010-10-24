@@ -15,9 +15,9 @@
 		[Bindable]public var suspect:String;
 		[Bindable]public var weapon:String;
 		private function init():void{
-			roomsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{room=roomsList.selectedItems.length>0?roomsList.selectedItems[0] as String:null;});
-			suspectsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{suspect=suspectsList.selectedItems.length>0?suspectsList.selectedItems[0] as String:null;});
-			weaponsList.addEventListener(IndexChangeEvent.CHANGE,function(event:IndexChangeEvent):void{weapon=weaponsList.selectedItems.length>0?weaponsList.selectedItems[0] as String:null;});
+			BindingUtils.bindProperty(this,"room",roomsList,"selectedItem");
+			BindingUtils.bindProperty(this,"suspect",suspectsList,"selectedItem");
+			BindingUtils.bindProperty(this,"weapon",weaponsList,"selectedItem");
 		}
 	]]>
 	</fx:Script>
@@ -30,17 +30,20 @@
 			<s:VGroup height="100%">
 				<s:Label text="Choose a room:" />
 				<s:List height="100%" id="roomsList" dataProvider="{hostComponent.roomCardNames}"
-					itemRenderer="clue.components.renderers.CardRenderer" />
+					itemRenderer="clue.components.renderers.CardRenderer"
+					requireSelection="true" />
 			</s:VGroup>
 			<s:VGroup height="100%">
 				<s:Label text="Choose a suspect:" />
 				<s:List height="100%" id="suspectsList" dataProvider="{hostComponent.suspectCardNames}"
-					itemRenderer="clue.components.renderers.CardRenderer" />
+					itemRenderer="clue.components.renderers.CardRenderer"
+					requireSelection="true" />
 			</s:VGroup>
 			<s:VGroup height="100%">
 				<s:Label text="Choose a weapon:" />
 				<s:List height="100%" id="weaponsList" dataProvider="{hostComponent.weaponCardNames}"
-					itemRenderer="clue.components.renderers.CardRenderer" />
+					itemRenderer="clue.components.renderers.CardRenderer"
+					requireSelection="true" />
 			</s:VGroup>
 		</s:HGroup>
 		<s:HGroup>

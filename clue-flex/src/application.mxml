@@ -143,8 +143,8 @@
 	</fx:Declarations>
 	<!-- Telling someone to pick a game -->
 	<!-- Main scene container. -->
-	<s:VGroup id="clueContainer" width="100%" height="100%" includeIn="clueGroup"
-		enabled.prestart="false">
+	<s:VGroup id="clueContainer" width="100%" height="100%"
+		includeIn="clueGroup" enabled.prestart="false">
 		<s:filters>
 			<s:ColorMatrixFilter
 				matrix="[1,0,0,0,-50,
