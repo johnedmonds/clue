@@ -4,6 +4,7 @@ package clue.components{
 	import mx.collections.*;
 	import flash.events.*;
 	import clue.events.*;
+	import clue.components.*;
 	[Event(name=PropositionMadeEvent.PROPOSITION_MADE,type="clue.events.PropositionMadeEvent")]
 	[Event(name="propositionCanceled",type="flash.events.Event")]
 	public class Proposition extends SkinnableComponent{
@@ -20,6 +21,15 @@ package clue.components{
 			this.roomCardNames=roomCardNames;
 			this.suspectCardNames=suspectCardNames;
 			this.weaponCardNames=weaponCardNames;
+		}
+		public static function makeProposition(roomCardNames:ArrayCollection,suspectCardNames:ArrayCollection,weaponCardNames:ArrayCollection,onMakeProposition:Function,onCancelProposition:Function):Proposition{
+			var proposition:Proposition=new Proposition(roomCardNames,suspectCardNames,weaponCardNames);
+			proposition.verticalCenter=0;
+			proposition.horizontalCenter=0;
+			proposition.addEventListener(Proposition.PROPOSITION_CANCELED,onCancelProposition);
+			proposition.addEventListener(PropositionMadeEvent.PROPOSITION_MADE,onMakeProposition);
+			proposition.setStyle("skinClass",PropositionSkin);
+			return proposition;
 		}
 		public static function isRoom(o:Object):Boolean{
 			var face:String=o as String;
