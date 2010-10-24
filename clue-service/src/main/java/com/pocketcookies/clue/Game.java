@@ -317,6 +317,8 @@ public class Game {
 				&& !this.proposition.getSuspect().equals(card)
 				&& !this.proposition.getWeapon().equals(card))
 			throw new CheatException();
+		if (!this.disprovingPlayer.getHand().contains(card))
+			throw new CheatException();
 		DisprovingCard dc = new DisprovingCard(card);
 		this.currentPlayer.publish(dc);
 		this.proposition = null;

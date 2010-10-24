@@ -255,14 +255,18 @@ public class ClueService extends HessianServlet implements ClueServiceAPI {
 	public void accuse(String key, int gameId, Card room, Card suspect,
 			Card weapon) throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		final Session session = HibernateUtil.getSessionFactory()
+				.getCurrentSession();
 		session.beginTransaction();
 
-		Game g = (Game) session.load(Game.class, gameId);
+		final Game g = (Game) session.load(Game.class, gameId);
 
 		validateCurrentUser(key, g);
+		// Also check that something else is not already being disproved.
+		if (g.getProposition() != null)
+			throw new NotYourTurnException();
 
-		boolean gameHasEnded = g.accuse(room, suspect, weapon);
+		final boolean gameHasEnded = g.accuse(room, suspect, weapon);
 		session.getTransaction().commit();
 		if (gameHasEnded && this.timer != null)
 			this.timer.schedule(new BootTimerTask(gameId),

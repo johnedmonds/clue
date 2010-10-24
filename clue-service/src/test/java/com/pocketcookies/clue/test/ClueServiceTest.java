@@ -138,6 +138,11 @@ public class ClueServiceTest extends TestCase {
 		assertEquals("clue2", p1SuggestionDisprove.getPlayer());
 		assertEquals(2, p1Messages.length);
 		try {
+			service.accuse(key1, gameId, Card.HALL, Card.SCARLETT, Card.ROPE);
+			fail("Accused while someone else should have been disproving.");
+		} catch (NotYourTurnException e) {
+		}
+		try {
 			service.endTurn(key2, gameId);
 			fail("Wrong player ending turn.");
 		} catch (NotYourTurnException e) {
@@ -525,5 +530,27 @@ public class ClueServiceTest extends TestCase {
 		assertEquals(Suspect.SCARLETT,
 				service.getSuspectForPlayer(key1, gameId));
 		assertNull(service.getSuspectForPlayer(key1, gameId - 1));
+	}
+
+	public void testDisproveUsingSomeoneElsesCard()
+			throws NotLoggedInException, GameAlreadyExistsException,
+			NoSuchGameException, SuspectTakenException, GameStartedException,
+			AlreadyJoinedException, NotEnoughPlayersException,
+			NotYourTurnException, NotInRoomException {
+		final ClueService service = new ClueService(new Random(3));
+		final String key1 = service.login("user1", "");
+		final String key2 = service.login("user2", "");
+		final String key3 = service.login("user3", "");
+		final int gameId = service.create(key1, "test");
+		service.join(key1, gameId, Suspect.SCARLETT);
+		service.join(key2, gameId, Suspect.GREEN);
+		service.join(key3, gameId, Suspect.WHITE);
+		service.startGame(key1, gameId);
+		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
+		try {
+			service.disprove(key2, gameId, Card.ROPE);
+			fail("User disproved with a card the user did not have.");
+		} catch (CheatException e) {
+		}
 	}
 }
