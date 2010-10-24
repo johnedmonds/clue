@@ -536,7 +536,7 @@ public class ClueServiceTest extends TestCase {
 			throws NotLoggedInException, GameAlreadyExistsException,
 			NoSuchGameException, SuspectTakenException, GameStartedException,
 			AlreadyJoinedException, NotEnoughPlayersException,
-			NotYourTurnException, NotInRoomException {
+			NotYourTurnException, NotInRoomException, CheatException {
 		final ClueService service = new ClueService(new Random(3));
 		final String key1 = service.login("user1", "");
 		final String key2 = service.login("user2", "");
@@ -546,11 +546,13 @@ public class ClueServiceTest extends TestCase {
 		service.join(key2, gameId, Suspect.GREEN);
 		service.join(key3, gameId, Suspect.WHITE);
 		service.startGame(key1, gameId);
+		service.move(key1, gameId, Room.HALL);
 		service.suggest(key1, gameId, Card.SCARLETT, Card.ROPE);
 		try {
-			service.disprove(key2, gameId, Card.ROPE);
+			service.disprove(key3, gameId, Card.ROPE);
 			fail("User disproved with a card the user did not have.");
 		} catch (CheatException e) {
 		}
+		service.disprove(key3, gameId, Card.HALL);
 	}
 }
