@@ -130,7 +130,6 @@
 			currentState="clue";
 		}
 		private function onCancelProposition(event:Event):void{
-			trace("canceled proposition");
 			currentState="clue";
 		}
 		private function onEndTurn(event:ResultEvent):void{btnSuggest.enabled=btnAccuse.enabled=btnEndTurn.enabled=false;}
@@ -173,7 +172,7 @@
 				cardNames="{myCardNames}" skinClass="clue.components.CardSidebarSkin"
 				disprove="onDisprove(event);" height="100%" />
 			<clue-components:Board skinClass="clue.components.BoardSkin"
-				width="100%" height="100%">
+				width="100%" height="100%" moveRequested="trace(event);trace((event as MoveRequested).toRoom.room)">
 				<clue-components:rooms>
 					<mx:ArrayCollection>
 						<clue-components:Room room="Kitchen"
