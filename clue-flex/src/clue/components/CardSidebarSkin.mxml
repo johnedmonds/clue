@@ -7,11 +7,13 @@
 		<s:State name="normal" />
 		<s:State name="disprove" />
 	</s:states>
-	<s:layout>
-		<s:VerticalLayout />
-	</s:layout>
-	<s:List id="lstCards" dataProvider="{hostComponent.cardNames}"
-		height="100%" itemRenderer="clue.components.renderers.CardRenderer" />
-	<s:Button includeIn="disprove" id="btnDisprove" label="disprove"
-		width="100%" />
+	<s:Panel title="Cards" height="100%">
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+		<s:List id="lstCards" dataProvider="{hostComponent.cardNames}"
+			height="100%" itemRenderer="clue.components.renderers.CardRenderer" />
+		<s:Button includeIn="disprove" id="btnDisprove" label="disprove"
+			width="100%" />
+	</s:Panel>
 </s:Skin>
