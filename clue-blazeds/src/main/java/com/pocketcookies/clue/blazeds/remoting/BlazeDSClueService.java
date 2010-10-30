@@ -9,6 +9,7 @@ import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
 import com.pocketcookies.clue.blazeds.config.SessionAttributeKeys;
 import com.pocketcookies.clue.config.Config;
+import com.pocketcookies.clue.exceptions.CheatException;
 import com.pocketcookies.clue.exceptions.GameStartedException;
 import com.pocketcookies.clue.exceptions.NoSuchGameException;
 import com.pocketcookies.clue.exceptions.NotEnoughPlayersException;
@@ -153,5 +154,41 @@ public class BlazeDSClueService {
 		service.accuse((String) client.getAttribute(SessionAttributeKeys.KEY),
 				(Integer) client.getAttribute(SessionAttributeKeys.GAME_ID),
 				room, suspect, weapon);
+	}
+
+	/**
+	 * Ends the current player's turn.
+	 * 
+	 * @param key
+	 *            The player's key.
+	 * @param gameId
+	 *            The game id.
+	 * @throws NotLoggedInException
+	 * @throws NotYourTurnException
+	 * @throws NoSuchGameException
+	 */
+	public void endTurn(String key, int gameId) throws NotLoggedInException,
+			NotYourTurnException, NoSuchGameException {
+		service.endTurn(key, gameId);
+	}
+
+	/**
+	 * Disproves a suggestion.
+	 * 
+	 * @param key
+	 *            Your key
+	 * @param gameId
+	 *            The game for which this should be delivered.
+	 * @param card
+	 *            The card used for disproving.
+	 * @throws NotLoggedInException
+	 * @throws NotYourTurnException
+	 * @throws NoSuchGameException
+	 * @throws CheatException
+	 */
+	public void disprove(String key, int gameId, Card card)
+			throws NotLoggedInException, NotYourTurnException,
+			NoSuchGameException, CheatException {
+		service.disprove(key, gameId, card);
 	}
 }
