@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.pocketcookies.clue.Card;
 import com.pocketcookies.clue.GameData;
+import com.pocketcookies.clue.Room;
 import com.pocketcookies.clue.blazeds.config.SessionAttributeKeys;
 import com.pocketcookies.clue.config.Config;
 import com.pocketcookies.clue.exceptions.CheatException;
@@ -190,5 +191,25 @@ public class BlazeDSClueService {
 			throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException, CheatException {
 		service.disprove(key, gameId, card);
+	}
+
+	/**
+	 * Moves to a room
+	 * 
+	 * @param key
+	 *            The player's key.
+	 * @param gameId
+	 *            The game in which the player wants to move.
+	 * @param room
+	 *            The room to which the player is moving.
+	 * @throws NoSuchGameException
+	 * @throws NotYourTurnException
+	 * @throws NotLoggedInException
+	 */
+	public void movePlayer(String key, int gameId, Room room)
+			throws NotLoggedInException, NotYourTurnException,
+			NoSuchGameException {
+		System.out.println(room.toString());
+		service.move(key, gameId, room);
 	}
 }
