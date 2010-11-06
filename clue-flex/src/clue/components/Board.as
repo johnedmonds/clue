@@ -5,40 +5,42 @@ package clue.components{
 	import clue.components.*;
 	import clue.events.*;
 	import flash.events.*;
+	import mx.binding.utils.*;
 	[Event(name="moveRequested",type="clue.events.MoveRequested")]
 	public class Board extends SkinnableComponent{
 
-		[ArrayElementType("clue.components.Room")]
-		private var _rooms:ArrayCollection=new ArrayCollection();
-		
-		[ArrayElementType("clue.components.Room")]
-		public function get rooms():ArrayCollection{return _rooms;}
-		public function set rooms(v:ArrayCollection):void{
-			if (this._rooms!=null){
-				if (roomsContent!=null)
-					for each (var rold:Room in this._rooms)
-						this.roomsContent.removeElement(rold);
-				//Remove event listeners.
-				for each (var erold:Room in this._rooms)erold.removeEventListener(MouseEvent.CLICK,onCardClick);
-			}
+		private var _rooms:Object;
+		[Bindable]public var kitchen:Room;
+		[Bindable]public var ballroom:Room;
+		[Bindable]public var conservatory:Room;
+		[Bindable]public var billiardRoom:Room;
+		[Bindable]public var library:Room;
+		[Bindable]public var study:Room;
+		[Bindable]public var hall:Room;
+		[Bindable]public var lounge:Room;
+		[Bindable]public var diningRoom:Room;
+		public function get rooms():Object{return _rooms;}
+		public function set rooms(v:Object):void{
 			this._rooms=v;
-			if (this._rooms!=null){
-				if (roomsContent!=null)
-					for each (var rnew:Room in this._rooms)
-						this.roomsContent.addElement(rnew);
-				//Add event listeners.
-				for each (var ernew:Room in this._rooms)ernew.addEventListener(MouseEvent.CLICK,onCardClick);
-			}
+			this.kitchen=makeRoom('KITCHEN',v,onCardClick);
+			this.ballroom=makeRoom('BALLROOM',v,onCardClick);
+			this.conservatory=makeRoom('CONSERVATORY',v,onCardClick);
+			this.billiardRoom=makeRoom('BILLIARD_ROOM',v,onCardClick);
+			this.library=makeRoom('LIBRARY',v,onCardClick);
+			this.study=makeRoom('STUDY',v,onCardClick);
+			this.hall=makeRoom('HALL',v,onCardClick);
+			this.lounge=makeRoom('LOUNGE',v,onCardClick);
+			this.diningRoom=makeRoom('DINING_ROOM',v,onCardClick);
+		}
+		private static function makeRoom(roomName:String,rooms:Object,callback:Function):Room{
+			const room:Room=new Room(roomName);
+			BindingUtils.bindProperty(room,'players',rooms,roomName);
+			room.addEventListener(MouseEvent.CLICK,callback);
+			room.setStyle("skinClass",RoomSkin);
+			return room;
 		}
 		private function onCardClick(event:MouseEvent):void{dispatchEvent(new MoveRequested(event.currentTarget as Room));}
 		
-		[SkinPart(required="true")]
-		public var roomsContent:Group;
-		override protected function partAdded(partName:String, instance:Object):void{
-			if (instance==roomsContent)
-				for each (var r:Room in this._rooms)
-					this.roomsContent.addElement(r);
-		}
 		public static function getSuspectStartingRoom(suspect:String):String{
 			if (suspect=="SCARLETT")return "LOUNGE";
 			else if (suspect=="MUSTARD")return "DINING_ROOM";

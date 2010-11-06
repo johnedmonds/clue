@@ -11,6 +11,15 @@
 			<s:layout>
 				<s:VerticalLayout />
 			</s:layout>
+			<s:Group>{hostComponent.kitchen}</s:Group>
+			<s:Group>{hostComponent.ballroom}</s:Group>
+			<s:Group>{hostComponent.conservatory}</s:Group>
+			<s:Group>{hostComponent.billiardRoom}</s:Group>
+			<s:Group>{hostComponent.library}</s:Group>
+			<s:Group>{hostComponent.study}</s:Group>
+			<s:Group>{hostComponent.hall}</s:Group>
+			<s:Group>{hostComponent.lounge}</s:Group>
+			<s:Group>{hostComponent.diningRoom}</s:Group>
 		</s:Group>
 	</s:Panel>
 </s:Skin>

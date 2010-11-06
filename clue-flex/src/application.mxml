@@ -30,6 +30,7 @@
 		import mx.messaging.events.MessageFaultEvent;
 		import mx.messaging.events.MessageEvent;
 		import mx.utils.*;
+		import mx.collections.*;
 		import messages.*;
 		import clue.components.*;
 		import clue.events.*;
@@ -182,30 +183,8 @@
 				disprove="onDisprove(event);" height="100%" />
 			<clue-components:Board skinClass="clue.components.BoardSkin"
 				width="100%" height="100%"
-				moveRequested="movePlayer((event as MoveRequested).toRoom.room);">
-				<clue-components:rooms>
-					<mx:ArrayCollection>
-						<clue-components:Room room="KITCHEN"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.KITCHEN}" />
-						<clue-components:Room room="BALLROOM"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.BALLROOM}" />
-						<clue-components:Room room="CONSERVATORY"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.CONSERVATORY}" />
-						<clue-components:Room room="DINING_ROOM"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.DINING_ROOM}" />
-						<clue-components:Room room="BILLIARD_ROOM"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.BILLIARD_ROOM}" />
-						<clue-components:Room room="LIBRARY"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.LIBRARY}" />
-						<clue-components:Room room="LOUNGE"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.LOUNGE}" />
-						<clue-components:Room room="HALL"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.HALL}" />
-						<clue-components:Room room="STUDY"
-							skinClass="clue.components.RoomSkin" players="{currentPlayers.STUDY}" />
-					</mx:ArrayCollection>
-				</clue-components:rooms>
-			</clue-components:Board>
+				moveRequested="movePlayer((event as MoveRequested).toRoom.room);"
+				rooms="{currentPlayers}" />
 		</s:HGroup>
 		<s:HGroup width="100%">
 			<s:Panel id="chatPanel" title="Chat" width="100%" height="100%">
