@@ -1,25 +1,33 @@
 <s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
-	xmlns:mx="library://ns.adobe.com/flex/mx">
+	xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:clue-components="clue.components.*">
 	<fx:Metadata>
 		[HostComponent("clue.components.Board")]
 	</fx:Metadata>
 	<s:Panel title="Board" width="100%" height="100%">
 		<s:layout>
-			<s:VerticalLayout />
+			<s:TileLayout requestedColumnCount="3" />
 		</s:layout>
-		<s:Group id="roomsContent">
-			<s:layout>
-				<s:VerticalLayout />
-			</s:layout>
-			<s:Group>{hostComponent.kitchen}</s:Group>
-			<s:Group>{hostComponent.ballroom}</s:Group>
-			<s:Group>{hostComponent.conservatory}</s:Group>
-			<s:Group>{hostComponent.billiardRoom}</s:Group>
-			<s:Group>{hostComponent.library}</s:Group>
-			<s:Group>{hostComponent.study}</s:Group>
-			<s:Group>{hostComponent.hall}</s:Group>
-			<s:Group>{hostComponent.lounge}</s:Group>
-			<s:Group>{hostComponent.diningRoom}</s:Group>
-		</s:Group>
+		<clue-components:Room id="kitchen" room="KITCHEN"
+			players="{hostComponent.rooms.KITCHEN}" skinClass="clue.components.RoomSkin" />
+		<clue-components:Room id="ballroom" room="BALLROOM"
+			players="{hostComponent.rooms.BALLROOM}" skinClass="clue.components.RoomSkin" />
+		<clue-components:Room id="conservatory" room="CONSERVATORY"
+			players="{hostComponent.rooms.CONSERVATORY}" skinClass="clue.components.RoomSkin" />
+		<clue-components:Room id="diningRoom" room="DINING_ROOM"
+			players="{hostComponent.rooms.DINING_ROOM}" skinClass="clue.components.RoomSkin" />
+		<!-- Place-holder -->
+		<s:Group />
+		<s:VGroup>
+			<clue-components:Room id="billiardRoom" room="BILLIARD_ROOM"
+				players="{hostComponent.rooms.BILLIARD_ROOM}" skinClass="clue.components.RoomSkin" />
+			<clue-components:Room id="library" room="LIBRARY"
+				players="{hostComponent.rooms.LIBRARY}" skinClass="clue.components.RoomSkin" />
+		</s:VGroup>
+		<clue-components:Room id="lounge" room="LOUNGE"
+			players="{hostComponent.rooms.LOUNGE}" skinClass="clue.components.RoomSkin" />
+		<clue-components:Room id="hall" room="HALL"
+			players="{hostComponent.rooms.HALL}" skinClass="clue.components.RoomSkin" />
+		<clue-components:Room id="study" room="STUDY"
+			players="{hostComponent.rooms.STUDY}" skinClass="clue.components.RoomSkin" />
 	</s:Panel>
 </s:Skin>
