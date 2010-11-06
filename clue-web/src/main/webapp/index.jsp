@@ -20,6 +20,12 @@ function logout(){
 		}
 	);
 }
+function playerJoined(){
+	clearTimeout(currentTimeout);
+	$("#games-container").slideUp('normal',function(){$(this).remove();});
+}
+//Used to cancel the timeout object once the player has joined a game.
+var currentTimeout;
 //Sends an AJAX request to login.
 function tryLogin(){
 	$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
@@ -44,6 +50,7 @@ function makeJoinContainer(gameId){
 				function (suspect){
 					return function(){
 						clueswfobject.join(suspect,gameId);
+						playerJoined();
 					};
 				}(suspects[suspect])
 			)
@@ -72,6 +79,7 @@ function makeGameHtml(game,index){
 		joinContainer=$("<div class='joinContainer'></div>").append($("<input type='submit' value='Rejoin'/>")
 			.click(function(){
 				clueswfobject.rejoin(game.id);
+				playerJoined();
 				}
 			)
 		);
@@ -81,7 +89,7 @@ function makeGameHtml(game,index){
 	return gameContainer;
 }
 //Calls getGames and then arranges for this function to be called again.
-function getGamesOnTimer(){getGames();setTimeout("getGamesOnTimer();",10000);}
+function getGamesOnTimer(){getGames();currentTimeout=setTimeout("getGamesOnTimer();",10000);}
 //Sends an AJAX request to the server for the list of games.  Upon successfully retrieving the list of games, calls addAllGames.
 function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
 //Clears the list of games, then goes through each game retrieved from the server and adds it to the list of games.
