@@ -15,14 +15,16 @@ function logout(){
 		function(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
+			$("#games-container").slideDown();
 			clueswfobject.logout();
 			username=null;
+			getGamesOnTimer();
 		}
 	);
 }
 function playerJoined(){
 	clearTimeout(currentTimeout);
-	$("#games-container").slideUp('normal',function(){$(this).remove();});
+	$("#games-container").slideUp();
 }
 //Used to cancel the timeout object once the player has joined a game.
 var currentTimeout;
