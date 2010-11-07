@@ -57,6 +57,9 @@
 		LOUNGE:new ArrayCollection(),
 		HALL:new ArrayCollection(),
 		STUDY:new ArrayCollection()});
+		//Instead of storing players the correct way (i.e. a map of player name->Player), we just search the rooms for the player.
+		//Luckily it's not that bad.  Worst case: all players are in the study and the player we want was the last player to move to the study.  This would be ((8 rooms with no one)*1)+((the study)*(6 players))= 8*1+1*6 = 8+6 = 14 operations.  That is O(14), which is O(1).  So if you think about it, the worst case actually takes constant time :) .
+		private function getPlayerByName(playerName:String):Player{for each (var i:ArrayCollection in currentPlayers){for each (var p:Player in i){if(p.playerName==playerName){return p}}}return null;}
 		[ArrayElementType("String")] [Bindable]private var myCardNames:ArrayCollection;
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
@@ -85,13 +88,20 @@
 		private function onStartGameResult(event:ResultEvent):void{currentState="clue";}
 		
 		private function onClueMessage(event:MessageEvent):void{
-			displayedMessageLog.addItem(event.message.body);
 			if (event.message.body is messages.Join)onJoinMessage(event.message.body as Join);
 			else if (event.message.body is messages.Chat){}
 			else if (event.message.body is messages.CardsMessage){onCardsMessage(event.message.body as CardsMessage);}
 			else if (event.message.body is messages.Disprove){onDisproveMessage(event.message.body as Disprove);}
 			else if (event.message.body is messages.NextTurn)onNextTurnMessage(event.message.body as NextTurn);
 			else if (event.message.body is messages.MoveMessage)onMoveMessage(event.message.body as MoveMessage);
+			
+			if (event.message.body is PlayerMessage){
+				const pm:PlayerMessage=event.message.body as PlayerMessage;
+				displayedMessageLog.addItem(new MessageEntry(pm.toString(),pm.getIcon(),getPlayerByName(pm.player).suspectColor));
+			} else {
+				const m:Message=event.message.body as Message;
+				displayedMessageLog.addItem(new MessageEntry(m.toString(),m.getIcon(),new SolidColor()));
+			}
 		}
 		private function onJoinMessage(join:Join):void{
 			playerCount+=1;

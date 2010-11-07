@@ -6,6 +6,6 @@ package messages{
 		public var room:String;
 		public var suspect:String;
 		public var weapon:String;
-		public function toString():String{return StringUtil.substitute("Player {0} proposed {1} in the {2} with the {3}.", player,suspect,room,weapon);}
+		public override function toString():String{return StringUtil.substitute("Player {0} proposed {1} in the {2} with the {3}.", player,suspect,room,weapon);}
 	}
 }
