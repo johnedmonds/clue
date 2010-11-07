@@ -12,7 +12,7 @@
 			<s:VerticalLayout />
 		</s:layout>
 		<s:List id="lstCards" dataProvider="{hostComponent.cardNames}"
-			height="100%" itemRenderer="clue.components.renderers.CardRenderer" />
+			height="100%" width="100%" itemRenderer="clue.components.renderers.CardRenderer" />
 		<s:Button includeIn="disprove" id="btnDisprove" label="disprove"
 			width="100%" />
 	</s:Panel>
