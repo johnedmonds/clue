@@ -45,6 +45,7 @@
 		[Bindable]private var suspectCards:ArrayCollection;
 		[Bindable]private var weaponCards:ArrayCollection;
 		[Bindable]private var playerCount:int=0;
+		[Bindable]private var displayedMessageLog:ArrayCollection=new ArrayCollection();
 		
 		[Bindable]private var currentPlayers:ObjectProxy=new ObjectProxy({
 		KITCHEN:new ArrayCollection(),
@@ -62,7 +63,7 @@
 		private function defaultServiceFaultHandler(event:FaultEvent):void{}
 		private function defaultMessageFaultHandler(event:MessageFaultEvent):void{}
 		
-		private function logout():void{key=null;username=null;currentState="login";playerCount=0;chat.text=chatInput.text="";clueConsumer.unsubscribe();}
+		private function logout():void{key=null;username=null;currentState="login";playerCount=0;chatInput.text="";clueConsumer.unsubscribe();displayedMessageLog=new ArrayCollection();}
 		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";}
 		private function join(suspectin:String,gameIdIn:int):void{gameId=gameIdIn;suspect=suspectin;blazeDSClueService.join(key,gameId,suspect);}
 		private function rejoin(gameIdIn:int):void{gameId=gameIdIn;blazeDSClueService.associate(key,gameIdIn);}
@@ -84,9 +85,9 @@
 		private function onStartGameResult(event:ResultEvent):void{currentState="clue";}
 		
 		private function onClueMessage(event:MessageEvent):void{
-			chat.text+=event.message+"\n";
+			displayedMessageLog.addItem(event.message.body);
 			if (event.message.body is messages.Join)onJoinMessage(event.message.body as Join);
-			else if (event.message.body is messages.Chat){chat.text+="was a chat.\n";}
+			else if (event.message.body is messages.Chat){}
 			else if (event.message.body is messages.CardsMessage){onCardsMessage(event.message.body as CardsMessage);}
 			else if (event.message.body is messages.Disprove){onDisproveMessage(event.message.body as Disprove);}
 			else if (event.message.body is messages.NextTurn)onNextTurnMessage(event.message.body as NextTurn);
@@ -175,29 +176,27 @@
 			<s:BlurFilter blurX="10" blurY="10" includeIn="prestart" />
 		</s:filters>
 		<!-- Cards and rooms. -->
-		<s:HGroup width="100%" height="100%">
-			<!-- <s:List dataProvider="{myCardNames}" height="100%" itemRenderer="clue.components.renderers.CardRenderer" 
-				/> -->
+		<s:HGroup width="100%">
 			<clue-components:CardSidebar id="cardSidebar"
 				cardNames="{myCardNames}" skinClass="clue.components.CardSidebarSkin"
 				disprove="onDisprove(event);" height="100%" />
 			<clue-components:Board skinClass="clue.components.BoardSkin"
-				width="100%" height="100%"
-				moveRequested="movePlayer((event as MoveRequested).toRoom.room);"
+				width="100%" moveRequested="movePlayer((event as MoveRequested).toRoom.room);"
 				rooms="{currentPlayers}" />
 		</s:HGroup>
-		<s:HGroup width="100%">
+		<s:HGroup width="100%" height="100%">
 			<s:Panel id="chatPanel" title="Chat" width="100%" height="100%">
 				<s:layout>
 					<s:VerticalLayout paddingLeft="10" paddingRight="10"
 						paddingTop="10" paddingBottom="10" />
 				</s:layout>
-				<s:TextArea id="chat" width="100%" />
+				<s:List id="chat" dataProvider="{displayedMessageLog}" width="100%"
+					height="100%" itemRenderer="clue.components.renderers.MessageRenderer" />
 				<s:HGroup width="100%">
 					<s:TextInput id="chatInput" width="100%" height="40"
 						fontSize="32" />
 					<mx:Button width="40" height="40" label="Chat"
-						icon="@Embed(source='../resources/speech_icon.png')"
+						icon="@Embed(source='../resources/chat.png')"
 						click="blazeDSClueService.chat(key,gameId,chatInput.text);chatInput.text='';" />
 				</s:HGroup>
 			</s:Panel>
