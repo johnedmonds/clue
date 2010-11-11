@@ -18,6 +18,7 @@ import com.pocketcookies.clue.exceptions.NotInGameException;
 import com.pocketcookies.clue.exceptions.NotInRoomException;
 import com.pocketcookies.clue.exceptions.NotLoggedInException;
 import com.pocketcookies.clue.exceptions.NotYourTurnException;
+import com.pocketcookies.clue.messages.Message;
 import com.pocketcookies.clue.players.Suspect;
 import com.pocketcookies.clue.service.server.ClueServiceAPI;
 
@@ -209,7 +210,12 @@ public class BlazeDSClueService {
 	public void movePlayer(String key, int gameId, Room room)
 			throws NotLoggedInException, NotYourTurnException,
 			NoSuchGameException {
-		System.out.println(room.toString());
 		service.move(key, gameId, room);
+	}
+
+	public Message[] getAllUpdates(String key, int gameId)
+			throws NotLoggedInException, NoSuchGameException,
+			NotYourTurnException {
+		return service.getAllUpdates(key, gameId);
 	}
 }

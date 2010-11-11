@@ -1,5 +1,5 @@
 package messages{
-	import mx.controls.Image;
+	import clue.MessageEntry;
 	import mx.utils.StringUtil;
 	[Bindable]
 	[RemoteClass(alias="com.pocketcookies.clue.messages.broadcast.Leave")]

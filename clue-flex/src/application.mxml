@@ -27,6 +27,8 @@
 		import mx.rpc.remoting.mxml.RemoteObject;
 		import mx.rpc.events.ResultEvent;
 		import mx.rpc.events.FaultEvent;
+		import mx.rpc.AsyncToken;
+		import mx.rpc.IResponder;
 		import mx.messaging.events.MessageFaultEvent;
 		import mx.messaging.events.MessageEvent;
 		import mx.utils.*;
@@ -35,7 +37,7 @@
 		import clue.components.*;
 		import clue.events.*;
 		import clue.*;
-	
+		
 		private var key:String;
 		private var username:String;
 		private var suspect:String;
@@ -60,6 +62,8 @@
 		//Instead of storing players the correct way (i.e. a map of player name->Player), we just search the rooms for the player.
 		//Luckily it's not that bad.  Worst case: all players are in the study and the player we want was the last player to move to the study.  This would be ((8 rooms with no one)*1)+((the study)*(6 players))= 8*1+1*6 = 8+6 = 14 operations.  That is O(14), which is O(1).  So if you think about it, the worst case actually takes constant time :) .
 		private function getPlayerByName(playerName:String):Player{for each (var i:ArrayCollection in currentPlayers){for each (var p:Player in i){if(p.playerName==playerName){return p}}}return null;}
+		private function roomContainsPlayerByName(playerList:ArrayCollection,playerName:String):Boolean{for each(var p:Player in playerList){if (p.playerName==playerName)return true;}return false;}
+		private function roomByNameContainsPlayerByName(roomName:String,playerName:String):Boolean{return roomContainsPlayerByName(currentPlayers[roomName],playerName);}
 		[ArrayElementType("String")] [Bindable]private var myCardNames:ArrayCollection;
 		//Handlers
 		private function defaultServiceResultHandler(event:ResultEvent):void{}
@@ -70,7 +74,12 @@
 		private function successfulLogin(usernamein:String, keyin:String):void{username=usernamein;key=keyin;currentState="games";}
 		private function join(suspectin:String,gameIdIn:int):void{gameId=gameIdIn;suspect=suspectin;blazeDSClueService.join(key,gameId,suspect);}
 		private function rejoin(gameIdIn:int):void{gameId=gameIdIn;blazeDSClueService.associate(key,gameIdIn);}
-		private function rejoinSuccess(event:ResultEvent):void{suspect=event.result as String;joinSuccess(event);}
+		private function rejoinSuccess(event:ResultEvent):void{
+			suspect=event.result as String;
+			currentState="prestart";
+			clueConsumer.subscribe();
+			blazeDSClueService.getAllUpdates(key,gameId);
+		}
 		private function joinSuccess(event:ResultEvent):void{
 			currentState="prestart";
 			clueConsumer.subscribe();
@@ -80,26 +89,41 @@
 			var gameData:GameData = event.result as GameData;
 			playerCount+=gameData.players.length;
 			for (var s:String in currentPlayers)currentPlayers[s]=new ArrayCollection();
+			trace("get status success");
 			for each (var p:Player in gameData.players) {
 				p.setStyle("skinClass",PlayerSkin);
-				currentPlayers[Board.getSuspectStartingRoom(p.suspect)].addItem(p);
+				const playerStartingList:ArrayCollection=currentPlayers[Board.getSuspectStartingRoom(p.suspect)];
+				if(!roomContainsPlayerByName(playerStartingList,p.playerName)){
+					playerStartingList.addItem(p);
+					trace("Adding " + p.playerName + " to " + Board.getSuspectStartingRoom(p.suspect) + " which now has " + currentPlayers[Board.getSuspectStartingRoom(p.suspect)].length+" players.");
+				}
 			}
 		}
 		private function onStartGameResult(event:ResultEvent):void{currentState="clue";}
 		
-		private function onClueMessage(event:MessageEvent):void{
-			if (event.message.body is messages.Join)onJoinMessage(event.message.body as Join);
-			else if (event.message.body is messages.Chat){}
-			else if (event.message.body is messages.CardsMessage){onCardsMessage(event.message.body as CardsMessage);}
-			else if (event.message.body is messages.Disprove){onDisproveMessage(event.message.body as Disprove);}
-			else if (event.message.body is messages.NextTurn)onNextTurnMessage(event.message.body as NextTurn);
-			else if (event.message.body is messages.MoveMessage)onMoveMessage(event.message.body as MoveMessage);
+		private function onClueMessage(event:MessageEvent):void{onClueMessageHelper(event.message.body as Message);}
+		private function onClueMessageHelper(message:Message):void{
+			if (message is messages.Join)onJoinMessage(message as Join);
+			else if (message is messages.Chat){}
+			else if (message is messages.CardsMessage){onCardsMessage(message as CardsMessage);}
+			else if (message is messages.Disprove){onDisproveMessage(message as Disprove);}
+			else if (message is messages.NextTurn)onNextTurnMessage(message as NextTurn);
+			else if (message is messages.MoveMessage)onMoveMessage(message as MoveMessage);
+			else if (message is messages.Disprove){}
+			else if (message is messages.DisprovingCard){}
+			else if (message is messages.GameOver){}
+			else if (message is messages.Leave){}
+			else if (message is messages.Suggestion){}
+			else if (message is messages.Accusation){}
 			
-			if (event.message.body is PlayerMessage){
-				const pm:PlayerMessage=event.message.body as PlayerMessage;
+			addMessageToLog(message);
+		}
+		private function addMessageToLog(message:Message):void{
+			if (message is PlayerMessage){
+				const pm:PlayerMessage=message as PlayerMessage;
 				displayedMessageLog.addItem(new MessageEntry(pm.toString(),pm.getIcon(),getPlayerByName(pm.player).suspectColor));
 			} else {
-				const m:Message=event.message.body as Message;
+				const m:Message=message as Message;
 				displayedMessageLog.addItem(new MessageEntry(m.toString(),m.getIcon(),new SolidColor()));
 			}
 		}
@@ -151,8 +175,16 @@
 		private function getPlayerInRoom(playerName:String,room:ArrayCollection):Player{for each (var p:Player in room)if(p.playerName==playerName)return p;return null;} 
 		private function onMoveMessage(move:MoveMessage):void{
 			const p:Player=getPlayerInRoom(move.player,currentPlayers[move.from]);
+			trace("doing move. removing from "+move.from+" at "+currentPlayers[move.from].getItemIndex(p)+" which had " + currentPlayers[move.from].length+" players.");
 			currentPlayers[move.from].removeItemAt(currentPlayers[move.from].getItemIndex(p));
 			currentPlayers[move.to].addItem(p);
+		}
+		private function onGetAllUpdates(event:ResultEvent):void{
+			trace("get all updates");
+			trace(event.result.length);
+			for each (var m:Message in event.result){trace("doing message");onClueMessageHelper(m);}
+			trace(currentPlayers['LOUNGE'].length);
+			blazeDSClueService.getStatus(gameId);
 		}
 	]]>
 	</fx:Script>
@@ -168,6 +200,7 @@
 			<mx:method name="endTurn" result="onEndTurn(event);" />
 			<mx:method name="disprove" result="onDisproveSuccess(event);" />
 			<mx:method name="movePlayer" />
+			<mx:method name="getAllUpdates" result="onGetAllUpdates(event);"/>
 		</mx:RemoteObject>
 		<mx:Consumer id="clueConsumer" destination="clue-jms-destination"
 			message="onClueMessage(event);" fault="defaultMessageFaultHandler(event);" />
