@@ -213,19 +213,9 @@
 		<mx:Consumer id="clueConsumer" destination="clue-jms-destination"
 			message="onClueMessage(event);" fault="defaultMessageFaultHandler(event);" />
 	</fx:Declarations>
-	<!-- Telling someone to pick a game -->
 	<!-- Main scene container. -->
 	<s:VGroup id="clueContainer" width="100%" height="100%"
-		includeIn="clueGroup" enabled.prestart="false" enabled.proposition="false">
-		<s:filters>
-			<s:ColorMatrixFilter
-				matrix="[1,0,0,0,-50,
-					  	 0,1,0,0,-50,
-					  	 0,0,1,0,-50,
-					  	 0,0,0,1,0]"
-				includeIn="prestart" />
-			<s:BlurFilter blurX="10" blurY="10" includeIn="prestart" />
-		</s:filters>
+		includeIn="clueGroup" enabled.proposition="false">
 		<!-- Cards and rooms. -->
 		<s:HGroup width="100%">
 			<clue-components:CardSidebar id="cardSidebar"
@@ -235,6 +225,25 @@
 				width="100%" moveRequested="movePlayer((event as MoveRequested).toRoom.room);"
 				rooms="{currentPlayers}" />
 		</s:HGroup>
+		<!-- Status Bar -->
+		<s:Group width="100%" includeIn="prestart">
+			<s:Rect width="100%" height="100%">
+				<s:fill>
+					<s:LinearGradient rotation="90">
+						<s:GradientEntry color="0xeeeeee" />
+						<s:GradientEntry color="0xbbbbbb" />
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:HGroup width="100%" verticalAlign="middle" paddingLeft="5"
+				paddingRight="5" paddingTop="5" paddingBottom="5">
+				<s:Label includeIn="prestart"
+					text="Once you have enough players, click 'Start' to begin the game. ({playerCount}/3 players)" />
+				<s:Button label="Start" includeIn="prestart"
+					click="blazeDSClueService.startGame();" id="btnStart" enabled="{playerCount>=3}" />
+			</s:HGroup>
+		</s:Group>
+		<!-- Chat and buttons -->
 		<s:HGroup width="100%" height="100%">
 			<s:Panel id="chatPanel" title="Chat" width="100%" height="100%">
 				<s:layout>
@@ -272,7 +281,7 @@
 		</clue-components:filters>
 	</clue-components:Proposition>
 	<!-- Telling someone to login -->
-	<s:Group id="beforeStartContainer" includeIn="login,games,prestart"
+	<s:Group id="beforeStartContainer" includeIn="login,games"
 		width="100%" height="100%">
 		<s:filters>
 			<s:DropShadowFilter />
@@ -289,12 +298,9 @@
 				</s:stroke>
 			</s:Rect>
 			<s:VGroup paddingLeft="50" paddingRight="50" paddingTop="50"
-				paddingBottom="50" width="100%" horizontalAlign="center">
+				paddingBottom="50">
 				<s:Label id="beforeStartText" text.login="Please login before continuing."
-					text.games="Please select a game to join."
-					text.prestart="Once you have enough players, click the Start button below to start the game. ({playerCount}/3 players)." />
-				<s:Button label="Start" includeIn="prestart"
-					click="blazeDSClueService.startGame();" id="btnStart" enabled="{playerCount>=3}" />
+					text.games="Please select a game to join." />
 			</s:VGroup>
 		</s:Group>
 	</s:Group>
