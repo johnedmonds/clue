@@ -192,6 +192,7 @@
 				else addMessageToLog(m);
 			}
 		}
+		private function onUserChat():void{blazeDSClueService.chat(key,gameId,chatInput.text);chatInput.text='';}
 	]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -243,10 +244,10 @@
 					height="100%" itemRenderer="clue.components.renderers.MessageRenderer" />
 				<s:HGroup width="100%">
 					<s:TextInput id="chatInput" width="100%" height="40"
-						fontSize="32" />
+						fontSize="32" enter="onUserChat();" />
 					<mx:Button width="40" height="40" label="Chat"
 						icon="@Embed(source='../resources/chat.png')"
-						click="blazeDSClueService.chat(key,gameId,chatInput.text);chatInput.text='';" />
+						click="onUserChat();" />
 				</s:HGroup>
 			</s:Panel>
 			<s:VGroup height="100%">
