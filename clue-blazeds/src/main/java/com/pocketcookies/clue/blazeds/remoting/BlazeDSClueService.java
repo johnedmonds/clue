@@ -218,4 +218,9 @@ public class BlazeDSClueService {
 			NotYourTurnException {
 		return service.getAllUpdates(key, gameId);
 	}
+
+	public void leave(String key, int gameId) throws NotLoggedInException,
+			NoSuchGameException, NotInGameException {
+		service.leave(key, gameId);
+	}
 }
