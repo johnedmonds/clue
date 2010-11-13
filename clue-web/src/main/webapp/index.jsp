@@ -43,6 +43,10 @@ function loginSuccess(data) {
 	//Pass this data onto the plugin.
 	clueswfobject.successfulLogin(username,data.key);
 }
+function leave(){
+	$("#games-container").slideDown();
+	getGamesOnTimer();
+}
 //This section provides the controls for joining the game.
 function makeJoinContainer(gameId){
 	var joinContainer=$("<ul class='joinControls'></ul>");
