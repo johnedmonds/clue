@@ -5,11 +5,11 @@
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
 	<servlet>
-		<servlet-name>ClueWebServlet</servlet-name>
-		<servlet-class>com.pocketcookies.clue.service.server.web.ClueWebServlet</servlet-class>
+		<servlet-name>clue-web</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>ClueWebServlet</servlet-name>
-		<url-pattern>/clue/*</url-pattern>
+		<servlet-name>clue-web</servlet-name>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 </web-app>

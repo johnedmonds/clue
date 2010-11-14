@@ -1,4 +1,9 @@
 Manifest-Version: 1.0
-Class-Path: activemq-all-5.3.2.jar clue-util-1.0-SNAPSHOT.jar hessian-
- 4.0.7.jar log4j-1.2.14.jar servlet-api-2.5.jar
+Class-Path: activemq-all-5.3.2.jar aopalliance-1.0.jar clue-util-1.0-S
+ NAPSHOT.jar commons-logging-1.1.1.jar hessian-4.0.7.jar jstl-1.2.jar 
+ log4j-1.2.14.jar servlet-api-2.5.jar spring-aop-3.0.5.RELEASE.jar spr
+ ing-asm-3.0.5.RELEASE.jar spring-beans-3.0.5.RELEASE.jar spring-conte
+ xt-3.0.5.RELEASE.jar spring-context-support-3.0.5.RELEASE.jar spring-
+ core-3.0.5.RELEASE.jar spring-expression-3.0.5.RELEASE.jar spring-web
+ -3.0.5.RELEASE.jar spring-webmvc-3.0.5.RELEASE.jar
 
