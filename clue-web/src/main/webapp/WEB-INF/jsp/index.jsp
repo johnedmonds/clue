@@ -116,8 +116,7 @@ function addAllGames(games){
 //Used to retrieve all necessary information from clue.
 function clueFinishedLoading(){
 	<%if (request.getSession().getAttribute("key") != null) {%>
-	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>
-	');
+	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
 <%}%>
 	}
 	//The actualy swf object upon which we make calls.
@@ -153,7 +152,7 @@ function clueFinishedLoading(){
 					: ""%>>
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
 <input type="submit" value="Logout" style="width: 100%;"
-	onclick="logout()" /></div>
+	onclick="logout();" /></div>
 <div id="about" class="content-section">
 <h1>About</h1>
 <p>Hello world.</p>
