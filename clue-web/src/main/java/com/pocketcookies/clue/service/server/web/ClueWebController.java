@@ -119,11 +119,12 @@ public class ClueWebController {
 			HttpServletResponse response,
 			@RequestParam("gameName") String gameName) {
 		response.setContentType("application/json");
+		response.setStatus(200);
 		try {
 			try {
 				service.create((String) request.getSession()
 						.getAttribute("key"), gameName);
-				response.getWriter().write("Success");
+				response.getWriter().write("\"Success\"");
 			} catch (GameAlreadyExistsException e) {
 				response.setStatus(400);
 				try {
