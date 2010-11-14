@@ -15,10 +15,10 @@ function logout(){
 		function(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
-			$("#games-container").slideDown();
+			$("#games-container").slideUp();
 			clueswfobject.logout();
 			username=null;
-			getGamesOnTimer();
+			clearTimeout(currentTimeout);
 		}
 	);
 }
@@ -40,28 +40,32 @@ function loginSuccess(data) {
 	$("#login").slideUp();
 	$("#welcome>h1:first").text("Welcome "+username);
 	$("#welcome").slideDown();
+	$("#games-container").slideDown();
+	getGamesOnTimer();
 	//Pass this data onto the plugin.
 	clueswfobject.successfulLogin(username,data.key);
-	getGames();
 }
 function leave(){
 	$("#games-container").slideDown();
 	getGamesOnTimer();
 }
 //This section provides the controls for joining the game.
-function makeJoinContainer(gameId){
+function makeJoinContainer(gameId,takenSuspects){
 	var joinContainer=$("<ul class='joinControls'></ul>");
 	var suspects=['SCARLETT','MUSTARD','WHITE','GREEN','PEACOCK','PLUM'];
 	for (var suspect in suspects){
-		joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
-				function (suspect){
-					return function(){
-						clueswfobject.join(suspect,gameId);
-						playerJoined();
-					};
-				}(suspects[suspect])
-			)
-		);
+		//If the suspect has already been taken, do not present the option to the user.
+		if(takenSuspects[suspects[suspect]]!=true){
+			joinContainer.append($("<li><input type='submit' value='"+suspects[suspect]+"'/></li>").click(
+					function (suspect){
+						return function(){
+							clueswfobject.join(suspect,gameId);
+							playerJoined();
+						};
+					}(suspects[suspect])
+				)
+			);
+		}
 	}
 	return joinContainer;
 }
@@ -75,10 +79,12 @@ function makeGameHtml(game,index){
 	playersContainer=$("<ul class=\"players\"></ul>");
 	//Whether the currently logged in user is part of this game.
 	var containsPlayer=false;
+	var takenSuspects=new Object();
 	for (var i=0;i<game.players.length;i++){
 		//Check if this user is part of the game
 		containsPlayer=containsPlayer||game.players[i].name==username;
 		playersContainer.append($("<li>"+game.players[i].name+" "+game.players[i].suspect+"</li>"));
+		takenSuspects[game.players[i].suspect]=true;
 	}
 	var joinContainer;
 	//If the current player is already in this game, we only allow that player to rejoin.
@@ -90,7 +96,7 @@ function makeGameHtml(game,index){
 				}
 			)
 		);
-	else joinContainer=makeJoinContainer(game.id);
+	else joinContainer=makeJoinContainer(game.id,takenSuspects);
 	//Add the players and join lists to the game list.
 	gameContainer.append(playersContainer).append(joinContainer);		
 	return gameContainer;
@@ -111,27 +117,28 @@ function addAllGames(games){
 function clueFinishedLoading(){
 	<%if (request.getSession().getAttribute("key") != null) {%>
 	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
-	<%}%>		
-}
-//The actualy swf object upon which we make calls.
-var clueswfobject;
-//The player's current username.
-var username=<%=request.getSession().getAttribute("username") == null ? "null"
+<%}%>
+	}
+	//The actualy swf object upon which we make calls.
+	var clueswfobject;
+	//The player's current username.
+	var username =
+<%=request.getSession().getAttribute("username") == null ? "null"
 					: "\"" + request.getSession().getAttribute("username")
 							+ "\""%>
-swfobject.registerObject("clue-object","9.0.0",null,function(e){
-	if (e.success)clueswfobject=e.ref;
-	else alert("There was an error registering the swf object.");
-});
-$(document).ready(
-		function() {
-			<%if (request.getSession().getAttribute("key") != null) {%>
-			$("#login").hide();
-			<%}%>
-			//Start retrieving games.
-			getGamesOnTimer();
-		}
-);
+	swfobject.registerObject("clue-object", "9.0.0", null, function(e) {
+		if (e.success)
+			clueswfobject = e.ref;
+		else
+			alert("There was an error registering the swf object.");
+	});
+	$(document).ready(function() {
+<%if (request.getSession().getAttribute("key") != null) {%>
+	$("#login").hide();
+	$("#games-container").show();
+	getGamesOnTimer();
+<%}%>
+	});
 </script>
 <link rel="stylesheet"
 	href="<%=getServletContext().getContextPath()%>/index.css"
@@ -197,7 +204,7 @@ $(document).ready(
 </table>
 </div>
 </div>
-<div id="games-container" class="content-section">
+<div id="games-container" class="content-section" style="display:none;">
 <h1>Games</h1>
 <table width="100%">
 	<tr>
