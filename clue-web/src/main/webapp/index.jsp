@@ -42,6 +42,7 @@ function loginSuccess(data) {
 	$("#welcome").slideDown();
 	//Pass this data onto the plugin.
 	clueswfobject.successfulLogin(username,data.key);
+	getGames();
 }
 function leave(){
 	$("#games-container").slideDown();
