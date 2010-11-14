@@ -33,7 +33,7 @@ public class ClueWebController {
 		System.out.println("Here");
 	}
 
-	@RequestMapping(value = "/")
+	@RequestMapping(value = "/index")
 	public ModelAndView index() {
 		return new ModelAndView("index");
 	}

@@ -10,6 +10,6 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>clue-web</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/clue/*</url-pattern>
 	</servlet-mapping>
 </web-app>
