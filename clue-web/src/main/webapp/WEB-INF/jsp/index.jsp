@@ -116,7 +116,8 @@ function addAllGames(games){
 //Used to retrieve all necessary information from clue.
 function clueFinishedLoading(){
 	<%if (request.getSession().getAttribute("key") != null) {%>
-	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
+	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>
+	');
 <%}%>
 	}
 	//The actualy swf object upon which we make calls.
@@ -135,8 +136,8 @@ function clueFinishedLoading(){
 	$(document).ready(function() {
 <%if (request.getSession().getAttribute("key") != null) {%>
 	$("#login").hide();
-	$("#games-container").show();
-	getGamesOnTimer();
+		$("#games-container").show();
+		getGamesOnTimer();
 <%}%>
 	});
 </script>
@@ -204,7 +205,7 @@ function clueFinishedLoading(){
 </table>
 </div>
 </div>
-<div id="games-container" class="content-section" style="display:none;">
+<div id="games-container" class="content-section" style="display: none;">
 <h1>Games</h1>
 <table width="100%">
 	<tr>
@@ -219,10 +220,12 @@ function clueFinishedLoading(){
 <div id="clue-game" style="margin-bottom: 10px;"><object
 	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="700"
 	height="600" id="clue-object">
-	<param name="movie" value="application.swf" />
+	<param name="movie"
+		value="<%=getServletContext().getContextPath()%>/application.swf" />
 	<!--[if !IE]>--> <object type="application/x-shockwave-flash"
-		data="application.swf" width="700" height="600"> <!--<![endif]-->
-		<a href="http://www.adobe.com/go/getflashplayer"> <img
+		data="<%=getServletContext().getContextPath()%>/application.swf"
+		width="700" height="600"> <!--<![endif]--> <a
+			href="http://www.adobe.com/go/getflashplayer"> <img
 			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
 			alt="Get Adobe Flash player" /> </a> <!--[if !IE]>--> </object> <!--<![endif]-->
 </object></div>
