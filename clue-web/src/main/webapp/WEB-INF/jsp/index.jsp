@@ -16,9 +16,9 @@ function logout(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
 			$("#games-container").slideUp();
-			clueswfobject.logout();
 			username=null;
 			clearTimeout(currentTimeout);
+			clueswfobject.logout();
 		}
 	);
 }
@@ -214,13 +214,13 @@ function clueFinishedLoading(){
 <div id="games"></div>
 </div>
 <div id="clue-game" style="margin-bottom: 10px;"><object
-	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="700"
+	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="600"
 	height="600" id="clue-object">
 	<param name="movie"
 		value="<%=getServletContext().getContextPath()%>/application.swf" />
 	<!--[if !IE]>--> <object type="application/x-shockwave-flash"
 		data="<%=getServletContext().getContextPath()%>/application.swf"
-		width="700" height="600"> <!--<![endif]--> <a
+		width="600" height="600"> <!--<![endif]--> <a
 			href="http://www.adobe.com/go/getflashplayer"> <img
 			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
 			alt="Get Adobe Flash player" /> </a> <!--[if !IE]>--> </object> <!--<![endif]-->
