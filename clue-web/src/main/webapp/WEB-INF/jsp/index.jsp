@@ -146,17 +146,19 @@ function clueFinishedLoading(){
 <title>Clue - Games</title>
 </head>
 <body>
-<div id="left-column">
+<div id="left-column" style="width:25%;">
 <div id="welcome" class="content-section"
 	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
 					: ""%>>
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
 <input type="submit" value="Logout" style="width: 100%;"
 	onclick="logout();" /></div>
-<div id="about" class="content-section">
-<h1>About</h1>
-<p>Hello world.</p>
+<div id="instructions" class="content-section">
+<h1>Instructions</h1>
+<p>Someone has been murdered.  There are six people, six weapons, and nine rooms in the mansion.  Your job is to figure out who committed the murder, with what, and where.</p>
 </div>
+</div>
+<div id="right-column">
 <div id="connect-differently" class="content-section">
 <h1>Connect Differently</h1>
 <h2>Telnet</h2>
@@ -175,11 +177,6 @@ function clueFinishedLoading(){
 		}
 	%>
 </ul>
-</div>
-</div>
-<div id="right-column">
-<div class="content-section">
-<h1>Right Column</h1>
 </div>
 </div>
 <div id="mid-column">
