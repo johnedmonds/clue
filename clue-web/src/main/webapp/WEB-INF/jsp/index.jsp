@@ -207,16 +207,23 @@ murder, with what, and where.</p>
 </form>
 </div>
 </div>
-<div id="games-container" class="content-section" style="display: none;">
+<div id="games-container" class="content-section"
+	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
+					: ""%>>
 <h1>Games</h1>
+<form method="post"
+	action="<%=request.getContextPath()%>/clue/create-form"
+	onsubmit="return false;">
 <table width="100%">
 	<tr>
 		<td><label for="txtCreateGame">Game name</label></td>
-		<td><input style="width: 100%;" type="text" id="txtCreateGame" /></td>
+		<td><input style="width: 100%;" type="text" id="txtCreateGame"
+			name="gameName" /></td>
 		<td><input style="width: 100%;" type="submit" value="Create"
 			onclick="$.get('<%=getServletContext().getContextPath()%>/clue/create',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');" /></td>
 	</tr>
 </table>
+</form>
 <div id="games"></div>
 </div>
 <div id="clue-game" style="margin-bottom: 10px;"><object

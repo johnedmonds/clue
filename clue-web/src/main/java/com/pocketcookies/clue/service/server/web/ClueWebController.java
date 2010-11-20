@@ -211,4 +211,17 @@ public class ClueWebController {
 			logger.error("There was an error writing to the client.", e);
 		}
 	}
+
+	@RequestMapping(value = "/create-form")
+	public void createForm(HttpServletRequest request,
+			HttpServletResponse response,
+			@RequestParam("gameName") String gameName) throws IOException {
+		try {
+			service.create((String) request.getSession().getAttribute("key"),
+					gameName);
+		} catch (NotLoggedInException e) {
+		} catch (GameAlreadyExistsException e) {
+		}
+		response.sendRedirect(request.getContextPath() + "/clue/");
+	}
 }
