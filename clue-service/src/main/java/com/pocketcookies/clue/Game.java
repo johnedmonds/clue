@@ -325,7 +325,7 @@ public class Game {
 			throw new CheatException();
 		if (!this.disprovingPlayer.getHand().contains(card))
 			throw new CheatException();
-		DisprovingCard dc = new DisprovingCard(card);
+		final DisprovingCard dc = new DisprovingCard(card);
 		this.currentPlayer.publish(dc);
 		this.proposition = null;
 		this.disprovingPlayer = null;
