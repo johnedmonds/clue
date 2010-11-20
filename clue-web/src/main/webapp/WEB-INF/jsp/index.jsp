@@ -151,11 +151,15 @@ function clueFinishedLoading(){
 	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
 					: ""%>>
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
-<input type="submit" value="Logout" style="width: 100%;"
-	onclick="logout();" /></div>
+<form method="post" action="<%=request.getContextPath()%>/clue/logout-form"
+	onsubmit="return false;"><input type="submit" value="Logout"
+	style="width: 100%;" onclick="logout();" /></form>
+</div>
 <div id="instructions" class="content-section">
 <h1>Instructions</h1>
-<p>Someone has been murdered.  There are six people, six weapons, and nine rooms in the mansion.  Your job is to figure out who committed the murder, with what, and where.</p>
+<p>Someone has been murdered. There are six people, six weapons, and
+nine rooms in the mansion. Your job is to figure out who committed the
+murder, with what, and where.</p>
 </div>
 </div>
 <div id="right-column">
@@ -185,7 +189,7 @@ function clueFinishedLoading(){
 					: "style=\"display:none\""%>>
 <div id="login-content">
 <h1>Login</h1>
-<form method="post" action="<%=request.getContextPath()%>/clue/login">
+<form method="post" action="<%=request.getContextPath()%>/clue/login-form" onsubmit="return false;">
 <table>
 	<tr>
 		<td><label for="username">Username</label></td>

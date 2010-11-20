@@ -50,6 +50,20 @@ public class ClueWebController {
 		return new ModelAndView("index");
 	}
 
+	/**
+	 * Responds to an AJAX request to login.
+	 * 
+	 * @param username
+	 *            The user's user name.
+	 * @param password
+	 *            The user's password.
+	 * @param request
+	 *            The request made by the user.
+	 * @param response
+	 *            The response to be returned to the user.
+	 * @throws IOException
+	 * @throws JSONException
+	 */
 	@RequestMapping(value = "/login")
 	public void login(@RequestParam("username") String username,
 			@RequestParam("password") String password,
@@ -57,27 +71,67 @@ public class ClueWebController {
 			throws IOException, JSONException {
 		response.setContentType("application/json");
 		final String key = service.login(username, password);
-		if (key == null) {
-			if (request.getHeader("Content-Type").equals("application/json"))
-				response.setStatus(403);
-			else
-				response.sendRedirect(request.getContextPath() + "/clue/");
-		} else {
+		if (key == null)
+			response.setStatus(403);
+		else {
 			request.getSession().setAttribute("key", key);
 			request.getSession().setAttribute("username", username);
-			if (request.getHeader("Content-Type").equals("application/json"))
-				response.getWriter().write(
-						new JSONStringer().object().key("key").value(key)
-								.endObject().toString());
-			else
-				response.sendRedirect(request.getContextPath() + "/clue/");
-
+			response.getWriter().write(
+					new JSONStringer().object().key("key").value(key)
+							.endObject().toString());
 		}
 	}
 
+	/**
+	 * If the user does not have JavaScript enabled, the form will be submitted
+	 * to this function.
+	 * 
+	 * @param username
+	 *            The user's user name.
+	 * @param password
+	 *            The user's password.
+	 * @param request
+	 *            The request made by the user.
+	 * @param response
+	 *            The response given back to the user.
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/login-form")
+	public void loginForm(@RequestParam("username") String username,
+			@RequestParam("password") String password,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		final String key = service.login(username, password);
+		if (key != null) {
+			request.getSession().setAttribute("key", key);
+			request.getSession().setAttribute("username", username);
+		}
+		response.sendRedirect(request.getContextPath() + "/clue/");
+	}
+
+	/**
+	 * Respond to an AJAX request to logout.
+	 * 
+	 * @param request
+	 */
 	@RequestMapping(value = "/logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		request.getSession().invalidate();
+	}
+
+	/**
+	 * If the user does not have JavaScript enabled, the form will be submitted
+	 * to this function.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/logout-form")
+	public void logoutForm(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		request.getSession().invalidate();
+		response.sendRedirect(request.getContextPath() + "/clue/");
 	}
 
 	@RequestMapping(value = "/games")
