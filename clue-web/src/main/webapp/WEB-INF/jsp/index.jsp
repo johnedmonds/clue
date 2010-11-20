@@ -185,6 +185,7 @@ function clueFinishedLoading(){
 					: "style=\"display:none\""%>>
 <div id="login-content">
 <h1>Login</h1>
+<form method="post" action="<%=request.getContextPath()%>/clue/login">
 <table>
 	<tr>
 		<td><label for="username">Username</label></td>
@@ -199,6 +200,7 @@ function clueFinishedLoading(){
 			style="width: 100%;" onclick="tryLogin()"></td>
 	</tr>
 </table>
+</form>
 </div>
 </div>
 <div id="games-container" class="content-section" style="display: none;">

@@ -53,25 +53,25 @@ public class ClueWebController {
 	@RequestMapping(value = "/login")
 	public void login(@RequestParam("username") String username,
 			@RequestParam("password") String password,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException, JSONException {
 		response.setContentType("application/json");
 		final String key = service.login(username, password);
-		if (key == null)
-			response.setStatus(403);
-		else {
+		if (key == null) {
+			if (request.getHeader("Content-Type").equals("application/json"))
+				response.setStatus(403);
+			else
+				response.sendRedirect(request.getContextPath() + "/clue/");
+		} else {
 			request.getSession().setAttribute("key", key);
 			request.getSession().setAttribute("username", username);
-			try {
+			if (request.getHeader("Content-Type").equals("application/json"))
 				response.getWriter().write(
 						new JSONStringer().object().key("key").value(key)
 								.endObject().toString());
-			} catch (JSONException e) {
-				logger.error(
-						"There was an error creating the json for logging in.",
-						e);
-			} catch (IOException e) {
-				logger.error("There was an error writing to the client.", e);
-			}
+			else
+				response.sendRedirect(request.getContextPath() + "/clue/");
+
 		}
 	}
 
