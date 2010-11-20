@@ -6,6 +6,10 @@
 	<s:filters>
 		<s:DropShadowFilter />
 	</s:filters>
+	<s:states>
+		<s:State name="suggest" />
+		<s:State name="accuse" />
+	</s:states>
 	<fx:Script>
 	<![CDATA[
 		import spark.components.*;
@@ -27,7 +31,7 @@
 				paddingTop="30" paddingBottom="30" />
 		</s:layout>
 		<s:HGroup>
-			<s:VGroup height="100%">
+			<s:VGroup height="100%" includeIn="accuse">
 				<s:Label text="Choose a room:" />
 				<s:List height="100%" id="roomsList" dataProvider="{hostComponent.roomCardNames}"
 					itemRenderer="clue.components.renderers.CardRenderer"

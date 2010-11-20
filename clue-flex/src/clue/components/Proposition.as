@@ -7,7 +7,12 @@ package clue.components{
 	import clue.components.*;
 	[Event(name="propositionMade",type="clue.events.PropositionMadeEvent")]
 	[Event(name="propositionCanceled",type="flash.events.Event")]
+	[SkinState("suggest")]
+	[SkinState("accuse")]
 	public class Proposition extends SkinnableComponent{
+		private var _isSuggestion:Boolean;
+		[Bindable]public function get isSuggestion():Boolean{return _isSuggestion;}
+		public function set isSuggestion(value:Boolean):void{this._isSuggestion=value;this.invalidateSkinState();}
 		public static const PROPOSITION_CANCELED:String="propositionCanceled";
 		[ArrayElementType("String")][Bindable]public var roomCardNames:ArrayCollection;
 		[ArrayElementType("String")][Bindable]public var suspectCardNames:ArrayCollection;
@@ -52,5 +57,6 @@ package clue.components{
 			if (instance == this.makeProposition)this.makeProposition.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{dispatchEvent(new PropositionMadeEvent(this.room,this.suspect,this.weapon));});
 			else if (instance == this.cancelProposition)this.cancelProposition.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{dispatchEvent(new Event(PROPOSITION_CANCELED));});
 		}
+		override protected function getCurrentSkinState():String{return this._isSuggestion?'suggest':'accuse';}
 	}
 }

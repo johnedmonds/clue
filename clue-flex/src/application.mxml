@@ -300,7 +300,7 @@
 		includeIn="proposition" skinClass="clue.components.PropositionSkin"
 		propositionCanceled="onCancelProposition(event);" propositionMade="onMakeProposition(event);"
 		verticalCenter="0" horizontalCenter="0" roomCardNames="{roomCards}"
-		suspectCardNames="{suspectCards}" weaponCardNames="{weaponCards}">
+		suspectCardNames="{suspectCards}" weaponCardNames="{weaponCards}" isSuggestion="{this.currentState=='suggest'}">
 		<clue-components:filters>
 			<s:DropShadowFilter />
 		</clue-components:filters>
