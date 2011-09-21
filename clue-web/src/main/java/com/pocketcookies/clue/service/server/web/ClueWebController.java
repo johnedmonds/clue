@@ -106,7 +106,7 @@ public class ClueWebController {
 			request.getSession().setAttribute("key", key);
 			request.getSession().setAttribute("username", username);
 		}
-		response.sendRedirect(request.getContextPath() + "/clue/");
+		response.sendRedirect(request.getContextPath() + "/");
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class ClueWebController {
 	public void logoutForm(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
-		response.sendRedirect(request.getContextPath() + "/clue/");
+		response.sendRedirect(request.getContextPath() + "/");
 	}
 
 	@RequestMapping(value = "/games")
@@ -222,6 +222,6 @@ public class ClueWebController {
 		} catch (NotLoggedInException e) {
 		} catch (GameAlreadyExistsException e) {
 		}
-		response.sendRedirect(request.getContextPath() + "/clue/");
+		response.sendRedirect(request.getContextPath() + "/");
 	}
 }

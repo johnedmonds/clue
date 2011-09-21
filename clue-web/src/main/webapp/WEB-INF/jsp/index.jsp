@@ -11,7 +11,7 @@
 	src="<%=getServletContext().getContextPath()%>/swfobject.js"></script>
 <script type="text/javascript">
 function logout(){
-	$.get("<%=getServletContext().getContextPath()%>/clue/logout",{},
+	$.get("<%=getServletContext().getContextPath()%>/logout",{},
 		function(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
@@ -30,7 +30,7 @@ function playerJoined(){
 var currentTimeout;
 //Sends an AJAX request to login.
 function tryLogin(){
-	$.get("<%=getServletContext().getContextPath()%>/clue/login",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
+	$.get("<%=getServletContext().getContextPath()%>/login",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
 }
 //Called when the AJAX request returns successfully.
 function loginSuccess(data) {
@@ -104,7 +104,7 @@ function makeGameHtml(game,index){
 //Calls getGames and then arranges for this function to be called again.
 function getGamesOnTimer(){getGames();currentTimeout=setTimeout("getGamesOnTimer();",10000);}
 //Sends an AJAX request to the server for the list of games.  Upon successfully retrieving the list of games, calls addAllGames.
-function getGames(){$.get("<%=getServletContext().getContextPath()%>/clue/games", function(data,status,r){addAllGames(data.games)});}
+function getGames(){$.get("<%=getServletContext().getContextPath()%>/games", function(data,status,r){addAllGames(data.games)});}
 //Clears the list of games, then goes through each game retrieved from the server and adds it to the list of games.
 function addAllGames(games){
 	$("#games").html(""); //Clear the list of games.
@@ -151,7 +151,7 @@ function clueFinishedLoading(){
 	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
 					: ""%>>
 <h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
-<form method="post" action="<%=request.getContextPath()%>/clue/logout-form"
+<form method="post" action="<%=request.getContextPath()%>/logout-form"
 	onsubmit="return false;"><input type="submit" value="Logout"
 	style="width: 100%;" onclick="logout();" /></form>
 </div>
@@ -189,7 +189,7 @@ murder, with what, and where.</p>
 					: "style=\"display:none\""%>>
 <div id="login-content">
 <h1>Login</h1>
-<form method="post" action="<%=request.getContextPath()%>/clue/login-form" onsubmit="return false;">
+<form method="post" action="<%=request.getContextPath()%>/login-form" onsubmit="return false;">
 <table>
 	<tr>
 		<td><label for="username">Username</label></td>
@@ -212,7 +212,7 @@ murder, with what, and where.</p>
 					: ""%>>
 <h1>Games</h1>
 <form method="post"
-	action="<%=request.getContextPath()%>/clue/create-form"
+	action="<%=request.getContextPath()%>/create-form"
 	onsubmit="return false;">
 <table width="100%">
 	<tr>
@@ -220,7 +220,7 @@ murder, with what, and where.</p>
 		<td><input style="width: 100%;" type="text" id="txtCreateGame"
 			name="gameName" /></td>
 		<td><input style="width: 100%;" type="submit" value="Create"
-			onclick="$.get('<%=getServletContext().getContextPath()%>/clue/create',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');" /></td>
+			onclick="$.get('<%=getServletContext().getContextPath()%>/create',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');" /></td>
 	</tr>
 </table>
 </form>
