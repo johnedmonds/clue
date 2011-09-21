@@ -3,7 +3,7 @@
 	<property environment="env"/>
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property name="APP_ROOT" value="." />
-	<property name="install_swf" value="../clue-web/src/main/webapp/application.swf" />
+	<property name="install_swf" value="../clue-web/src/main/webapp/static/application.swf" />
 	<property name="build" value="build" />
 	<property name="src" value="${APP_ROOT}/src"/>
 	<target name="init">

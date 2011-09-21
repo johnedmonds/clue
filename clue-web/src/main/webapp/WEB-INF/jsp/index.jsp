@@ -1,17 +1,18 @@
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"
-	import="java.util.Enumeration,java.net.NetworkInterface,java.net.InetAddress"%>
+	import="java.util.Enumeration,java.net.NetworkInterface,java.net.InetAddress" %>
+<%@ page isELIgnored="false"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript"
-	src="<%=getServletContext().getContextPath()%>/jquery.js"></script>
-<script type="text/javascript"
-	src="<%=getServletContext().getContextPath()%>/swfobject.js"></script>
+<script type="text/javascript" src="<c:url value="/static/jquery.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/static/swfobject.js"/>"></script>
 <script type="text/javascript">
 function logout(){
-	$.get("<%=getServletContext().getContextPath()%>/logout",{},
+	$.get("<c:url value="/logout"/>",{},
 		function(){
 			$("#welcome").slideUp();
 			$("#login").slideDown();
@@ -30,7 +31,7 @@ function playerJoined(){
 var currentTimeout;
 //Sends an AJAX request to login.
 function tryLogin(){
-	$.get("<%=getServletContext().getContextPath()%>/login",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
+	$.get("<c:url value="/login"/>",{'username':$("#username").val(),'password':$("#password").val()},loginSuccess);
 }
 //Called when the AJAX request returns successfully.
 function loginSuccess(data) {
@@ -104,7 +105,7 @@ function makeGameHtml(game,index){
 //Calls getGames and then arranges for this function to be called again.
 function getGamesOnTimer(){getGames();currentTimeout=setTimeout("getGamesOnTimer();",10000);}
 //Sends an AJAX request to the server for the list of games.  Upon successfully retrieving the list of games, calls addAllGames.
-function getGames(){$.get("<%=getServletContext().getContextPath()%>/games", function(data,status,r){addAllGames(data.games)});}
+function getGames(){$.get("<c:url value="/games"/>", function(data,status,r){addAllGames(data.games)});}
 //Clears the list of games, then goes through each game retrieved from the server and adds it to the list of games.
 function addAllGames(games){
 	$("#games").html(""); //Clear the list of games.
@@ -116,16 +117,14 @@ function addAllGames(games){
 //Used to retrieve all necessary information from clue.
 function clueFinishedLoading(){
 	<%if (request.getSession().getAttribute("key") != null) {%>
-	clueswfobject.successfulLogin('<%=request.getSession().getAttribute("username")%>','<%=request.getSession().getAttribute("key")%>');
+	clueswfobject.successfulLogin('<c:out value="${sessionScope.username}"/>'),'<%=request.getSession().getAttribute("key")%>
+	');
 <%}%>
 	}
 	//The actualy swf object upon which we make calls.
 	var clueswfobject;
 	//The player's current username.
-	var username =
-<%=request.getSession().getAttribute("username") == null ? "null"
-					: "\"" + request.getSession().getAttribute("username")
-							+ "\""%>
+	var username = <c:out value="${sessionScope.username}"/>
 	swfobject.registerObject("clue-object", "9.0.0", null, function(e) {
 		if (e.success)
 			clueswfobject = e.ref;
@@ -140,104 +139,119 @@ function clueFinishedLoading(){
 <%}%>
 	});
 </script>
-<link rel="stylesheet"
-	href="<%=getServletContext().getContextPath()%>/index.css"
+<link rel="stylesheet" href="<c:url value="/static/index.css"/>"
 	type="text/css" />
 <title>Clue - Games</title>
 </head>
 <body>
-<div id="left-column" style="width:25%;">
-<div id="welcome" class="content-section"
-	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
+	<div id="left-column" style="width: 25%;">
+		<div id="welcome" class="content-section"
+			<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
 					: ""%>>
-<h1>Welcome <%=request.getSession().getAttribute("username")%></h1>
-<form method="post" action="<%=request.getContextPath()%>/logout-form"
-	onsubmit="return false;"><input type="submit" value="Logout"
-	style="width: 100%;" onclick="logout();" /></form>
-</div>
-<div id="instructions" class="content-section">
-<h1>Instructions</h1>
-<p>Someone has been murdered. There are six people, six weapons, and
-nine rooms in the mansion. Your job is to figure out who committed the
-murder, with what, and where.</p>
-</div>
-</div>
-<div id="right-column">
-<div id="connect-differently" class="content-section">
-<h1>Connect Differently</h1>
-<h2>Telnet</h2>
-<ul id="telnet-connections">
-	<%
-		final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
-				.getNetworkInterfaces();
-		while (networkInterfaces.hasMoreElements()) {
-			final Enumeration<InetAddress> addresses = networkInterfaces
-					.nextElement().getInetAddresses();
-			while (addresses.hasMoreElements()) {
-	%>
-	<li>telnet <%=addresses.nextElement().getHostAddress()%> 8081</li>
-	<%
-		}
-		}
-	%>
-</ul>
-</div>
-</div>
-<div id="mid-column">
-<div id="login" class="content-section"
-	<%=request.getSession().getAttribute("key") == null ? ""
+			<h1>
+				Welcome
+				<%=request.getSession().getAttribute("username")%></h1>
+			<form method="post" action="<c:url value="/logout-form"/>"
+				onsubmit="return false;">
+				<input type="submit" value="Logout" style="width: 100%;"
+					onclick="logout();" />
+			</form>
+		</div>
+		<div id="instructions" class="content-section">
+			<h1>Instructions</h1>
+			<p>Someone has been murdered. There are six people, six weapons,
+				and nine rooms in the mansion. Your job is to figure out who
+				committed the murder, with what, and where.</p>
+		</div>
+	</div>
+	<div id="right-column">
+		<div id="connect-differently" class="content-section">
+			<h1>Connect Differently</h1>
+			<h2>Telnet</h2>
+			<ul id="telnet-connections">
+				<%
+					final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+							.getNetworkInterfaces();
+					while (networkInterfaces.hasMoreElements()) {
+						final Enumeration<InetAddress> addresses = networkInterfaces
+								.nextElement().getInetAddresses();
+						while (addresses.hasMoreElements()) {
+				%>
+				<li>telnet <%=addresses.nextElement().getHostAddress()%> 8081</li>
+				<%
+					}
+					}
+				%>
+			</ul>
+		</div>
+	</div>
+	<div id="mid-column">
+		<div id="login" class="content-section"
+			<%=request.getSession().getAttribute("key") == null ? ""
 					: "style=\"display:none\""%>>
-<div id="login-content">
-<h1>Login</h1>
-<form method="post" action="<%=request.getContextPath()%>/login-form" onsubmit="return false;">
-<table>
-	<tr>
-		<td><label for="username">Username</label></td>
-		<td><input type="text" id="username" name="username" /></td>
-	</tr>
-	<tr>
-		<td><label for="password">Password</label></td>
-		<td><input type="text" id="password" name="password" /></td>
-	</tr>
-	<tr>
-		<td colspan="2"><input type="submit" value="Login"
-			style="width: 100%;" onclick="tryLogin()"></td>
-	</tr>
-</table>
-</form>
-</div>
-</div>
-<div id="games-container" class="content-section"
-	<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
+			<div id="login-content">
+				<h1>Login</h1>
+				<form method="post" action="<c:url value="/login-form"/>"
+					onsubmit="return false;">
+					<table>
+						<tr>
+							<td><label for="username">Username</label>
+							</td>
+							<td><input type="text" id="username" name="username" />
+							</td>
+						</tr>
+						<tr>
+							<td><label for="password">Password</label>
+							</td>
+							<td><input type="text" id="password" name="password" />
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="submit" value="Login"
+								style="width: 100%;" onclick="tryLogin()">
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div id="games-container" class="content-section"
+			<%=request.getSession().getAttribute("key") == null ? "style=\"display:none;\""
 					: ""%>>
-<h1>Games</h1>
-<form method="post"
-	action="<%=request.getContextPath()%>/create-form"
-	onsubmit="return false;">
-<table width="100%">
-	<tr>
-		<td><label for="txtCreateGame">Game name</label></td>
-		<td><input style="width: 100%;" type="text" id="txtCreateGame"
-			name="gameName" /></td>
-		<td><input style="width: 100%;" type="submit" value="Create"
-			onclick="$.get('<%=getServletContext().getContextPath()%>/create',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');" /></td>
-	</tr>
-</table>
-</form>
-<div id="games"></div>
-</div>
-<div id="clue-game" style="margin-bottom: 10px;"><object
-	classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="600"
-	height="600" id="clue-object">
-	<param name="movie"
-		value="<%=getServletContext().getContextPath()%>/application.swf" />
-	<!--[if !IE]>--> <object type="application/x-shockwave-flash"
-		data="<%=getServletContext().getContextPath()%>/application.swf"
-		width="600" height="600"> <!--<![endif]--> <a
-			href="http://www.adobe.com/go/getflashplayer"> <img
-			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
-			alt="Get Adobe Flash player" /> </a> <!--[if !IE]>--> </object> <!--<![endif]-->
-</object></div>
-</div>
+			<h1>Games</h1>
+			<form method="post" action="<c:url value="/create-form"/>"
+				onsubmit="return false;">
+				<table width="100%">
+					<tr>
+						<td><label for="txtCreateGame">Game name</label>
+						</td>
+						<td><input style="width: 100%;" type="text"
+							id="txtCreateGame" name="gameName" />
+						</td>
+						<td><input style="width: 100%;" type="submit" value="Create"
+							onclick="$.get('<c:url value="/create"/>',{'gameName':$('#txtCreateGame').val()},getGames);$('#txtCreateGame').val('');"></input>
+						</td>
+					</tr>
+				</table>
+			</form>
+			<div id="games"></div>
+		</div>
+		<div id="clue-game" style="margin-bottom: 10px;">
+			<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+				width="600" height="600" id="clue-object">
+				<param name="movie" value="<c:url value="/static/application.swf"/>" />
+				<!--[if !IE]>-->
+				<object type="application/x-shockwave-flash"
+					data="<c:url value="/static/application.swf"/>" width="600" height="600">
+					<!--<![endif]-->
+					<a href="http://www.adobe.com/go/getflashplayer"> <img
+						src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+						alt="Get Adobe Flash player" /> </a>
+					<!--[if !IE]>-->
+				</object>
+				<!--<![endif]-->
+			</object>
+		</div>
+	</div>
 </body>
 </html>
