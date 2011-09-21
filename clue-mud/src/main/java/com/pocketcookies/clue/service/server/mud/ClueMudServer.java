@@ -61,7 +61,7 @@ public class ClueMudServer implements Runnable {
 		// Initializing the server socket for telnet clients.
 		logger.info("Creating socket to accept connections.");
 		try {
-			serverSocket = new ServerSocket(8081, 10, null);
+			serverSocket = new ServerSocket(9001, 10, null);
 		} catch (IOException e) {
 			logger.fatal("There was an error creating the socket.", e);
 			throw new ExceptionInInitializerError(e);

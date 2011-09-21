@@ -177,7 +177,7 @@ function clueFinishedLoading(){
 								.nextElement().getInetAddresses();
 						while (addresses.hasMoreElements()) {
 				%>
-				<li>telnet <%=addresses.nextElement().getHostAddress()%> 8081</li>
+				<li>telnet <%=addresses.nextElement().getHostAddress()%> 9001</li>
 				<%
 					}
 					}
