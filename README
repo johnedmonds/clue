@@ -1,7 +1,4 @@
-In order to install clue, you will need Maven.
-Although Maven will be able to download almost everything, it will not be able to download javax.jms which is required to compile (though it should be provided by your container.)
-You will need to download the specification jar and then install it with maven using
-maven install:install-file -Dfile=javax.jms.jar -DartifactId=jms -DgroupId=javax.jms -Dpackaging=jar -Dversion=1.1
+In order to install clue, you will need Maven and a Java compiler.
 
 We also use JNDI for looking up the JMS connection factory and topic.
 We use ActiveMQ during the testing phase but, in theory, you may use anything you want.  In order to set it up in Tomcat (5.5+), you will need to edit context.xml and add
